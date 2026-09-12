@@ -1,0 +1,26 @@
+FleetForge {{ .Chart.AppVersion }} installed as {{ include "fleetforge.fullname" . }}.
+
+It is READ-ONLY. The ClusterRole created by this chart grants get, list, and
+watch — and no mutating verb on any resource. Verify that yourself:
+
+  kubectl auth can-i --list \
+    --as=system:serviceaccount:{{ .Release.Namespace }}:{{ include "fleetforge.serviceAccountName" . }}
+
+Reach the interface (it has no authentication of its own yet, so do not expose
+it):
+
+  kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "fleetforge.fullname" . }} {{ .Values.service.port }}:{{ .Values.service.port }}
+
+{{- if .Values.recording.enabled }}
+
+Recording to {{ .Values.recording.path }}.
+{{- if not .Values.persistence.enabled }}
+
+  WARNING: persistence is disabled, so the event log lives in an emptyDir and
+  dies with the pod. Copy it out before deleting anything:
+
+    kubectl -n {{ .Release.Namespace }} cp \
+      $(kubectl -n {{ .Release.Namespace }} get pod -l app.kubernetes.io/name={{ include "fleetforge.name" . }} -o name | head -1 | cut -d/ -f2):{{ .Values.recording.path }} \
+      ./events.jsonl
+{{- end }}
+{{- end }}

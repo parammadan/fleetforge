@@ -44,3 +44,7 @@ infra/local/.kubeconfig-*
 .idea/
 .vscode/
 *.swp
+
+# Terraform working state
+infra/terraform/.terraform/
+infra/terraform/demo.tfplan

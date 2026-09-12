@@ -1,0 +1,18 @@
+apiVersion: v2
+name: fleetforge
+description: |
+  Evidence-driven Kubernetes node-maintenance intelligence.
+
+  Read-only. This chart creates no role permitting any mutating verb on any
+  resource, and FleetForge constructs no mutating Kubernetes client (ADR-0012).
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+home: https://github.com/parammadan/fleetforge
+sources:
+  - https://github.com/parammadan/fleetforge
+keywords:
+  - kubernetes
+  - maintenance
+  - bottlerocket
+  - brupop

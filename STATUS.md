@@ -1,6 +1,6 @@
 # FleetForge — Status
 
-Last updated: 2026-09-12 · Current milestone: **M4 complete** → M5 awaiting approval
+Last updated: 2026-09-12 · Current milestone: **M4 complete** · M5 prepared, **blocked on AWS credentials**
 
 ## Completed
 
@@ -156,6 +156,53 @@ approval-gated action and has not been run.**
 I had invented and named the actual enum: `Idle`, `StagedAndPerformedUpdate`, `RebootedIntoUpdate`,
 `MonitoringUpdate`, `ErrorReset`. A hand-written CRD would have accepted my wrong guess and the
 error would have surfaced on EKS instead.
+
+### M5 — preparation ✅ · execution ⛔ blocked 2026-09-12
+
+Your rules list five steps before any provisioning. All five were done; the sixth, apply, was not
+reached and would need your approval regardless.
+
+| Step | Result |
+| --- | --- |
+| 1. Read-only identity inspection | ✅ `arn:aws:iam::771965334314:user/pennydata-sink`, region `us-east-2` |
+| 2. Confirm account / profile / region | ⛔ **needs you** — see the blocker below |
+| 3. Present the infrastructure | ✅ `infra/terraform/`, `terraform validate` passes |
+| 4. Explain cost-generating resources | ✅ `infra/terraform/README.md` — ~$0.38/hr, ~$9.20/day |
+| 5. Produce and show the plan | ⚠️ **partial** — 30 resources, then a 403 |
+| 6. Apply | ⛔ not attempted; requires your explicit approval |
+
+**The blocker.** The only AWS credential on this machine is an IAM user named
+`pennydata-sink` — a static-key identity belonging to a different project, scoped to S3. A
+read-only probe: `eks:ListClusters` DENIED · `ec2:DescribeVpcs` DENIED ·
+`ec2:DescribeAvailabilityZones` DENIED · `iam:ListAttachedUserPolicies` DENIED ·
+`s3:ListBuckets` allowed · `sts:GetCallerIdentity` allowed.
+
+`terraform plan` reached `Plan: 30 to add, 0 to change, 0 to destroy` with the four required tags
+applied, then stopped at the first AWS call:
+`UnauthorizedOperation ... user/pennydata-sink is not authorized to perform:
+ec2:DescribeAvailabilityZones`. That count is a floor — everything downstream of the
+availability-zone lookup is unresolved.
+
+**What is ready and verified offline:**
+
+| | |
+| --- | --- |
+| `infra/terraform/` | VPC (2 AZs, 1 NAT), EKS, 3 × `m6g.large` Bottlerocket ARM64. `fmt` clean, `init` resolved, `validate` passes |
+| `deploy/helm/fleetforge/` | `helm lint` passes, 5 resources render. The rendered ClusterRole grants **only** `get, list, watch` — asserted by parsing the rendered output |
+| Cost analysis | Per-item breakdown, plus what was *not* cut and why |
+
+**Two findings from reading Brupop's real manifest that would have cost a day each on EKS:**
+
+1. **Brupop's agent requires the node label `bottlerocket.aws/updater-interface-version=2.0.0`.**
+   Its DaemonSet has a required node affinity on it. Without the label the agent schedules
+   nowhere, Brupop does nothing, and the failure is completely silent. Now set in the node group.
+2. **Brupop requires cert-manager** — its manifest ships `Certificate` and `Issuer` resources. It
+   must be installed first or the Brupop apiserver never becomes ready.
+
+**Note on tooling.** Terraform is no longer in Homebrew core; it moved to `hashicorp/tap` when
+HashiCorp adopted the Business Source License. The configuration uses no Terraform-specific
+syntax and runs unchanged under OpenTofu, which is MPL-2.0 and a better licence fit for an
+Apache-2.0 project. Your brief said Terraform, so Terraform is what is installed and tested.
 
 ## Not done — stated explicitly
 

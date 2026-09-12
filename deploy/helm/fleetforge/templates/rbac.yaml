@@ -1,0 +1,57 @@
+# FleetForge's Kubernetes identity.
+#
+# Three verbs — get, list, watch — and nothing else. No secrets, no configmaps,
+# and no mutating verb on any resource. `scripts/mutation-denial-test.sh` asserts
+# this against a live API server rather than trusting this file.
+#
+# One honest caveat (ADR-0019): this identity can also create
+# SelfSubjectAccessReviews, because Kubernetes grants that to every authenticated
+# principal through the built-in `system:basic-user` role. It is a read-only
+# introspection API that mutates nothing, and it cannot be removed without
+# breaking normal cluster access.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "fleetforge.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "fleetforge.labels" . | nindent 4 }}
+automountServiceAccountToken: true
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "fleetforge.fullname" . }}-reader
+  labels:
+    {{- include "fleetforge.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["nodes", "pods", "namespaces", "events"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "statefulsets", "daemonsets", "replicasets"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["policy"]
+    resources: ["poddisruptionbudgets"]
+    verbs: ["get", "list", "watch"]
+{{- if .Values.brupop.watchCustomResources }}
+  # Brupop is the executor; FleetForge observes it and never writes here.
+  - apiGroups: ["brupop.bottlerocket.aws"]
+    resources: ["bottlerocketshadows"]
+    verbs: ["get", "list", "watch"]
+{{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "fleetforge.fullname" . }}-reader
+  labels:
+    {{- include "fleetforge.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "fleetforge.fullname" . }}-reader
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "fleetforge.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}

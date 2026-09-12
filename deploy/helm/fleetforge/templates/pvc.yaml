@@ -1,0 +1,17 @@
+{{- if and .Values.recording.enabled .Values.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "fleetforge.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "fleetforge.labels" . | nindent 4 }}
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: {{ .Values.persistence.size }}
+  {{- with .Values.persistence.storageClass }}
+  storageClassName: {{ . }}
+  {{- end }}
+{{- end }}

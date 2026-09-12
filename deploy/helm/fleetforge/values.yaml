@@ -1,0 +1,53 @@
+# FleetForge is read-only. There is no value in this file that grants write
+# access, because there is no code path that would use it.
+
+image:
+  repository: ghcr.io/parammadan/fleetforge
+  tag: ""          # defaults to .Chart.AppVersion
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+# Recording to an append-only JSONL event log (ADR-0018).
+#
+# `emptyDir` by default, which means the log dies with the pod. That is the
+# right default for a demonstration — the log is copied out before teardown —
+# and the wrong one for anything continuous. Set persistence.enabled to keep it.
+recording:
+  enabled: true
+  path: /var/lib/fleetforge/events.jsonl
+  description: "fleetforge run"
+
+persistence:
+  enabled: false
+  size: 1Gi
+  storageClass: ""
+
+service:
+  type: ClusterIP
+  port: 8080
+
+# FleetForge has no authentication of its own yet (THREAT_MODEL.md, known gaps),
+# so it must not be exposed. Reach it with:
+#   kubectl -n fleetforge port-forward svc/fleetforge 8080:8080
+ingress:
+  enabled: false
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    memory: 512Mi
+
+# Brupop's custom resources. Harmless to grant when Brupop is absent: FleetForge
+# reports the resource type as "not installed", which is authoritatively empty
+# rather than an error (ADR-0024).
+brupop:
+  watchCustomResources: true
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+podAnnotations: {}

@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "fleetforge.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "fleetforge.labels" . | nindent 4 }}
+spec:
+  # One replica. FleetForge holds an in-memory snapshot and an append-only log;
+  # a second replica would maintain its own copy of both and the two could
+  # disagree about what the cluster looks like. Leader election belongs with the
+  # execution controller, which is deferred (ADR-0012).
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "fleetforge.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "fleetforge.selectorLabels" . | nindent 8 }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ include "fleetforge.serviceAccountName" . }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: fleetforge
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - --bind
+            - 0.0.0.0:{{ .Values.service.port }}
+            {{- if .Values.recording.enabled }}
+            - --record
+            - {{ .Values.recording.path | quote }}
+            - --run-description
+            - {{ .Values.recording.description | quote }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+          # Readiness is the first completed sync, not process start. Serving
+          # before then would answer "no nodes" — true of this process's state,
+          # and a lie about the cluster.
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 5
+            failureThreshold: 12
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: recording
+              mountPath: {{ dir .Values.recording.path }}
+      volumes:
+        - name: recording
+        {{- if and .Values.recording.enabled .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "fleetforge.fullname" . }}
+        {{- else }}
+          emptyDir: {}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
