@@ -118,8 +118,16 @@ module "eks" {
       desired_size = var.node_count
 
       # Pin to a release behind current so Brupop has a real update to perform.
-      # Null launches the latest, which produces a cluster with nothing to do.
-      ami_release_version = var.bottlerocket_release_version
+      #
+      # Both arguments are required. The module resolves the release version as
+      #   use_latest_ami_release_version ? <latest from SSM> : ami_release_version
+      # and it defaults to true, so setting `ami_release_version` alone is
+      # silently discarded and nodes launch on the newest AMI. That failure is
+      # invisible until the demonstration: Brupop correctly finds nothing to
+      # update, and the run has no subject. Caught by reading the plan JSON
+      # rather than trusting the configuration (eks module v21, main.tf:480).
+      use_latest_ami_release_version = var.bottlerocket_release_version == null
+      ami_release_version            = var.bottlerocket_release_version
 
       labels = {
         # Brupop's agent DaemonSet requires this exact label. Its node affinity

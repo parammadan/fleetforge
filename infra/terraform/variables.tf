@@ -24,14 +24,28 @@ variable "cluster_name" {
 
 variable "kubernetes_version" {
   description = <<-EOT
-    EKS control plane version.
+    EKS control plane version. **Must be in standard support.**
 
-    Verify against `aws eks describe-cluster-versions` before applying: EKS
-    supports a moving window, and a version that was current when this was
-    written may be unsupported by the time it runs.
+    This is a cost control, not a preference. A version past its standard
+    support date moves to EKS extended support, billed at $0.60/hr per cluster
+    instead of $0.10 — six times the control-plane cost, for a cluster that is
+    otherwise identical. Checked on 2026-09-12:
+
+      1.36  standard until 2027-08-01   <- chosen
+      1.35  standard until 2027-03-26
+      1.34  standard until 2026-12-01
+      1.33  standard ENDED 2026-07-28   <- extended support, 6x the price
+
+    1.36 also happens to be exactly the version `k8s-openapi` targets, so
+    FleetForge runs against this cluster with no client/server skew at all —
+    unlike the local kind cluster, which is 1.37 (ADR-0022).
+
+    Re-check before applying:
+      aws eks describe-cluster-versions --profile fleetforge \
+        --query 'clusterVersions[].{v:clusterVersion,eol:endOfStandardSupportDate}'
   EOT
   type        = string
-  default     = "1.33"
+  default     = "1.36"
 }
 
 variable "cost_profile" {
@@ -93,7 +107,7 @@ variable "bottlerocket_release_version" {
     and the demonstration has no subject. Find available releases with:
 
       aws ssm get-parameters-by-path \
-        --path /aws/service/bottlerocket/aws-k8s-1.33/arm64 --recursive
+        --path /aws/service/bottlerocket/aws-k8s-1.36/arm64 --recursive
 
     Leaving it null launches the latest, which produces a cluster with no
     pending update.

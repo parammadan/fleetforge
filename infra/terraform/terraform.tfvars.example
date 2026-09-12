@@ -15,7 +15,7 @@ allowed_public_cidr = "203.0.113.4/32"
 
 # A Bottlerocket release BEHIND current, so Brupop has something to update.
 #   aws ssm get-parameters-by-path \
-#     --path /aws/service/bottlerocket/aws-k8s-1.33/arm64 --recursive \
+#     --path /aws/service/bottlerocket/aws-k8s-1.36/arm64 --recursive \
 #     --query 'Parameters[].Name' --profile fleetforge
 #
 # bottlerocket_release_version = "1.19.5-82ec1d16"

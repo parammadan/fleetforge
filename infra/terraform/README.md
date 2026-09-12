@@ -18,6 +18,17 @@ resources before stopping at the first AWS API call — see *Status* below.
 | Node label | `bottlerocket.aws/updater-interface-version=2.0.0` — see below |
 | Tags | `Project=FleetForge`, `Environment=dev`, `ManagedBy=Terraform`, `Owner=Param` on everything, set at the provider |
 
+### The Kubernetes version is a cost control
+
+EKS bills a cluster on a version past its standard support date at **$0.60/hr
+instead of $0.10** — six times the control-plane cost. Checked 2026-09-12:
+1.33's standard support ended 2026-07-28, so the obvious-looking default would
+have quietly cost 6x. Pinned to **1.36**, standard until 2027-08-01, which is
+also exactly the version `k8s-openapi` targets — so there is no client/server
+skew here at all, unlike the local kind cluster (ADR-0022).
+
+Re-check before applying; the window moves.
+
 ### Three decisions worth knowing about
 
 **The node label is load-bearing.** Brupop's agent DaemonSet has a required node
@@ -37,7 +48,7 @@ demonstrate. Find releases with:
 
 ```bash
 aws ssm get-parameters-by-path \
-  --path /aws/service/bottlerocket/aws-k8s-1.33/arm64 --recursive \
+  --path /aws/service/bottlerocket/aws-k8s-1.36/arm64 --recursive \
   --query 'Parameters[].Name' --profile <profile>
 ```
 
