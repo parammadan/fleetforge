@@ -1,58 +1,78 @@
 # FleetForge — Status
 
-Last updated: 2026-09-12 · Current milestone: **M1 complete** → M2 awaiting approval
+Last updated: 2026-09-12 · Current milestone: **M2 complete** → M3 awaiting approval
 
 ## Completed
 
 ### M0 — repository foundation ✅
-Environment inspected (2026-09-12, read-only commands only). Repository created at
-`~/fleetforge`. Documents written: `README`, `VISION`, `ARCHITECTURE`, `THREAT_MODEL`,
-`ROADMAP`, this file, `CONTRIBUTING`, `DEMO`, ADRs 0001–0018, `LICENSE` (Apache-2.0),
-`.gitignore`, CI. Roadmap recut to the five-milestone critical path.
+Environment inspected, repository created, documents and ADRs 0001–0018 written, roadmap recut to
+the five-milestone critical path.
 
 ### M1 — workspace and domain model ✅
-**Actually executed and verified on this machine, 2026-09-12:**
+Rust 1.98.1 pinned; `ff-core` domain model with validated provenance, canonical content hashing,
+and crate-boundary tests. 33 tests.
 
-| Check | Result |
+### M2 — live read-only slice ✅ 2026-09-12
+
+**Environment** (created, running, verified):
+
+| | |
 | --- | --- |
-| Rust toolchain installed | ✅ rustc 1.98.1, pinned in `rust-toolchain.toml` |
-| `cargo build --workspace` | ✅ 4 crates compile |
-| `cargo fmt --all -- --check` | ✅ clean |
-| `cargo clippy --all-targets --all-features -- -D warnings` | ✅ clean |
-| `cargo test --workspace` | ✅ **33 passed, 0 failed** |
-| `cargo deny check` | ✅ advisories, bans, licenses, sources all ok |
-| `target/` disk cost | 443 MB (34 GB free remaining) |
+| Runtime | Docker Desktop 29.6.1 (already installed; Colima not added). 8 CPU / 3918 MiB — met the bar, so **no global settings were changed** |
+| Cluster | `kind` v0.33.0, `fleetforge-dev`, 1 control-plane + 2 workers, all `Ready` |
+| Node image | `kindest/node:v1.37.0@sha256:a1ed56cf…`, verified against both the installed binary and the published v0.33.0 release notes; arm64 confirmed after pull in `infra/local/IMAGES.md` |
+| Demo images | `nginx:1.27-alpine@sha256:65645c7b…`, `pause:3.10@sha256:ee6521f2…`; resolved digests match the pins |
+| Workload | `web` (3 replicas), `api` (1 — a singleton), `node-agent` DaemonSet (2), `web-pdb` with `ALLOWED DISRUPTIONS: 1` |
 
-Crates: `ff-core` (domain model, complete), `ff-collect`, `ff-preflight`, `ff-api`
-(boundaries and traits declared, implementations land in M2/M3).
+**Tests — all actually executed:**
 
-What `ff-core` actually enforces, with tests:
+| Suite | Result |
+| --- | --- |
+| `cargo test --workspace` | ✅ **87 passed, 0 failed** |
+| `cargo test -p ff-collect --test live_cluster -- --ignored` | ✅ **3 passed** against the real cluster |
+| `npm run typecheck` · `npm test` · `npm run build` | ✅ clean · **8 passed** · builds (239 kB JS) |
+| `cargo fmt --check` · `cargo clippy -- -D warnings` · `cargo deny check` | ✅ all clean |
+| `make check` | ✅ **PASS** |
 
-- **Provenance cannot lie.** Fields are private; construction and *deserialization* both
-  validate that a source permits the mode it claims. A hand-edited event log claiming fixture
-  data is `LIVE` fails to deserialize.
-- **Snapshot identity is canonical.** Content hash over sorted facts and sorted JSON keys.
-  Observation timestamps are stripped, so the same cluster state observed twice yields the same
-  identifier; `mode` is *not* stripped, so fixture data can never collide with live data.
-- **Collection status is part of identity.** A snapshot that was forbidden from listing PDBs
-  hashes differently from one that listed them and found none — the two must never be confused.
-  `require_authoritative()` lets an analyzer refuse to guess.
-- **Tampering is detected.** Editing a fact without recomputing the hash fails deserialization.
-- **Crate boundaries are tested, not documented.** `crate_boundaries.rs` fails the build if any
-  crate but `ff-collect` declares `kube`, or if `ff-core` grows an I/O dependency.
-- **A caller cannot assert a status.** `PreflightResult::new` derives Safe/Blocked from the
-  findings and clamps concurrency to 0 when blocked, so a report cannot contradict itself.
+**Requirements, each proven by something that ran:**
 
-## Not done — stated explicitly so nothing is assumed
+| # | Requirement | Evidence |
+| --- | --- | --- |
+| 1–3 | Reproducible pinned kind config, cluster `fleetforge-dev` | `infra/local/kind.yaml`, `IMAGES.md` |
+| 4–6 | Read-only SA, only get/list/watch, no cluster-admin | `infra/local/rbac/`, and `mutation-denial-test.sh`: **60 mutating verb/resource pairs denied, 6 secret/configmap reads denied, 27 required reads allowed** |
+| 7 | No credentials committed | `.gitignore` blocks `infra/local/.kubeconfig-*`, verified with `git check-ignore` |
+| 8 | Real demo namespace with PDB | `kubectl get pdb -n demo` → `ALLOWED DISRUPTIONS 1` |
+| 9–11 | `ff-collect` connected; nodes/pods/deployments/PDBs with provenance, coverage, resourceVersions, timestamps | `fleetforge --once` output; `/api/v1/environment` |
+| 12 | Marked `LIVE` because it is watched | `mode_label: "LIVE"`; fixture run of the *same* state yields a different snapshot id because `mode` is hashed |
+| 13 | External `kubectl scale` appears automatically | `watch-demo.sh`: `webPods` 3 → **5** three seconds after the scale, no refresh, no polling timer |
+| 14 | Pod deletion and recreation appear | same run: 5 → 6 → 5 across delete/recreate |
+| 15 | Identity cannot mutate | `mutation-denial-test.sh` asks the live API server, exits non-zero on any violation |
+| 16 | Denial is `Forbidden`, not an empty list | Real 403 as `fleetforge-restricted`: `PodDisruptionBudget 0 forbidden`, `authoritative false` |
+| 17 | Reconnection, stale, disconnection, forbidden, loading, empty | `resilience-demo.sh` (paused API server → `stale`, counts retained, recovers); `expired-credential-test.sh` (invalid at startup → refuses to start; invalidated mid-run → `degraded`) |
+| 18 | Crate boundaries preserved | 3 boundary tests, now including a **source-level** check that no `kube::` path appears outside `ff-collect`, with a guard against passing vacuously |
+| 19 | `make check` and frontend tests | ✅ above |
+| 20 | Docs updated | ADRs 0019–0023, `DEMO.md`, `ARCHITECTURE.md`, this file |
 
-- No Kubernetes connection attempted. No cluster read, no cluster mutation. `ff-collect`
-  contains a constant and a test, not a client.
-- No analyzers implemented. `ff-preflight` is a trait.
-- No frontend. `web/` is empty.
-- No AWS API call made — **not even `sts get-caller-identity`**. Deferred to M5.
-- **CI has never run.** The workflow is enabled but there is no remote and no push. The
-  cross-architecture hash-stability claim is therefore verified on `aarch64` only.
-- Nothing pushed. 6 local commits.
+**Two defects found and fixed during M2, both worth naming:**
+
+1. **A dead API server looked healthy.** Freshness was measured as "time since the last watch
+   event", but a watch is silent both when nothing is happening and when the connection has died.
+   With the control plane paused, FleetForge reported `authoritative=true` and every kind
+   `in_sync` for the full outage. Followed through, a frozen PDB list reads as "no blockers",
+   which reads as *safe to drain*. Fixed with an independent liveness probe (ADR-0023).
+2. **Unauthorized was reported as unreachable.** Safe, but it would send an operator to debug the
+   network when the fix is to reissue a token. Now distinguished: `degraded` with a credential
+   message versus `stale`.
+
+## Not done — stated explicitly
+
+- **CI has never run.** There is no git remote. The workflow is written and enabled, so the
+  cross-architecture snapshot-hash claim is verified on `aarch64` only.
+- **The UI has not been viewed in a browser.** Typecheck, 8 component tests, and a production
+  build all pass, and the API was verified serving correct data — but no human or headless browser
+  has rendered the page. Playwright coverage of the UI states is planned and not written.
+- No preflight analysis (M3). No AWS call. No Brupop. No cluster mutation capability.
+- `target/` is now **3.7 GB** — more than the 2–3 GB I estimated. 25 GB free.
 
 ## Decisions taken
 
@@ -73,18 +93,21 @@ What `ff-core` actually enforces, with tests:
 
 Nothing has been installed or changed outside `~/fleetforge`. To unblock M1:
 
-Rust is installed. To verify M1 yourself:
+To see it yourself — the cluster is already running:
 
 ```bash
-cd ~/fleetforge && export PATH="$HOME/.cargo/bin:$PATH" && make check
+cd ~/fleetforge && export PATH="$HOME/.cargo/bin:$PATH"
+
+make check                                    # fmt, clippy -D warnings, 87 tests
+./scripts/mutation-denial-test.sh             # proves the identity cannot mutate
+./scripts/watch-demo.sh                       # scale + pod delete appearing live
+./scripts/resilience-demo.sh                  # API server outage handling
+./scripts/expired-credential-test.sh          # credential expiry handling
+
+./target/debug/fleetforge --kubeconfig infra/local/.kubeconfig-fleetforge-reader
+cd web && npm run dev                         # then open http://127.0.0.1:5173
 ```
 
-To unblock M2, when you are ready:
-
-```bash
-brew install kind helm          # local cluster tooling
-```
-
-Approvals needed: **(a)** start M2, **(b)** install Kind/Helm or name an existing context.
+Approvals needed: **(a)** start M3.
 M5 AWS provisioning and every individual `kubectl` change during the demonstration each require
 their own separate approval in-session.

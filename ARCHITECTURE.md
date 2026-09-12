@@ -53,6 +53,20 @@ reports per-kind collection status:
 Also implements `FixtureSource`: loads a recorded snapshot from `fixtures/`, stamping every fact
 `FIXTURE` at construction. Same types, same downstream path, different provenance.
 
+**Connection liveness.** A watch is silent both when the cluster is quiet and when the connection
+is dead, so `ff-collect` probes the API server independently every 5s (ADR-0023). The probe
+outcome is tracked separately from per-kind watch status and composed at the edge:
+
+| Probe result | Effect on an otherwise-current kind | Operator's next step |
+| --- | --- | --- |
+| `Ok` | stays `InSync`; freshness anchor refreshed | — |
+| `Unauthorized` | downgraded to `Degraded` (credential) | reissue the token |
+| `Unreachable` | downgraded to `Stale` | check the network |
+
+Observed counts are **retained** through both failures. Whatever was last seen is still the last
+thing seen; the status is what marks it unusable. Zeroing them would render as "no
+PodDisruptionBudgets", which reads as "no blockers", which reads as safe to drain.
+
 ### `ff-preflight` — analysis engine · *depends on: ff-core*
 Pure: `(ClusterSnapshot, MaintenanceRequest) -> PreflightResult`. Zero I/O, therefore
 deterministic and exhaustively unit-testable. Each analyzer implements one trait and is registered
@@ -173,7 +187,7 @@ Slice endpoints (M2 unless noted):
 
 | Method | Path | Purpose |
 | --- | --- | --- |
-| `GET` | `/api/v1/environment` | mode, cluster id, RBAC probe results, collection status, build info |
+| `GET` | `/api/v1/environment` | mode, cluster id, collection status, connection state, client/server version skew, build info |
 | `GET` | `/api/v1/snapshot` | current `ClusterSnapshot` |
 | `GET` | `/api/v1/nodes`, `/pods`, `/workloads`, `/pdbs` | filtered views |
 | `GET` | `/api/v1/events` | normalized Kubernetes events |
