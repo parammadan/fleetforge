@@ -1,0 +1,115 @@
+# A small, real workload for FleetForge to observe.
+#
+# Images are pinned by digest so the demo is reproducible (ADR-0021). The
+# digests below are multi-architecture index digests resolved from the
+# registries on 2026-09-12; each node pulls the manifest matching its own
+# architecture from the index. The per-architecture digests actually pulled are
+# recorded in infra/local/IMAGES.md after the cluster comes up.
+#
+# Deliberately NOT restrictive: web-pdb allows one disruption. Making it
+# restrictive is Milestone 3's demonstration, and it is done with kubectl at
+# demo time so a reviewer can read the six lines that caused the block.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: demo
+  labels:
+    app.kubernetes.io/part-of: fleetforge-demo
+---
+# Three replicas: enough redundancy that a PDB is meaningful.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: demo
+  labels: { app: web }
+spec:
+  replicas: 3
+  selector:
+    matchLabels: { app: web }
+  template:
+    metadata:
+      labels: { app: web }
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: nginx
+          image: nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 50m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+---
+# One replica: a singleton. Evicting it is an outage for as long as
+# rescheduling takes, whatever any PDB says. M3's singleton analyzer exists for
+# workloads shaped like this one.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: demo
+  labels: { app: api }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: api }
+  template:
+    metadata:
+      labels: { app: api }
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: nginx
+          image: nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 25m
+              memory: 24Mi
+            limits:
+              memory: 48Mi
+---
+# A DaemonSet, because its pods do NOT reschedule elsewhere during a drain.
+# Counting them as needing capacity on the remaining nodes would overstate what
+# a drain requires, and WorkloadKind::reschedules_elsewhere() encodes that.
+# `pause` does nothing and costs almost nothing.
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: node-agent
+  namespace: demo
+  labels: { app: node-agent }
+spec:
+  selector:
+    matchLabels: { app: node-agent }
+  template:
+    metadata:
+      labels: { app: node-agent }
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - name: pause
+          image: registry.k8s.io/pause:3.10@sha256:ee6521f290b2168b6e0935a181d4cff9be1ac3f505666ef0e3c98fae8199917a
+          resources:
+            requests:
+              cpu: 5m
+              memory: 8Mi
+            limits:
+              memory: 16Mi
+---
+# minAvailable 2 of 3 replicas, so disruptionsAllowed is 1.
+# Permissive on purpose. M3 tightens it.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: web-pdb
+  namespace: demo
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels: { app: web }

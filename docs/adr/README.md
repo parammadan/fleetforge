@@ -39,3 +39,6 @@ would justify building the thing**, so "not yet" has a trigger rather than being
 | [0016](0016-recommendation-summary-is-preflight-output.md) | Recommendation summary is preflight output, not a controller | Accepted |
 | [0017](0017-ephemeral-eks-demo-environment.md) | Ephemeral EKS; the artifacts are the deliverable | Accepted |
 | [0018](0018-jsonl-event-log-before-sqlite.md) | Append-only JSONL event log before SQLite | Accepted |
+| [0019](0019-short-lived-credentials-and-expiry-state.md) | Short-lived credentials; expiry is an explicit non-authoritative state | Accepted |
+| [0020](0020-captured-data-is-fixture-on-replay.md) | Data replayed from disk is FIXTURE, whatever its origin | Accepted |
+| [0021](0021-pinned-local-environment.md) | The local environment is pinned by digest and verified | Accepted |

@@ -21,6 +21,10 @@ kubeconfig*
 credentials
 .aws/
 
+# Generated cluster credentials. Short-lived tokens, never committed.
+infra/local/.kubeconfig-*
+*.token
+
 # Terraform
 *.tfstate
 *.tfstate.*

@@ -1,0 +1,26 @@
+# FleetForge local development cluster.
+#
+# Sized for an Apple M1 with 8 GB RAM: one control plane, two workers, and
+# nothing else. No ingress controller, no metrics-server, no Prometheus — see
+# ADR-0009. Two workers is the minimum that makes node maintenance meaningful:
+# with one, "drain this node" has nowhere to reschedule to.
+#
+# Node image pinned by tag AND digest. Verified two ways on 2026-09-12:
+#   1. The digest is embedded in the installed kind v0.33.0 binary
+#      (`strings $(which kind) | grep kindest/node`).
+#   2. The kind v0.33.0 release notes publish this exact tag and digest and
+#      state it is the default node image for this release.
+# Recorded architecture after pull: see infra/local/IMAGES.md.
+#
+# Bring up:  ./scripts/kind-up.sh
+# Tear down: ./scripts/kind-down.sh   (never run automatically)
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: fleetforge-dev
+nodes:
+  - role: control-plane
+    image: kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5
+  - role: worker
+    image: kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5
+  - role: worker
+    image: kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5

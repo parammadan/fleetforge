@@ -1,0 +1,48 @@
+# A deliberately under-privileged identity that exists for exactly one test.
+#
+# Identical to fleetforge-reader, minus the `policy` rule. Running FleetForge as
+# this ServiceAccount must surface
+#   CollectionStatus::Forbidden { verb: "list", resource: "poddisruptionbudgets" }
+# in the interface, and must NOT render as "0 PodDisruptionBudgets".
+#
+# The authoritative proof is the actual 403 returned by the watch, not a
+# SelfSubjectAccessReview result. A permission probe says what the API server
+# thinks it would do; a 403 is what it did.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: fleetforge-restricted
+  namespace: fleetforge-system
+  labels:
+    app.kubernetes.io/part-of: fleetforge
+    fleetforge.dev/purpose: forbidden-state-test
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: fleetforge-restricted
+  labels:
+    app.kubernetes.io/part-of: fleetforge
+rules:
+  - apiGroups: [""]
+    resources: ["nodes", "pods", "namespaces", "events"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "statefulsets", "daemonsets", "replicasets"]
+    verbs: ["get", "list", "watch"]
+  # Intentionally absent: policy/poddisruptionbudgets.
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: fleetforge-restricted
+  labels:
+    app.kubernetes.io/part-of: fleetforge
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: fleetforge-restricted
+subjects:
+  - kind: ServiceAccount
+    name: fleetforge-restricted
+    namespace: fleetforge-system

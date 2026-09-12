@@ -1,0 +1,60 @@
+# The identity FleetForge actually runs as.
+#
+# Three verbs — get, list, watch — and nothing else. No secrets, no configmaps,
+# no create/update/patch/delete on anything. `scripts/mutation-denial-test.sh`
+# asserts this against the live API server rather than trusting the YAML.
+#
+# Caveat, documented rather than worked around (see ADR-0019): this identity can
+# also create SelfSubjectAccessReviews, because Kubernetes grants that to every
+# authenticated principal through the built-in `system:basic-user` ClusterRole.
+# It is a read-only introspection API and mutates nothing, but it is a `create`
+# verb and this file would otherwise imply it is not available.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fleetforge-system
+  labels:
+    app.kubernetes.io/part-of: fleetforge
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: fleetforge-reader
+  namespace: fleetforge-system
+  labels:
+    app.kubernetes.io/part-of: fleetforge
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: fleetforge-reader
+  labels:
+    app.kubernetes.io/part-of: fleetforge
+rules:
+  # Cluster inventory and placement.
+  - apiGroups: [""]
+    resources: ["nodes", "pods", "namespaces", "events"]
+    verbs: ["get", "list", "watch"]
+  # Workload controllers, for owner chains and replica counts.
+  - apiGroups: ["apps"]
+    resources: ["deployments", "statefulsets", "daemonsets", "replicasets"]
+    verbs: ["get", "list", "watch"]
+  # Voluntary-disruption budgets. The reason this whole product exists.
+  - apiGroups: ["policy"]
+    resources: ["poddisruptionbudgets"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: fleetforge-reader
+  labels:
+    app.kubernetes.io/part-of: fleetforge
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: fleetforge-reader
+subjects:
+  - kind: ServiceAccount
+    name: fleetforge-reader
+    namespace: fleetforge-system
