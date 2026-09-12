@@ -24,3 +24,7 @@ becomes an additional implementation, not a rewrite. Audit records are append-on
 - **PostgreSQL from the start.** Correct eventually, heavy now, and on this machine it competes
   with Kind for memory.
 - **No abstraction, SQLite everywhere.** Cheaper today; a migration across the whole codebase later.
+
+> **Amended by [ADR-0018](0018-jsonl-event-log-before-sqlite.md)** — the first `Store`
+> implementation is an append-only JSONL event log; SQLite arrives with the execution
+> controller, which needs concurrent writers and hash-chained audit records.

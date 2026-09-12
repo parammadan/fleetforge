@@ -18,7 +18,21 @@ For Bottlerocket clusters that executor is [Brupop](https://github.com/bottleroc
 
 **Milestone 0 — repository foundation.** Design documents only. There is no implementation yet:
 no Rust code, no frontend, no cluster connection, no AWS resources. See [`STATUS.md`](STATUS.md)
-for exactly what has and has not been done, and [`ROADMAP.md`](ROADMAP.md) for what comes next.
+for exactly what has and has not been done.
+
+## Scope
+
+One polished, correct, end-to-end vertical slice: **read → analyze → recommend → observe →
+report**, proven against a real EKS cluster with real Bottlerocket nodes and a real Brupop update.
+
+FleetForge reads and recommends. Brupop executes. FleetForge observes what Brupop did and scores
+its own prediction against it. No mutating Kubernetes client is constructed anywhere in the slice.
+
+The wave planner, execution controller, host-observability agent, interactive replay, and chaos
+framework are **deliberately deferred** — each with an ADR stating the evidence that would justify
+building it ([0011](docs/adr/0011-defer-wave-planner.md)–[0015](docs/adr/0015-defer-chaos-framework.md)).
+An unfinished subsystem is worse evidence of engineering judgement than a written decision not to
+build one yet.
 
 ## Data modes
 
