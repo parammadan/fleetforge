@@ -1,0 +1,49 @@
+[workspace]
+resolver = "3"
+members = [
+    "crates/ff-core",
+    "crates/ff-collect",
+    "crates/ff-preflight",
+    "crates/ff-api",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.98"
+license = "Apache-2.0"
+repository = "https://github.com/parammadan/fleetforge"
+authors = ["Param Madan"]
+
+[workspace.dependencies]
+ff-core = { path = "crates/ff-core", version = "0.1.0" }
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde", "std"] }
+hex = "0.4"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+thiserror = "2"
+proptest = "1"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+missing_docs = "warn"
+rust_2018_idioms = { level = "warn", priority = -1 }
+
+[workspace.lints.clippy]
+# No panics in normal paths. Tests opt out locally.
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+todo = "deny"
+# Honesty: floating point has no place in a model whose hash must be
+# byte-identical across architectures.
+float_arithmetic = "deny"
+
+[profile.dev]
+# Disk is the binding constraint on the development machine (36 GB free).
+debug = 1
+
+[profile.release]
+lto = "thin"
+strip = true
