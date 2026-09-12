@@ -104,12 +104,49 @@ Teardown is documented here when the environment exists, and is run by hand. Nev
 
 ## Earlier checkpoints
 
-### M2 — live read-only slice
-Start against a Kind cluster. Run `kubectl scale deploy/demo --replicas=5` externally; the UI
-updates with no page refresh and no polling timer. Kill the API server connection; the UI shows
-**disconnected**, then **stale** with an age — not a calm, empty screen. Revoke PDB read
-permission; the UI shows **forbidden**, naming the verb and resource, never "no PDBs". Switch to
-fixture mode; persistent `FIXTURE` chrome appears everywhere and cannot be dismissed.
+### M2 — live read-only slice ✅ executed 2026-09-12
+
+All of the following were run against a real 3-node `kind` cluster
+(`kindest/node:v1.37.0`, arm64) with FleetForge authenticating as the read-only
+`fleetforge-reader` ServiceAccount. Outputs are in `STATUS.md`.
+
+```bash
+./scripts/kind-up.sh                    # cluster + RBAC + demo workload + mutation-denial check
+./scripts/make-kubeconfig.sh fleetforge-reader
+cargo build
+./target/debug/fleetforge --kubeconfig infra/local/.kubeconfig-fleetforge-reader
+cd web && npm install && npm run dev    # http://127.0.0.1:5173
+```
+
+| Script | Proves |
+| --- | --- |
+| `scripts/mutation-denial-test.sh` | FleetForge's identity cannot mutate anything (asks the live API server) |
+| `scripts/watch-demo.sh` | An external `kubectl scale` and a pod delete/recreate appear through the watch, timestamped, with no refresh and no polling timer |
+| `scripts/resilience-demo.sh` | A paused API server becomes **stale** and non-authoritative, with counts retained; recovery returns to `in_sync` |
+| `scripts/expired-credential-test.sh` | An invalid credential at startup refuses to start; one invalidated mid-run becomes **degraded** and non-authoritative |
+| `scripts/capture-fixtures.sh` | Live objects captured, scrubbed, and asserted clean before commit |
+
+**The forbidden state**, run by hand:
+
+```bash
+./scripts/make-kubeconfig.sh fleetforge-restricted
+./target/debug/fleetforge --once --kubeconfig infra/local/.kubeconfig-fleetforge-restricted
+```
+
+`fleetforge-restricted` holds the same role minus `policy/poddisruptionbudgets`. The output shows
+`PodDisruptionBudget 0 forbidden` and `authoritative false` — the count is zero *and the status
+says why*. A tool that rendered this as an empty list would be reporting "no blockers", which
+reads as safe to drain.
+
+**Fixture mode**, which must never masquerade as live:
+
+```bash
+./target/debug/fleetforge --once --fixtures fixtures/captured
+```
+
+Note that the fixture snapshot id differs from the live one even though the underlying cluster
+state is identical: `mode` participates in the content hash, so recorded data can never collide
+with live data (ADR-0003).
 
 ### M3 — preflight on Kind
 Steps 3 through 7 above, on Kind. Everything except Bottlerocket, Brupop, and real traffic is

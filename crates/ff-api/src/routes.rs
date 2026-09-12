@@ -71,6 +71,8 @@ struct Environment {
     authoritative: bool,
     /// Whether the API server answered the most recent liveness probe.
     api_server_reachable: bool,
+    /// `ok`, `unauthorized`, or `unreachable`.
+    connection_state: &'static str,
     /// When the API server was last reached.
     last_contact_at: Option<chrono::DateTime<chrono::Utc>>,
 }
@@ -81,11 +83,13 @@ const CLIENT_TARGET_VERSION: &str = "v1.36";
 async fn environment(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let coverage = state.coverage().await;
     let reachable = state.api_server_reachable();
-    let authoritative = reachable && coverage.iter().all(|c| c.status.is_authoritative());
+    let usable = state.connection_usable();
+    let authoritative = usable && coverage.iter().all(|c| c.status.is_authoritative());
     let snapshot = state.snapshot();
 
     Json(Environment {
         api_server_reachable: reachable,
+        connection_state: state.connection_state(),
         last_contact_at: state.last_contact().await,
         cluster_id: state.cluster_id(),
         mode: state.mode(),
@@ -248,7 +252,8 @@ async fn heartbeat(state: &AppState) -> SseEvent {
     }
     let coverage = state.coverage().await;
     let reachable = state.api_server_reachable();
-    let authoritative = reachable && coverage.iter().all(|c| c.status.is_authoritative());
+    let authoritative =
+        state.connection_usable() && coverage.iter().all(|c| c.status.is_authoritative());
     SseEvent::default()
         .event("heartbeat")
         .json_data(Heartbeat {

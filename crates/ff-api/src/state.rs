@@ -88,6 +88,28 @@ impl AppState {
         }
     }
 
+    /// The most recent liveness-probe outcome, as a label.
+    ///
+    /// `unauthorized` and `unreachable` are both unsafe to analyze against, and
+    /// they are reported separately because they send an operator to different
+    /// fixes.
+    #[must_use]
+    pub fn connection_state(&self) -> &'static str {
+        match &self.source {
+            DataSource::Live(c) => c.connection().state().label(),
+            DataSource::Fixture(_) => "not applicable",
+        }
+    }
+
+    /// Whether the last probe both reached the server and was accepted.
+    #[must_use]
+    pub fn connection_usable(&self) -> bool {
+        match &self.source {
+            DataSource::Live(c) => c.connection().is_usable(),
+            DataSource::Fixture(_) => true,
+        }
+    }
+
     /// When the API server was last reached.
     pub async fn last_contact(&self) -> Option<DateTime<Utc>> {
         match &self.source {
@@ -103,7 +125,7 @@ impl AppState {
     /// from a cluster we can no longer reach is not authoritative, however good
     /// the per-kind statuses look.
     pub async fn authoritative(&self) -> bool {
-        self.api_server_reachable()
+        self.connection_usable()
             && self
                 .coverage()
                 .await

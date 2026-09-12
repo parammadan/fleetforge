@@ -22,7 +22,7 @@ use kube::runtime::reflector::{self, Store};
 use kube::runtime::{WatchStreamExt, watcher};
 use kube::{Api, Client, Resource};
 use serde::de::DeserializeOwned;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicU8, Ordering};
 use tokio::sync::{Mutex, Notify};
 use tokio::task::JoinHandle;
 
@@ -35,7 +35,56 @@ use crate::store::SnapshotStore;
 /// Shared per-kind status, keyed by Kubernetes kind.
 type Trackers = Arc<Mutex<HashMap<String, KindTracker>>>;
 
-/// Whether the API server is currently reachable, and when it last was.
+/// The outcome of the most recent liveness probe.
+///
+/// `Unauthorized` is deliberately distinct from `Unreachable`. Both make the
+/// data non-authoritative, so both are equally safe — but they send an operator
+/// to completely different places. "Unreachable" means check the network;
+/// "unauthorized" means reissue the token. Collapsing them into one flag makes
+/// the safe outcome correct and the diagnosis wrong.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ConnectionState {
+    /// The API server answered.
+    Ok,
+    /// The API server answered and rejected our credential.
+    Unauthorized,
+    /// The API server could not be reached at all.
+    Unreachable,
+}
+
+impl ConnectionState {
+    const OK: u8 = 0;
+    const UNAUTHORIZED: u8 = 1;
+    const UNREACHABLE: u8 = 2;
+
+    const fn as_u8(self) -> u8 {
+        match self {
+            Self::Ok => Self::OK,
+            Self::Unauthorized => Self::UNAUTHORIZED,
+            Self::Unreachable => Self::UNREACHABLE,
+        }
+    }
+
+    const fn from_u8(v: u8) -> Self {
+        match v {
+            Self::OK => Self::Ok,
+            Self::UNAUTHORIZED => Self::Unauthorized,
+            _ => Self::Unreachable,
+        }
+    }
+
+    /// A short label for the interface.
+    #[must_use]
+    pub const fn label(self) -> &'static str {
+        match self {
+            Self::Ok => "ok",
+            Self::Unauthorized => "unauthorized",
+            Self::Unreachable => "unreachable",
+        }
+    }
+}
+
+/// Whether the API server is answering, and when it last did.
 ///
 /// Tracked separately from per-kind watch status on purpose. A watch reports
 /// what it last saw; this reports whether we can still talk to the cluster at
@@ -43,25 +92,38 @@ type Trackers = Arc<Mutex<HashMap<String, KindTracker>>>;
 /// good data on a transient blip.
 #[derive(Debug)]
 pub struct Connection {
-    reachable: AtomicBool,
+    state: AtomicU8,
     last_contact: Mutex<Option<chrono::DateTime<Utc>>>,
 }
 
 impl Connection {
     fn new() -> Self {
         Self {
-            reachable: AtomicBool::new(true),
+            state: AtomicU8::new(ConnectionState::OK),
             last_contact: Mutex::new(None),
         }
     }
 
-    /// Whether the last liveness probe reached the API server.
+    /// The most recent probe outcome.
     #[must_use]
-    pub fn is_reachable(&self) -> bool {
-        self.reachable.load(Ordering::Relaxed)
+    pub fn state(&self) -> ConnectionState {
+        ConnectionState::from_u8(self.state.load(Ordering::Relaxed))
     }
 
-    /// When the API server was last reached.
+    /// Whether the API server answered the last probe at all, regardless of
+    /// whether it accepted our credential.
+    #[must_use]
+    pub fn is_reachable(&self) -> bool {
+        !matches!(self.state(), ConnectionState::Unreachable)
+    }
+
+    /// Whether the last probe both reached the server and was accepted.
+    #[must_use]
+    pub fn is_usable(&self) -> bool {
+        matches!(self.state(), ConnectionState::Ok)
+    }
+
+    /// When the API server last accepted a probe.
     pub async fn last_contact(&self) -> Option<chrono::DateTime<Utc>> {
         *self.last_contact.lock().await
     }
@@ -114,20 +176,29 @@ impl Collector {
     /// to drain.
     pub async fn coverage(&self) -> Vec<KindCoverage> {
         let now = Utc::now();
-        let reachable = self.connection.is_reachable();
+        let connection = self.connection.state();
         let last_contact = self.connection.last_contact().await;
         let trackers = self.trackers.lock().await;
         let mut coverage: Vec<KindCoverage> = trackers
             .values()
             .map(|t| {
                 let mut status = t.status_at(now);
-                if let (false, ff_core::CollectionStatus::InSync { synced_at }) =
-                    (reachable, &status)
-                {
+                if let ff_core::CollectionStatus::InSync { synced_at } = &status {
                     let anchor = last_contact.unwrap_or(*synced_at);
-                    status = ff_core::CollectionStatus::Stale {
-                        last_current_at: anchor,
-                        age_seconds: now.signed_duration_since(anchor).num_seconds(),
+                    status = match connection {
+                        ConnectionState::Ok => status.clone(),
+                        // The server is answering; it is refusing us. Say so,
+                        // because the fix is to reissue a token, not to go
+                        // looking at the network.
+                        ConnectionState::Unauthorized => ff_core::CollectionStatus::Degraded {
+                            degraded_since: anchor,
+                            error: "the Kubernetes credential is missing, invalid, or expired"
+                                .to_owned(),
+                        },
+                        ConnectionState::Unreachable => ff_core::CollectionStatus::Stale {
+                            last_current_at: anchor,
+                            age_seconds: now.signed_duration_since(anchor).num_seconds(),
+                        },
                     };
                 }
                 KindCoverage {
@@ -399,8 +470,11 @@ fn spawn_liveness_probe(
                 Ok(Ok(_)) => {
                     consecutive_failures = 0;
                     let now = Utc::now();
-                    if !connection.reachable.swap(true, Ordering::Relaxed) {
-                        tracing::info!("API server reachable again");
+                    let previous = connection
+                        .state
+                        .swap(ConnectionState::OK, Ordering::Relaxed);
+                    if previous != ConnectionState::OK {
+                        tracing::info!("API server answering again");
                     }
                     *connection.last_contact.lock().await = Some(now);
                     let mut guard = trackers.lock().await;
@@ -408,15 +482,31 @@ fn spawn_liveness_probe(
                         tracker.confirm_still_current(now);
                     }
                 }
-                _ => {
+                outcome => {
                     consecutive_failures = consecutive_failures.saturating_add(1);
-                    if consecutive_failures >= failures_before_disconnected
-                        && connection.reachable.swap(false, Ordering::Relaxed)
-                    {
-                        tracing::warn!(
-                            failures = consecutive_failures,
-                            "API server unreachable; collected data is no longer current"
-                        );
+                    // A 401 means the server is there and is refusing us — a
+                    // different problem with a different fix from a network
+                    // failure, so it gets a different state.
+                    let next = match &outcome {
+                        Ok(Err(err)) if http_code(err) == Some(401) => {
+                            ConnectionState::Unauthorized
+                        }
+                        _ => ConnectionState::Unreachable,
+                    };
+                    if consecutive_failures >= failures_before_disconnected {
+                        let previous = connection.state.swap(next.as_u8(), Ordering::Relaxed);
+                        if previous != next.as_u8() {
+                            match next {
+                                ConnectionState::Unauthorized => tracing::warn!(
+                                    "the Kubernetes credential was rejected; \
+                                     collected data is no longer current"
+                                ),
+                                _ => tracing::warn!(
+                                    failures = consecutive_failures,
+                                    "API server unreachable; collected data is no longer current"
+                                ),
+                            }
+                        }
                     }
                 }
             }
@@ -720,6 +810,42 @@ mod tests {
             }
             other => panic!("expected Forbidden, got {other:?}"),
         }
+    }
+
+    #[test]
+    fn unauthorized_and_unreachable_are_distinct_connection_states() {
+        // Both make the data unusable, so both are equally safe. They are kept
+        // apart because they send an operator to different fixes: reissue a
+        // token, or go look at the network.
+        assert_ne!(ConnectionState::Unauthorized, ConnectionState::Unreachable);
+        assert!(!ConnectionState::Unauthorized.label().is_empty());
+
+        // A rejected credential still means the server answered.
+        let connection = Connection::new();
+        connection
+            .state
+            .store(ConnectionState::UNAUTHORIZED, Ordering::Relaxed);
+        assert!(
+            connection.is_reachable(),
+            "a 401 proves the server is there, so reachability is not the problem"
+        );
+        assert!(
+            !connection.is_usable(),
+            "but the data must not be treated as authoritative"
+        );
+
+        connection
+            .state
+            .store(ConnectionState::UNREACHABLE, Ordering::Relaxed);
+        assert!(!connection.is_reachable());
+        assert!(!connection.is_usable());
+    }
+
+    #[test]
+    fn a_fresh_connection_starts_usable() {
+        let connection = Connection::new();
+        assert_eq!(connection.state(), ConnectionState::Ok);
+        assert!(connection.is_usable());
     }
 
     #[test]
