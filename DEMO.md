@@ -151,3 +151,57 @@ with live data (ADR-0003).
 ### M3 — preflight on Kind
 Steps 3 through 7 above, on Kind. Everything except Bottlerocket, Brupop, and real traffic is
 provable locally for free — which is the point of building in this order.
+
+### M4 — Recording, report, and prediction scoring ✅ executed 2026-09-12
+
+```bash
+kubectl apply -f infra/local/brupop/crd.yaml      # the real upstream CRD
+kubectl apply -f infra/local/brupop/shadows.yaml  # hand-written; see that directory's README
+./scripts/report-demo.sh
+```
+
+Records a session, makes a prediction, causes real disruption, and generates an evidence report
+from the log alone — offline, with no live connection.
+
+Observed output:
+
+```
+prediction   status=safe  predicted evictions=5
+             workloads=demo/api, demo/node-agent, demo/web,
+                       kube-system/kindnet, kube-system/kube-proxy
+disruption   kubectl delete pod web-57f44446c5-fvvkb -n demo
+brupop       status patched RebootedIntoUpdate -> MonitoringUpdate
+
+event log    19 lines
+             snapshot_observed 6 · kubernetes_event 6 · pod_changed 3
+             run_started 1 · preflight_run 1 · pod_removed 1
+             brupop_state_changed 1
+
+report       0 of 1 tested prediction(s) exact, 1 conservative, 0 missed.
+
+  | Predicted at | Nodes                  | Predicted | Observed | D  | Verdict      |
+  | 18:57:15     | fleetforge-dev-worker2 | 5         | 1        | -4 | conservative |
+
+  ### What FleetForge got wrong
+  No workload was disrupted without being predicted.
+
+  ### Over-prediction
+  - predicted but not disrupted — demo/api, demo/node-agent,
+    kube-system/kindnet, kube-system/kube-proxy
+```
+
+**Why "conservative" is the right answer here, and why it is not a good result.** A single pod was
+deleted; FleetForge predicted a whole node being drained. It over-predicted by four workloads, and
+said so. Scoring the prediction *properly* needs a real drain, which is an explicitly
+approval-gated action and has not been run.
+
+The log is the artifact — every line in the report cites a `seq`:
+
+```bash
+jq -r 'select(.event=="pod_removed")' /tmp/fleetforge-run/events.jsonl
+```
+
+**What this does not prove.** Brupop is not installed — only its CRD is, and the
+`BottlerocketShadow` resources are hand-written. This exercises the collection path, the
+normalizer, and transition recording against a real API server. It is not evidence of observing a
+real Bottlerocket update, which needs real Bottlerocket nodes and a running operator: Milestone 5.

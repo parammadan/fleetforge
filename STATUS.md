@@ -1,6 +1,6 @@
 # FleetForge — Status
 
-Last updated: 2026-09-12 · Current milestone: **M3 complete** → M4 awaiting approval
+Last updated: 2026-09-12 · Current milestone: **M4 complete** → M5 awaiting approval
 
 ## Completed
 
@@ -113,6 +113,50 @@ pods, so draining it is blocked by `FF-PDB-002` even under the permissive budget
 a node's pods together while the budget allows one disruption at a time. Same cluster, same
 budget, different node, different answer. I had not set that up; the analyzer found it.
 
+### M4 — recording, Brupop observation, and prediction scoring ✅ 2026-09-12
+
+New crate `ff-record`: append-only JSONL event log, evidence report, prediction scoring.
+Brupop `BottlerocketShadow` collection through kube's dynamic API. New endpoints
+`/api/v1/brupop` and `/api/v1/report`. UI panels for Brupop state and prediction-versus-actual.
+
+| Deliverable | Status |
+| --- | --- |
+| D4 — persisted event JSON | ✅ `/tmp/fleetforge-run/events.jsonl`, one object per line, `jq`-able |
+| D5 — exported evidence report | ✅ Markdown and JSON, generated offline from the log |
+| D6 — prediction versus actual | ⚠️ **machinery complete and exercised; not yet properly tested** — see below |
+| D2 — live Brupop observation | ⚠️ collection path proven; no real Brupop update observed (needs M5) |
+
+**Tests:** `cargo test --workspace` **140 passed** · frontend **16 passed** · `make check` PASS.
+
+**The demonstration** (`./scripts/report-demo.sh`) recorded a run, made a prediction, deleted a
+pod, patched a Brupop shadow, and produced this from the log alone:
+
+```
+0 of 1 tested prediction(s) exact, 1 conservative, 0 missed.
+| 18:57:15 | fleetforge-dev-worker2 | predicted 5 | observed 1 | -4 | conservative |
+Over-prediction: demo/api, demo/node-agent, kube-system/kindnet, kube-system/kube-proxy
+```
+
+That is an honest result and a weak one. FleetForge predicted a full node drain; a single pod was
+deleted. **Scoring the prediction properly needs a real `kubectl drain`, which is an explicitly
+approval-gated action and has not been run.**
+
+**Two decisions worth naming:**
+
+1. **An uninstalled CRD is authoritatively empty** (ADR-0024). Everything else in this project
+   pushes toward "empty means untrustworthy", and applying that here would be wrong: if the
+   resource type does not exist, zero instances is the only possible answer. Treating an absent
+   optional CRD as non-authoritative would mark every Brupop-less cluster permanently incomplete,
+   and a warning that is always on is one nobody reads — which costs the genuine alarms.
+2. **`ClusterSnapshot::new` now takes a struct.** Adding `brupop` would have made it eleven
+   positional arguments, six of them `Vec`s of different fact types — an order a caller could get
+   wrong silently, swapping PDBs for events and getting a snapshot that compiles and lies.
+
+**Using the real Brupop CRD paid for itself immediately.** The upstream CRD rejected a state name
+I had invented and named the actual enum: `Idle`, `StagedAndPerformedUpdate`, `RebootedIntoUpdate`,
+`MonitoringUpdate`, `ErrorReset`. A hand-written CRD would have accepted my wrong guess and the
+error would have surfaced on EKS instead.
+
 ## Not done — stated explicitly
 
 - **CI has never run.** There is no git remote. The workflow is written and enabled, so the
@@ -128,7 +172,12 @@ budget, different node, different answer. I had not set that up; the analyzer fo
 - **No pod anti-affinity or topology-spread analyzer.** Both are modelled in `ff-core` and
   collected by `ff-collect`, but no analyzer reads them yet. `FF-AZ-001/002` covers the zone case
   only.
-- No AWS call. No Brupop. No cluster mutation capability.
+- **No real Brupop.** Only its CRD is installed; the `BottlerocketShadow` objects are
+  hand-written. The collection path is proven against a real API server; observing an actual
+  Bottlerocket update needs M5.
+- **Prediction accuracy is exercised, not measured.** One prediction was scored against a single
+  pod deletion. A real drain is needed, and needs approval.
+- No AWS call. No cluster mutation capability in FleetForge.
 - `target/` is now **4.9 GB**, with 24 GB free. Worth a `cargo clean` before M5, which adds Terraform and container builds.
 
 ## Decisions taken
