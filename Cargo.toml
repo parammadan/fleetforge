@@ -25,6 +25,23 @@ sha2 = "0.10"
 thiserror = "2"
 proptest = "1"
 
+# Kubernetes. Only ff-collect may depend on these (ADR-0008); the boundary
+# tests in ff-core fail the build otherwise.
+#
+# k8s-openapi 0.28 targets at most v1_36 while the local cluster runs v1.37.0.
+# That is a supported +1 client skew, and FleetForge reports it rather than
+# assuming it is harmless — see ADR-0022.
+kube = { version = "4", default-features = false, features = ["client", "runtime", "rustls-tls"] }
+k8s-openapi = { version = "0.28", features = ["v1_36"] }
+
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "time", "signal"] }
+futures = "0.3"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+axum = "0.8"
+tower-http = { version = "0.6", features = ["cors", "trace", "timeout"] }
+ff-collect = { path = "crates/ff-collect", version = "0.1.0" }
+
 [workspace.lints.rust]
 unsafe_code = "forbid"
 missing_docs = "warn"

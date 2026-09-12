@@ -32,7 +32,16 @@ say "2/6  Creating the cluster"
 if kind get clusters 2>/dev/null | grep -qx "$CLUSTER"; then
   echo "  cluster '$CLUSTER' already exists; leaving it alone."
 else
-  kind create cluster --config infra/local/kind.yaml --wait 120s
+  # Observed 2026-09-12: the first creation after the node image is pulled can
+  # fail in kubeadm's wait-control-plane phase. The API server is reachable but
+  # answers empty while etcd is still settling on a cold page cache, and
+  # kubeadm gives up. A second attempt succeeds. Retry once rather than hand
+  # the operator a scary log for a transient condition.
+  if ! kind create cluster --config infra/local/kind.yaml --wait 180s; then
+    echo "  first attempt failed; retrying once (see comment in this script)."
+    kind delete cluster --name "$CLUSTER" >/dev/null 2>&1 || true
+    kind create cluster --config infra/local/kind.yaml --wait 180s
+  fi
 fi
 kubectl config use-context "kind-${CLUSTER}"
 
