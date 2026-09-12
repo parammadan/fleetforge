@@ -129,7 +129,7 @@ budget, different node, different answer. I had not set that up; the analyzer fo
   collected by `ff-collect`, but no analyzer reads them yet. `FF-AZ-001/002` covers the zone case
   only.
 - No AWS call. No Brupop. No cluster mutation capability.
-- `target/` is now **4.5 GB**. Check `df -h` before the next milestone.
+- `target/` is now **4.9 GB**, with 24 GB free. Worth a `cargo clean` before M5, which adds Terraform and container builds.
 
 ## Decisions taken
 
