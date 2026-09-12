@@ -52,21 +52,37 @@ output "node_group_ami_release" {
   value       = var.bottlerocket_release_version
 }
 
+output "cost_breakdown_usd_per_day" {
+  description = <<-EOT
+    Every billed component, per day.
+
+    Hand-entered from published us-east-2 on-demand pricing, not a live pricing
+    API. `cloudwatch_logs` and `cross_az` are estimates that scale with activity;
+    the rest are fixed for a running cluster.
+
+    NOT included, because this configuration does not create them:
+      - Load balancers. A Service of type LoadBalancer would add an NLB at
+        ~$0.0225/hr plus LCUs (~$0.55/day). The demonstration must use
+        `kubectl port-forward` instead. A load balancer created by Kubernetes is
+        also NOT destroyed by `terraform destroy` — the cloud controller made
+        it, so Terraform does not know it exists, and it will outlive the
+        cluster and keep billing.
+      - EBS snapshots, data transfer out to the internet, Route 53.
+  EOT
+  value       = { for k, v in local.cost : k => format("$%.3f", v * 24) }
+}
+
 output "estimated_hourly_cost_usd" {
   description = <<-EOT
-    Rough hourly cost, for orientation only.
-
-    Hand-calculated from published on-demand pricing at the time of writing, not
-    from any live pricing API. Verify against the AWS Pricing Calculator before
-    relying on it, and note it excludes data transfer and EBS snapshots.
+    Total hourly and daily cost. See cost_breakdown_usd_per_day for components.
   EOT
   value = format(
-    "~$%.2f/hr = ~$%.2f/day  [%s profile: EKS $0.10 + %d x %s%s]",
+    "~$%.3f/hr = ~$%.2f/day  [%s profile: %d x %s%s]",
     local.hourly_cost,
     local.hourly_cost * 24,
     var.cost_profile,
     var.node_count,
     local.instance_type,
-    local.lean ? ", no NAT" : " + 1 NAT gateway $0.045",
+    local.lean ? ", public IPs, no NAT" : ", private subnets + NAT",
   )
 }

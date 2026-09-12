@@ -46,6 +46,45 @@ jobs:
       - run: cargo clippy --all-targets --all-features -- -D warnings
       - run: cargo test --workspace
 
+  iac:
+    # Terraform and Helm are as capable of a security mistake as Rust is, and
+    # unlike Rust the mistake is live in an AWS account rather than a test.
+    name: infrastructure static analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.16.1"
+      - name: terraform fmt
+        run: terraform fmt -check -recursive infra/
+      - name: terraform validate
+        run: |
+          for dir in infra/terraform infra/terraform/guardrails; do
+            terraform -chdir="$dir" init -backend=false -input=false
+            terraform -chdir="$dir" validate
+          done
+      - name: helm lint
+        run: helm lint deploy/helm/fleetforge
+      - name: install trivy
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
+            | sh -s -- -b /usr/local/bin
+      - name: trivy config
+        # One target at a time: trivy takes a single scan reference, and
+        # --tf-exclude-downloaded-modules keeps vendored module source and its
+        # examples out of the results.
+        run: |
+          for target in infra/terraform infra/terraform/guardrails deploy/helm/fleetforge; do
+            echo "scanning $target"
+            trivy config "$target" \
+              --severity HIGH,CRITICAL \
+              --tf-exclude-downloaded-modules \
+              --skip-dirs '**/.terraform' \
+              --ignorefile .trivyignore.yaml \
+              --exit-code 1
+          done
+
   deny:
     name: cargo deny
     runs-on: ubuntu-latest

@@ -69,3 +69,16 @@ cat <<'VERIFY'
   are made by the cloud controller, not by Terraform, so Terraform does not know
   to remove them and the VPC delete can hang on them.
 VERIFY
+
+# --- Expected duration -------------------------------------------------------
+#
+# Observed AWS behaviour, not a guess at the total:
+#   node group delete   ~4-6 min   (drains and terminates instances)
+#   EKS control plane   ~8-11 min  (the long pole)
+#   VPC and subnets     ~1-2 min   (blocks until ENIs are released)
+#   TOTAL               ~15-20 min
+#
+# The VPC delete is what hangs when something outside Terraform is still using
+# it — most often a load balancer created by a Kubernetes Service. Delete those
+# Services BEFORE running this, or `terraform destroy` will stall for ~20
+# minutes on DependencyViolation and then fail with the cluster half gone.

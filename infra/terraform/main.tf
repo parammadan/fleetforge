@@ -39,7 +39,44 @@ locals {
   # has, so peering or a VPN never needs thinking about.
   vpc_cidr = "10.42.0.0/16"
 
-  hourly_cost = 0.10 + (var.node_count * local.hourly_instance_cost) + (local.lean ? 0 : 0.045)
+  # Full hourly cost. Published us-east-2 on-demand pricing, hand-entered, NOT
+  # from a live pricing API — verify against the AWS Pricing Calculator.
+  #
+  # The first version of this counted only the control plane, the instances, and
+  # the NAT gateway, and was 13% low. The items below it missed are exactly the
+  # ones that are easy to miss: they are small individually, attached to
+  # resources you did not consciously choose, and invisible until the bill.
+  cost = {
+    # EKS control plane. $0.60/hr instead of $0.10 on a version past standard
+    # support — see the kubernetes_version variable.
+    control_plane = 0.10
+
+    instances = var.node_count * local.hourly_instance_cost
+
+    # Charged since Feb 2024, per address, whether or not it is used. Only
+    # applies to the lean profile, where nodes sit in public subnets.
+    public_ipv4 = local.lean ? var.node_count * 0.005 : 0
+
+    nat_gateway = local.lean ? 0 : 0.045
+
+    # Bottlerocket uses two volumes per node: a small OS volume and a data
+    # volume. gp3 at $0.08/GiB-month.
+    ebs = var.node_count * (4 + 20) * 0.08 / 730
+
+    # One customer-managed key for EKS secrets encryption, $1/month.
+    kms = 1.0 / 730
+
+    # Control-plane logs at $0.50/GB ingested. An idle three-node cluster with
+    # `audit` disabled produces roughly 100 MB/day; this is the least certain
+    # line here and scales with cluster activity.
+    cloudwatch_logs = 0.10 * 0.50 / 24
+
+    # Cross-AZ traffic at $0.01/GB each way, nodes spread over two zones.
+    # A guess for a demonstration workload, and a small one.
+    cross_az = 1.0 * 0.02 / 24
+  }
+
+  hourly_cost = sum(values(local.cost))
 }
 
 module "vpc" {
@@ -81,6 +118,17 @@ module "vpc" {
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 21.0"
+
+  # Control-plane logging. The module defaults to api + audit + authenticator
+  # with 90-day retention, which is wrong for this environment in both
+  # directions: `audit` is by far the highest-volume stream and FleetForge does
+  # not read it, and 90 days of retention on a cluster that lives for three is
+  # paying to store logs for an environment that no longer exists.
+  #
+  # `api` and `authenticator` are kept because they are what you actually want
+  # when an operator says "FleetForge could not see the PodDisruptionBudgets".
+  enabled_log_types                      = ["api", "authenticator"]
+  cloudwatch_log_group_retention_in_days = 3
 
   # EKS module v21 dropped the `cluster_` prefix from these arguments.
   name               = var.cluster_name

@@ -1,0 +1,6 @@
+aws_profile = "fleetforge"
+region      = "us-east-2"
+alert_email = "you@example.com"
+
+# Match this to the credits actually remaining; thresholds derive from it.
+credit_balance_usd = 120

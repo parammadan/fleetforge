@@ -1,0 +1,40 @@
+# Documented exceptions for IaC static analysis.
+#
+# Every entry is a deliberate decision with a reason, not a suppressed warning.
+# An exception without a justification is just a disabled check.
+#
+# Scanning excludes .terraform/, which holds downloaded module source and
+# vendored examples — code we do not apply and cannot fix.
+
+misconfigurations:
+  - id: AVD-AWS-0040
+    # "EKS Clusters should have the public access disabled"
+    #
+    # The public endpoint is enabled *and* restricted to a single /32, with
+    # private access also enabled. The operator's laptop has to reach the API
+    # server somehow; the alternatives are a bastion or a VPN, both of which
+    # cost more than this cluster and exist for longer than it will.
+    #
+    # The `allowed_public_cidr` variable refuses 0.0.0.0/0 outright, so the
+    # dangerous version of this cannot be configured by accident.
+    statement: Public endpoint restricted to a single operator /32; private access also enabled.
+
+  - id: AVD-AWS-0041
+    # "EKS cluster should not have open CIDR range for public access"
+    #
+    # Flags the module's generic default. The plan for this configuration shows
+    # public_access_cidrs = ["<operator>/32"], verified before every apply.
+    statement: Verified in the plan as a single /32, never 0.0.0.0/0.
+
+  - id: AVD-AWS-0104
+    # "A security group rule should not allow unrestricted egress"
+    #
+    # Required by the lean profile's design. With no NAT gateway, nodes reach
+    # EKS, ECR, STS, S3, and the Bottlerocket TUF update repositories directly
+    # over the internet gateway. Those endpoints span large, changing AWS IP
+    # ranges; pinning egress to them means VPC endpoints, which cost roughly
+    # $7/month each and would exceed the cluster's own budget.
+    #
+    # Inbound remains closed. This is egress only, from a cluster that lives
+    # for days.
+    statement: Unrestricted egress is required for NAT-less node bootstrap; inbound remains closed.

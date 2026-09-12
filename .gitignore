@@ -30,10 +30,24 @@ infra/local/.kubeconfig-*
 # Terraform
 *.tfstate
 *.tfstate.*
+*.tfstate.backup
+.terraform/
+.terraform.tfstate.lock.info
+# Plans are binary and embed the full resolved configuration, including any
+# value marked sensitive. They are never committed.
+*.tfplan
+*.tfplan.json
+# tfvars carry account-specific values: profile names, source CIDRs.
 *.tfvars
 !*.tfvars.example
-.terraform/
-.terraform.lock.hcl
+crash.log
+crash.*.log
+
+# Generated kubeconfigs and any credential material
+kubeconfig
+kubeconfig-*
+*.kubeconfig
+.aws-sso-cache/
 
 # Local data
 *.db
@@ -47,6 +61,4 @@ infra/local/.kubeconfig-*
 .vscode/
 *.swp
 
-# Terraform working state
-infra/terraform/.terraform/
-infra/terraform/demo.tfplan
+
