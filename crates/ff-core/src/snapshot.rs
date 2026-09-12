@@ -620,6 +620,85 @@ pub struct EventFact {
     pub count: i32,
 }
 
+/// Brupop's view of one node, from a `BottlerocketShadow` custom resource.
+///
+/// Collected like any other fact, with the same provenance discipline. Brupop
+/// is the executor (ADR-0012); FleetForge reads its state and never writes it.
+///
+/// Every field is optional because the CRD is not FleetForge's to guarantee.
+/// A cluster without Brupop has none of these, a cluster mid-install may have
+/// partial ones, and a future Brupop version may rename things. Absence is
+/// recorded as absence rather than invented.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct BrupopFact {
+    /// Where this fact came from.
+    pub provenance: Provenance,
+    /// The node this shadow tracks. Brupop names the resource after the node.
+    pub node_name: String,
+    /// The state Brupop reports the node is in.
+    pub current_state: Option<String>,
+    /// The state Brupop is driving the node towards.
+    pub target_state: Option<String>,
+    /// The Bottlerocket version currently running.
+    pub current_version: Option<String>,
+    /// The Bottlerocket version being installed.
+    pub target_version: Option<String>,
+    /// How many times Brupop has seen this node fail.
+    pub crash_count: Option<i64>,
+}
+
+impl BrupopFact {
+    /// A reference to this shadow.
+    #[must_use]
+    pub fn resource_ref(&self) -> ResourceRef {
+        ResourceRef {
+            kind: "BottlerocketShadow".into(),
+            namespace: self.provenance.namespace().map(String::from),
+            name: self.node_name.clone(),
+            uid: self.provenance.uid().map(String::from),
+            resource_version: self.provenance.resource_version().map(String::from),
+        }
+    }
+
+    /// Whether Brupop is actively working on this node.
+    ///
+    /// True when the target state differs from the current one. Used to tell a
+    /// node mid-update from one at rest, without hard-coding Brupop's state
+    /// names — which are Brupop's to change, not ours.
+    #[must_use]
+    pub fn is_in_transition(&self) -> bool {
+        match (&self.current_state, &self.target_state) {
+            (Some(current), Some(target)) => current != target,
+            _ => false,
+        }
+    }
+}
+
+/// The facts a snapshot is built from.
+///
+/// Grouped rather than passed as positional arguments because there were ten
+/// of them and six were `Vec`s of different fact types — an argument order a
+/// caller could get wrong silently, swapping PodDisruptionBudgets for events
+/// and getting a snapshot that compiles and lies. Named fields make that
+/// mistake impossible, and `Default` keeps tests to the facts they care about.
+#[derive(Clone, Debug, Default)]
+pub struct SnapshotFacts {
+    /// Nodes.
+    pub nodes: Vec<NodeFact>,
+    /// Pods.
+    pub pods: Vec<PodFact>,
+    /// Workload controllers.
+    pub workloads: Vec<WorkloadFact>,
+    /// PodDisruptionBudgets.
+    pub pdbs: Vec<PdbFact>,
+    /// Kubernetes events.
+    pub events: Vec<EventFact>,
+    /// Brupop shadows.
+    pub brupop: Vec<BrupopFact>,
+    /// Per-kind collection coverage. As important as the facts themselves.
+    pub coverage: Vec<KindCoverage>,
+}
+
 /// An immutable, content-addressed view of a cluster at one moment.
 ///
 /// Construct with [`ClusterSnapshot::new`], which computes the identifier.
@@ -637,6 +716,7 @@ pub struct ClusterSnapshot {
     workloads: Vec<WorkloadFact>,
     pdbs: Vec<PdbFact>,
     events: Vec<EventFact>,
+    brupop: Vec<BrupopFact>,
     coverage: Vec<KindCoverage>,
 }
 
@@ -652,6 +732,8 @@ struct ClusterSnapshotRepr {
     workloads: Vec<WorkloadFact>,
     pdbs: Vec<PdbFact>,
     events: Vec<EventFact>,
+    #[serde(default)]
+    brupop: Vec<BrupopFact>,
     coverage: Vec<KindCoverage>,
 }
 
@@ -663,12 +745,15 @@ impl TryFrom<ClusterSnapshotRepr> for ClusterSnapshot {
             repr.taken_at,
             repr.mode,
             repr.cluster_id,
-            repr.nodes,
-            repr.pods,
-            repr.workloads,
-            repr.pdbs,
-            repr.events,
-            repr.coverage,
+            SnapshotFacts {
+                nodes: repr.nodes,
+                pods: repr.pods,
+                workloads: repr.workloads,
+                pdbs: repr.pdbs,
+                events: repr.events,
+                brupop: repr.brupop,
+                coverage: repr.coverage,
+            },
         )?;
         if snapshot.snapshot_id != repr.snapshot_id {
             return Err(FleetForgeError::SnapshotIntegrity {
@@ -689,18 +774,21 @@ impl ClusterSnapshot {
     /// # Errors
     ///
     /// Returns an error if the facts cannot be canonically serialized.
-    #[allow(clippy::too_many_arguments)]
     pub fn new(
         taken_at: DateTime<Utc>,
         mode: Mode,
         cluster_id: String,
-        mut nodes: Vec<NodeFact>,
-        mut pods: Vec<PodFact>,
-        mut workloads: Vec<WorkloadFact>,
-        mut pdbs: Vec<PdbFact>,
-        mut events: Vec<EventFact>,
-        mut coverage: Vec<KindCoverage>,
+        facts: SnapshotFacts,
     ) -> Result<Self> {
+        let SnapshotFacts {
+            mut nodes,
+            mut pods,
+            mut workloads,
+            mut pdbs,
+            mut events,
+            mut brupop,
+            mut coverage,
+        } = facts;
         nodes.sort_by(|a, b| a.name.cmp(&b.name));
         pods.sort_by(|a, b| (&a.namespace, &a.name).cmp(&(&b.namespace, &b.name)));
         workloads.sort_by(|a, b| {
@@ -714,6 +802,7 @@ impl ClusterSnapshot {
                 e.first_seen_at,
             )
         });
+        brupop.sort_by(|a, b| a.node_name.cmp(&b.node_name));
         coverage.sort_by(|a, b| a.kind.cmp(&b.kind));
 
         let mut snapshot = Self {
@@ -726,6 +815,7 @@ impl ClusterSnapshot {
             workloads,
             pdbs,
             events,
+            brupop,
             coverage,
         };
         snapshot.snapshot_id = canonical::content_hash(&snapshot)?;
@@ -785,6 +875,18 @@ impl ClusterSnapshot {
     #[must_use]
     pub fn events(&self) -> &[EventFact] {
         &self.events
+    }
+
+    /// Brupop shadows, in canonical order.
+    #[must_use]
+    pub fn brupop(&self) -> &[BrupopFact] {
+        &self.brupop
+    }
+
+    /// The Brupop shadow tracking a node, if there is one.
+    #[must_use]
+    pub fn brupop_for(&self, node_name: &str) -> Option<&BrupopFact> {
+        self.brupop.iter().find(|b| b.node_name == node_name)
     }
 
     /// Per-kind collection coverage.

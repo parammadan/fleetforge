@@ -39,6 +39,8 @@ export function StatusPill({ status }: { status: CollectionStatus }) {
   const cls =
     status.state === "in_sync"
       ? "pill-ok"
+      : status.state === "not_installed"
+        ? "pill-dim"
       : status.state === "forbidden" || status.state === "degraded"
         ? "pill-danger"
         : status.state === "stale"
@@ -67,6 +69,17 @@ export function EmptyState({
         <div className="spinner" aria-hidden="true" />
         <h3>Syncing {kind}</h3>
         <p>The first watch has not completed. This is not an empty cluster.</p>
+      </div>
+    );
+  }
+  if (status.state === "not_installed") {
+    return (
+      <div className="state-block">
+        <h3>No {kind} in this cluster</h3>
+        <p>
+          <code>{status.resource}</code> is not installed. There are genuinely none — this is a
+          fact, not a gap in what FleetForge could see.
+        </p>
       </div>
     );
   }

@@ -291,12 +291,14 @@ pub fn snapshot(
         at(1_000),
         Mode::Live,
         CLUSTER.to_owned(),
-        nodes,
-        pods,
-        workloads,
-        pdbs,
-        Vec::new(),
-        coverage,
+        ff_core::SnapshotFacts {
+            nodes,
+            pods,
+            workloads,
+            pdbs,
+            coverage,
+            ..Default::default()
+        },
     )
     .expect("snapshot builds")
 }

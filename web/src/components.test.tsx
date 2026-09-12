@@ -51,6 +51,22 @@ describe("empty states", () => {
     expect(screen.getByText(/expired/i)).toBeTruthy();
   });
 
+  it("distinguishes 'not installed' from 'forbidden'", () => {
+    // Both show an empty list. Only one of them means there are none, and
+    // conflating them either hides a permission problem or marks every cluster
+    // without Brupop permanently untrustworthy.
+    const absent: CollectionStatus = {
+      state: "not_installed",
+      resource: "bottlerocketshadows",
+    };
+    expect(isAuthoritative(absent)).toBe(true);
+    expect(isAuthoritative(forbidden)).toBe(false);
+
+    render(<EmptyState kind="BottlerocketShadows" status={absent} />);
+    expect(screen.getByText(/genuinely none/i)).toBeTruthy();
+    expect(screen.queryByText(/Not permitted/i)).toBeNull();
+  });
+
   it("treats an expired credential as non-authoritative", () => {
     // An expired token means 401 on every watch, which naively renders as an
     // empty PDB list, which reads as "no blockers", which reads as safe.

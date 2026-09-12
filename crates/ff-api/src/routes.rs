@@ -32,6 +32,8 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/api/v1/workloads", get(workloads))
         .route("/api/v1/pdbs", get(pdbs))
         .route("/api/v1/events", get(events))
+        .route("/api/v1/brupop", get(brupop))
+        .route("/api/v1/report", get(report))
         .route("/api/v1/stream", get(stream))
         .route("/api/v1/preflight", axum::routing::post(preflight))
         .with_state(state)
@@ -169,6 +171,80 @@ async fn events(State(state): State<Arc<AppState>>) -> axum::response::Response 
     respond(&state, |s| s.events().to_vec()).await
 }
 
+/// Brupop's view of the fleet.
+///
+/// An empty list here is meaningful only if the `BottlerocketShadow` coverage
+/// says `in sync`. In a cluster without Brupop it says `not installed`, which
+/// is a different thing entirely and is reported as such.
+async fn brupop(State(state): State<Arc<AppState>>) -> axum::response::Response {
+    respond(&state, |s| s.brupop().to_vec()).await
+}
+
+/// The evidence report for this process's recording.
+///
+/// Generated from the JSONL log in one sequential pass, with no live
+/// connection. Pass `?format=markdown` for the rendered version.
+async fn report(
+    State(state): State<Arc<AppState>>,
+    axum::extract::Query(params): axum::extract::Query<ReportQuery>,
+) -> axum::response::Response {
+    let Some(log) = state.log.as_ref() else {
+        return (
+            StatusCode::NOT_FOUND,
+            Json(ApiError {
+                code: "not_recording",
+                message: "this process was started without --record, so there is no log".to_owned(),
+                retriable: false,
+            }),
+        )
+            .into_response();
+    };
+
+    let entries = match ff_record::read(log.path()) {
+        Ok(entries) => entries,
+        Err(err) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ApiError {
+                    code: "log_unreadable",
+                    message: err.to_string(),
+                    retriable: true,
+                }),
+            )
+                .into_response();
+        }
+    };
+
+    match ff_record::build(&entries) {
+        Ok(report) => {
+            if params.format.as_deref() == Some("markdown") {
+                (
+                    StatusCode::OK,
+                    [("content-type", "text/markdown; charset=utf-8")],
+                    ff_record::to_markdown(&report),
+                )
+                    .into_response()
+            } else {
+                Json(report).into_response()
+            }
+        }
+        Err(err) => (
+            StatusCode::NOT_FOUND,
+            Json(ApiError {
+                code: "empty_run",
+                message: err.to_string(),
+                retriable: true,
+            }),
+        )
+            .into_response(),
+    }
+}
+
+#[derive(Debug, Deserialize, Default)]
+struct ReportQuery {
+    format: Option<String>,
+}
+
 /// What the operator is proposing.
 ///
 /// `snapshot_id` is optional. When supplied, it is checked against the current
@@ -246,6 +322,16 @@ async fn preflight(
     };
 
     let result = ff_preflight::run(&snapshot, &request);
+
+    // Record the prediction so it can be scored against what actually happens.
+    // This is the only reason prediction-versus-actual is possible at all: an
+    // unrecorded prediction can never be checked.
+    if let Some(log) = state.log.as_ref() {
+        let authoritative = state.authoritative().await;
+        log.record(ff_record::RecordedEvent::PreflightRun(Box::new(
+            ff_record::prediction(&result, authoritative),
+        )));
+    }
 
     // A preflight result is a calculation. The envelope says WHAT-IF because
     // the result is WHAT-IF, regardless of how live its inputs were.

@@ -143,7 +143,7 @@ proposed comparison. Full keyboard navigation, accessible colour, responsive lay
 
 ---
 
-## M4 — Brupop observation, event log, and evidence report ⬜ · ~8 days
+## M4 — Brupop observation, event log, and evidence report ✅ · completed 2026-09-12
 
 **Scope.** Collect Brupop custom resources and status alongside cluster state — the same
 normalization and the same provenance discipline as every other fact.

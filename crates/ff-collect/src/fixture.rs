@@ -188,12 +188,16 @@ impl FixtureSource {
             now,
             Mode::Fixture,
             self.cluster_id.clone(),
-            nodes,
-            pods,
-            workloads,
-            pdbs,
-            events,
-            coverage,
+            ff_core::SnapshotFacts {
+                nodes,
+                pods,
+                workloads,
+                pdbs,
+                events,
+                // Brupop shadows are not captured as fixtures yet.
+                brupop: Vec::new(),
+                coverage,
+            },
         )
         .map_err(CollectError::from)
     }

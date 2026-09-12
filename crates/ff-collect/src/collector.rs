@@ -18,6 +18,7 @@ use futures::StreamExt;
 use k8s_openapi::api::apps::v1::{DaemonSet, Deployment, ReplicaSet, StatefulSet};
 use k8s_openapi::api::core::v1::{Event, Namespace, Node, Pod};
 use k8s_openapi::api::policy::v1::PodDisruptionBudget;
+use kube::api::{ApiResource, DynamicObject, GroupVersionKind};
 use kube::runtime::reflector::{self, Store};
 use kube::runtime::{WatchStreamExt, watcher};
 use kube::{Api, Client, Resource};
@@ -255,6 +256,12 @@ fn classify(err: &watcher::Error, verb: &str, resource: &str) -> FailureCause {
             verb: verb.to_owned(),
             resource: resource.to_owned(),
         },
+        // 404 on a list means the resource type does not exist. For a custom
+        // resource that is the normal case in a cluster without the operator
+        // installed, and it is not a permission problem.
+        Some(404) => FailureCause::NotInstalled {
+            resource: resource.to_owned(),
+        },
         Some(code) => FailureCause::WatchError {
             detail: format!("the API server returned HTTP {code} for {verb} {resource}"),
         },
@@ -333,6 +340,78 @@ where
     (reader, task)
 }
 
+/// Spawn a watch for a custom resource read through the dynamic API.
+///
+/// Separate from [`spawn_watch`] because `DynamicObject` carries its
+/// `ApiResource` as a runtime value rather than a type-level default, so the
+/// generic version cannot express it.
+fn spawn_dynamic_watch(
+    api: Api<DynamicObject>,
+    resource: ApiResource,
+    kind: &'static str,
+    resource_plural: &'static str,
+    trackers: Trackers,
+    notify: Arc<Notify>,
+) -> (Store<DynamicObject>, JoinHandle<()>) {
+    // `reflector::store()` requires a `Default` dynamic type, which
+    // `DynamicObject` does not have — its type is the runtime `ApiResource`.
+    // Building the writer directly is the supported way to say that.
+    let writer = reflector::store::Writer::<DynamicObject>::new(resource);
+    let reader = writer.as_reader();
+
+    let task = tokio::spawn(async move {
+        let stream = watcher(api, watcher::Config::default())
+            .reflect(writer)
+            .default_backoff();
+        futures::pin_mut!(stream);
+
+        let mut seen: usize = 0;
+        while let Some(event) = stream.next().await {
+            match event {
+                Ok(ev) => {
+                    match &ev {
+                        watcher::Event::Delete(_) => seen = seen.saturating_sub(1),
+                        watcher::Event::Apply(_) | watcher::Event::InitApply(_) => {
+                            seen = seen.saturating_add(1);
+                        }
+                        watcher::Event::Init => seen = 0,
+                        watcher::Event::InitDone => {}
+                    }
+                    let mut guard = trackers.lock().await;
+                    if let Some(tracker) = guard.get_mut(kind) {
+                        tracker.mark_current(Utc::now(), seen);
+                    }
+                    drop(guard);
+                    notify.notify_one();
+                }
+                Err(err) => {
+                    let cause = classify(&err, "list", resource_plural);
+                    // A missing CRD is expected in most clusters, so it is
+                    // logged at debug rather than warned about on a loop.
+                    if matches!(cause, FailureCause::NotInstalled { .. }) {
+                        tracing::debug!(kind = kind, "custom resource not installed");
+                    } else {
+                        tracing::warn!(
+                            kind = kind,
+                            cause = cause.label(),
+                            message = %cause.redacted_message(),
+                            "watch failed"
+                        );
+                    }
+                    let mut guard = trackers.lock().await;
+                    if let Some(tracker) = guard.get_mut(kind) {
+                        tracker.mark_failed(cause);
+                    }
+                    drop(guard);
+                    notify.notify_one();
+                }
+            }
+        }
+    });
+
+    (reader, task)
+}
+
 /// Every reflector store the snapshot builder reads from.
 struct Stores {
     nodes: Store<Node>,
@@ -343,6 +422,7 @@ struct Stores {
     replica_sets: Store<ReplicaSet>,
     pdbs: Store<PodDisruptionBudget>,
     events: Store<Event>,
+    brupop: Store<DynamicObject>,
 }
 
 /// Connect and start collecting.
@@ -365,6 +445,7 @@ pub async fn start(config: CollectorConfig) -> Result<Collector, CollectError> {
             ("ReplicaSet", "replicasets"),
             ("PodDisruptionBudget", "poddisruptionbudgets"),
             ("Event", "events"),
+            ("BottlerocketShadow", "bottlerocketshadows"),
         ]
         .into_iter()
         .map(|(kind, plural)| {
@@ -414,6 +495,28 @@ pub async fn start(config: CollectorConfig) -> Result<Collector, CollectError> {
             "poddisruptionbudgets"
         ),
         events: watch_all!(Event, "Event", "events"),
+        brupop: {
+            // Brupop's CRD belongs to Brupop. It may be absent entirely, which
+            // is the normal case in a cluster without Bottlerocket nodes, so
+            // this is watched dynamically and its absence is reported as
+            // "not installed" rather than as an error.
+            let gvk = GroupVersionKind::gvk(
+                normalize::brupop::GROUP,
+                normalize::brupop::VERSION,
+                normalize::brupop::KIND,
+            );
+            let resource = ApiResource::from_gvk_with_plural(&gvk, normalize::brupop::PLURAL);
+            let (store, task) = spawn_dynamic_watch(
+                Api::all_with(client.clone(), &resource),
+                resource,
+                "BottlerocketShadow",
+                normalize::brupop::PLURAL,
+                Arc::clone(&trackers),
+                Arc::clone(&notify),
+            );
+            tasks.push(task);
+            store
+        },
     };
 
     let store = Arc::new(SnapshotStore::default());
@@ -607,22 +710,32 @@ fn spawn_builder(
                 .iter()
                 .map(|e| normalize::event::normalize(e, &ctx("Event")))
                 .collect();
+            let brupop: Vec<_> = stores
+                .brupop
+                .state()
+                .iter()
+                .map(|b| normalize::brupop::normalize(b, &ctx("BottlerocketShadow")))
+                .collect();
 
             // Refresh the observed counts from the reflector stores, which are
             // authoritative, rather than from the incremental tally the watch
             // task keeps.
-            let coverage = refresh_counts(coverage, &nodes, &pods, &workloads, &pdbs, &events);
+            let coverage =
+                refresh_counts(coverage, &nodes, &pods, &workloads, &pdbs, &events, &brupop);
 
             match ClusterSnapshot::new(
                 now,
                 Mode::Live,
                 cluster_id.clone(),
-                nodes,
-                pods,
-                workloads,
-                pdbs,
-                events,
-                coverage,
+                ff_core::SnapshotFacts {
+                    nodes,
+                    pods,
+                    workloads,
+                    pdbs,
+                    events,
+                    brupop,
+                    coverage,
+                },
             ) {
                 Ok(snapshot) => {
                     // A watch burst can settle into state identical to what we
@@ -655,6 +768,7 @@ fn refresh_counts(
     workloads: &[ff_core::WorkloadFact],
     pdbs: &[ff_core::PdbFact],
     events: &[ff_core::EventFact],
+    brupop: &[ff_core::BrupopFact],
 ) -> Vec<KindCoverage> {
     use ff_core::WorkloadKind;
     let count_of = |kind: WorkloadKind| workloads.iter().filter(|w| w.kind == kind).count();
@@ -668,6 +782,7 @@ fn refresh_counts(
             "ReplicaSet" => count_of(WorkloadKind::ReplicaSet),
             "PodDisruptionBudget" => pdbs.len(),
             "Event" => events.len(),
+            "BottlerocketShadow" => brupop.len(),
             _ => entry.observed_count,
         };
     }

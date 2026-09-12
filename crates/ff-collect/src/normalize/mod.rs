@@ -9,6 +9,7 @@
 //! without provenance would not compile, and a fact that reaches it with the
 //! *wrong* provenance would be a lie we could not detect.
 
+pub mod brupop;
 pub mod event;
 pub mod node;
 pub mod pdb;

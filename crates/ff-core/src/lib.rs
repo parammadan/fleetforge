@@ -39,9 +39,10 @@ pub use recommendation::{
     RecommendationSummary, SummaryInputs, WorkloadImpact,
 };
 pub use snapshot::{
-    ClusterSnapshot, ConditionStatus, ContainerFact, EventFact, LabelSelector,
+    BrupopFact, ClusterSnapshot, ConditionStatus, ContainerFact, EventFact, LabelSelector,
     LabelSelectorOperator, LabelSelectorRequirement, NodeCondition, NodeFact, NodeSelectorOperator,
     NodeSelectorRequirement, NodeSelectorTerm, PdbFact, PodAffinityTerm, PodFact, PodPhase,
-    SnapshotId, Taint, TaintEffect, Toleration, TolerationOperator, TopologySpreadConstraint,
-    UnsatisfiableAction, VolumeFact, VolumeKind, WorkloadFact, WorkloadKind,
+    SnapshotFacts, SnapshotId, Taint, TaintEffect, Toleration, TolerationOperator,
+    TopologySpreadConstraint, UnsatisfiableAction, VolumeFact, VolumeKind, WorkloadFact,
+    WorkloadKind,
 };

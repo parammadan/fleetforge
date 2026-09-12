@@ -1,0 +1,33 @@
+# Hand-written BottlerocketShadow resources.
+#
+# These are real API objects, and they describe a fiction: there are no
+# Bottlerocket nodes in this cluster and Brupop is not running. See README.md.
+#
+# They exist to exercise FleetForge's collection and transition recording
+# against a real watch. Named after the kind nodes so the shadow-to-node join
+# is exercised too.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: brupop-bottlerocket-aws
+---
+# A node at rest, already on the target version.
+apiVersion: brupop.bottlerocket.aws/v2
+kind: BottlerocketShadow
+metadata:
+  name: fleetforge-dev-worker
+  namespace: brupop-bottlerocket-aws
+spec:
+  state: Idle
+  version: 1.20.0
+---
+# A node Brupop would be driving through an update: current state differs from
+# the target, so BrupopFact::is_in_transition() is true.
+apiVersion: brupop.bottlerocket.aws/v2
+kind: BottlerocketShadow
+metadata:
+  name: fleetforge-dev-worker2
+  namespace: brupop-bottlerocket-aws
+spec:
+  state: StagedAndPerformedUpdate
+  version: 1.21.0

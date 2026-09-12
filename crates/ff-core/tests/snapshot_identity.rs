@@ -104,12 +104,12 @@ fn snapshot(
         at(taken_at),
         mode,
         "demo-cluster".into(),
-        nodes,
-        pods,
-        Vec::new(),
-        Vec::new(),
-        Vec::new(),
-        coverage,
+        ff_core::SnapshotFacts {
+            nodes,
+            pods,
+            coverage,
+            ..Default::default()
+        },
     )
     .expect("snapshot builds")
 }

@@ -142,6 +142,22 @@ pub enum CollectionStatus {
         /// The resource that was denied, for example `poddisruptionbudgets`.
         resource: String,
     },
+    /// The resource type does not exist in this cluster.
+    ///
+    /// **This is authoritative.** If the CustomResourceDefinition is not
+    /// installed, then "zero of them" is not a guess — it is the only possible
+    /// answer, and it is correct. That separates it sharply from
+    /// [`Forbidden`](Self::Forbidden), where zero means "we could not look".
+    ///
+    /// Getting this wrong in the other direction would be costly in its own
+    /// way: treating an absent optional CRD as non-authoritative would mark
+    /// every cluster without Brupop permanently untrustworthy, and an
+    /// incompleteness warning that is always on is one nobody reads.
+    NotInstalled {
+        /// The resource type that does not exist, for example
+        /// `bottlerocketshadows`.
+        resource: String,
+    },
     /// The watch is failing and the data is no longer being refreshed.
     Degraded {
         /// When it started failing.
@@ -161,12 +177,16 @@ pub enum CollectionStatus {
 impl CollectionStatus {
     /// Whether an analyzer may treat this kind's absence as meaningful.
     ///
-    /// Only [`CollectionStatus::InSync`] qualifies. Under every other status,
-    /// "no PodDisruptionBudgets found" means "we do not know", and an analyzer
-    /// that concludes otherwise is wrong.
+    /// [`InSync`](Self::InSync) qualifies because the watch is current.
+    /// [`NotInstalled`](Self::NotInstalled) qualifies because a resource type
+    /// that does not exist has exactly zero instances — that is a fact, not an
+    /// absence of information.
+    ///
+    /// Every other status means "we do not know", and an analyzer that reads
+    /// them as "there are none" is wrong.
     #[must_use]
     pub const fn is_authoritative(&self) -> bool {
-        matches!(self, Self::InSync { .. })
+        matches!(self, Self::InSync { .. } | Self::NotInstalled { .. })
     }
 
     /// A short human label for the interface.
@@ -175,6 +195,7 @@ impl CollectionStatus {
         match self {
             Self::Syncing => "syncing",
             Self::InSync { .. } => "in sync",
+            Self::NotInstalled { .. } => "not installed",
             Self::Forbidden { .. } => "forbidden",
             Self::Degraded { .. } => "degraded",
             Self::Stale { .. } => "stale",

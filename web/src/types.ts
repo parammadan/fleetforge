@@ -9,6 +9,7 @@ export type Mode = "live" | "what_if" | "replay" | "fixture";
 export type CollectionStatus =
   | { state: "syncing" }
   | { state: "in_sync"; synced_at: string }
+  | { state: "not_installed"; resource: string }
   | { state: "forbidden"; verb: string; resource: string }
   | { state: "degraded"; degraded_since: string; error: string }
   | { state: "stale"; last_current_at: string; age_seconds: number };
@@ -116,6 +117,16 @@ export interface EventFact {
   count: number;
 }
 
+export interface BrupopFact {
+  provenance: Provenance;
+  node_name: string;
+  current_state: string | null;
+  target_state: string | null;
+  current_version: string | null;
+  target_version: string | null;
+  crash_count: number | null;
+}
+
 export interface ClusterSnapshot {
   snapshot_id: string;
   taken_at: string;
@@ -126,6 +137,7 @@ export interface ClusterSnapshot {
   workloads: WorkloadFact[];
   pdbs: PdbFact[];
   events: EventFact[];
+  brupop: BrupopFact[];
   coverage: KindCoverage[];
 }
 
@@ -167,6 +179,8 @@ export function statusLabel(status: CollectionStatus): string {
       return "syncing";
     case "in_sync":
       return "in sync";
+    case "not_installed":
+      return `${status.resource} is not installed`;
     case "forbidden":
       return `forbidden: cannot ${status.verb} ${status.resource}`;
     case "degraded":
@@ -176,9 +190,15 @@ export function statusLabel(status: CollectionStatus): string {
   }
 }
 
-/** Only in_sync means an empty list can be read as "there are none". */
+/**
+ * Whether an empty list can be read as "there are none".
+ *
+ * `in_sync` qualifies because the watch is current. `not_installed` qualifies
+ * because a resource type that does not exist has exactly zero instances —
+ * that is a fact, not an absence of information.
+ */
 export function isAuthoritative(status: CollectionStatus): boolean {
-  return status.state === "in_sync";
+  return status.state === "in_sync" || status.state === "not_installed";
 }
 
 export function formatMillicores(m: number): string {

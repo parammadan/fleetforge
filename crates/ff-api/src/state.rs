@@ -5,6 +5,7 @@ use std::sync::Arc;
 use chrono::{DateTime, Utc};
 use ff_collect::{Collector, SnapshotStore};
 use ff_core::{ClusterSnapshot, KindCoverage, Mode};
+use ff_record::EventLog;
 
 /// Where this process gets its data.
 ///
@@ -25,6 +26,8 @@ pub struct AppState {
     pub started_at: DateTime<Utc>,
     /// Build version.
     pub version: &'static str,
+    /// The event log, when recording is enabled.
+    pub log: Option<Arc<EventLog>>,
 }
 
 impl AppState {

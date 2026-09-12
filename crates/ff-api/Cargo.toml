@@ -22,6 +22,7 @@ path = "src/main.rs"
 ff-core.workspace = true
 ff-collect.workspace = true
 ff-preflight.workspace = true
+ff-record.workspace = true
 axum.workspace = true
 async-stream.workspace = true
 chrono.workspace = true

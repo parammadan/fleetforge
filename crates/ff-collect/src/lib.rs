@@ -46,6 +46,9 @@ pub const WATCHED_KINDS: &[&str] = &[
     "ReplicaSet",
     "PodDisruptionBudget",
     "Event",
+    // Brupop's custom resource. Absent in most clusters, which is reported as
+    // "not installed" rather than as a failure.
+    "BottlerocketShadow",
 ];
 
 #[cfg(test)]

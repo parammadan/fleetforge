@@ -8,6 +8,7 @@
 //! collector and reads snapshots from it — see ADR-0008 and the source-level
 //! boundary test in `ff-core`.
 
+pub mod recorder;
 pub mod routes;
 pub mod state;
 

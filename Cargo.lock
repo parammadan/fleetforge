@@ -480,6 +480,7 @@ dependencies = [
  "ff-collect",
  "ff-core",
  "ff-preflight",
+ "ff-record",
  "futures",
  "serde",
  "serde_json",
@@ -527,6 +528,19 @@ dependencies = [
  "chrono",
  "ff-core",
  "serde_json",
+]
+
+[[package]]
+name = "ff-record"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "ff-core",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror",
+ "tracing",
 ]
 
 [[package]]

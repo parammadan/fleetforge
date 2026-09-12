@@ -19,6 +19,8 @@ use tower_http::trace::TraceLayer;
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 struct Args {
+    record: Option<PathBuf>,
+    run_description: String,
     fixtures: Option<PathBuf>,
     kubeconfig: Option<PathBuf>,
     context: Option<String>,
@@ -28,6 +30,8 @@ struct Args {
 
 fn parse_args() -> Result<Args, String> {
     let mut args = Args {
+        record: None,
+        run_description: "unnamed run".to_owned(),
         fixtures: None,
         kubeconfig: None,
         context: None,
@@ -39,6 +43,10 @@ fn parse_args() -> Result<Args, String> {
     let mut it = std::env::args().skip(1);
     while let Some(arg) = it.next() {
         match arg.as_str() {
+            "--record" => args.record = it.next().map(PathBuf::from),
+            "--run-description" => {
+                args.run_description = it.next().unwrap_or_else(|| "unnamed run".to_owned());
+            }
             "--fixtures" => args.fixtures = it.next().map(PathBuf::from),
             "--kubeconfig" => args.kubeconfig = it.next().map(PathBuf::from),
             "--context" => args.context = it.next(),
@@ -54,7 +62,10 @@ fn parse_args() -> Result<Args, String> {
                      USAGE:\n  \
                        fleetforge [--kubeconfig PATH] [--context NAME] [--bind ADDR]\n  \
                        fleetforge --fixtures DIR\n  \
-                       fleetforge --once            print one snapshot summary and exit\n"
+                       fleetforge --once            print one snapshot summary and exit\n\n\
+                     RECORDING:\n  \
+                       --record PATH                append events to a JSONL log\n  \
+                       --run-description TEXT       what this run is for\n"
                 );
                 std::process::exit(0);
             }
@@ -89,6 +100,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             source: DataSource::Fixture(Arc::new(snapshot)),
             started_at: Utc::now(),
             version: VERSION,
+            log: None,
         })
     } else {
         let config = CollectorConfig {
@@ -104,12 +116,41 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             client_target = "v1.36",
             "connected read-only"
         );
+        let cluster_id = collector.cluster_id().to_owned();
+        let log = match &args.record {
+            Some(path) => {
+                let started = Utc::now();
+                let log = Arc::new(ff_record::EventLog::open(
+                    path,
+                    ff_record::RunId::from_time(started),
+                    ff_core::Mode::Live,
+                )?);
+                log.record(ff_record::RecordedEvent::RunStarted {
+                    description: args.run_description.clone(),
+                    cluster_id: cluster_id.clone(),
+                });
+                tracing::info!(
+                    path = %path.display(),
+                    run_id = %log.run_id(),
+                    "recording to an append-only JSONL log"
+                );
+                Some(log)
+            }
+            None => None,
+        };
+
         Arc::new(AppState {
             source: DataSource::Live(Arc::new(collector)),
             started_at: Utc::now(),
             version: VERSION,
+            log,
         })
     };
+
+    // Start recording before serving, so the log covers the whole session.
+    if let Some(log) = state.log.clone() {
+        ff_api::recorder::spawn(Arc::clone(&state), log);
+    }
 
     if args.once {
         return print_once(&state).await;

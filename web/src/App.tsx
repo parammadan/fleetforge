@@ -10,6 +10,7 @@ import {
   WorkloadsPanel,
 } from "./components";
 import { PreflightWorkspace } from "./PreflightWorkspace";
+import { BrupopPanel, ReportPanel } from "./Report";
 import type { CollectionStatus, KindCoverage } from "./types";
 
 function statusFor(coverage: KindCoverage[], kind: string): CollectionStatus | undefined {
@@ -113,6 +114,10 @@ export default function App() {
               workloads={snapshot.workloads}
               status={statusFor(coverage, "Deployment")}
             />
+            <BrupopPanel
+              shadows={snapshot.brupop ?? []}
+              status={statusFor(coverage, "BottlerocketShadow")}
+            />
             <EnvironmentPanel
               coverage={coverage}
               clusterId={snapshot.cluster_id}
@@ -130,6 +135,9 @@ export default function App() {
                 pods={snapshot.pods}
                 status={statusFor(coverage, "Pod")}
               />
+            </div>
+            <div style={{ gridColumn: "1 / -1" }}>
+              <ReportPanel />
             </div>
             <div style={{ gridColumn: "1 / -1" }}>
               <EventsPanel events={snapshot.events} status={statusFor(coverage, "Event")} />

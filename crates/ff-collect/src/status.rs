@@ -35,6 +35,15 @@ pub enum FailureCause {
         /// A redacted description. Never contains a URL or a token.
         detail: String,
     },
+    /// The custom resource definition is not installed in this cluster.
+    ///
+    /// Distinct from `Forbidden`: nothing is denying access, the resource type
+    /// simply does not exist. Reporting "not installed" as a permission problem
+    /// would send an operator to fix RBAC that is already correct.
+    NotInstalled {
+        /// The resource that is absent.
+        resource: String,
+    },
     /// Anything else the watch reported.
     WatchError {
         /// A redacted description.
@@ -48,6 +57,7 @@ impl FailureCause {
     pub const fn label(&self) -> &'static str {
         match self {
             Self::Forbidden { .. } => "forbidden",
+            Self::NotInstalled { .. } => "not installed",
             Self::Unauthorized => "unauthorized",
             Self::Disconnected { .. } => "disconnected",
             Self::WatchError { .. } => "watch error",
@@ -64,6 +74,9 @@ impl FailureCause {
         match self {
             Self::Forbidden { verb, resource } => {
                 format!("RBAC denies {verb} on {resource}")
+            }
+            Self::NotInstalled { resource } => {
+                format!("{resource} is not installed in this cluster")
             }
             Self::Unauthorized => {
                 "the Kubernetes credential is missing, invalid, or expired".to_owned()
@@ -189,6 +202,11 @@ impl KindTracker {
                     resource: resource.clone(),
                 }
             }
+            TrackerState::Failed(FailureCause::NotInstalled { resource }) => {
+                CollectionStatus::NotInstalled {
+                    resource: resource.clone(),
+                }
+            }
             TrackerState::Failed(cause) => CollectionStatus::Degraded {
                 degraded_since: self.last_current_at.unwrap_or(now),
                 error: cause.redacted_message(),
@@ -289,6 +307,20 @@ mod tests {
             CollectionStatus::Stale { age_seconds, .. } => assert_eq!(age_seconds, 100),
             other => panic!("expected Stale, got {other:?}"),
         }
+    }
+
+    #[test]
+    fn an_absent_custom_resource_is_reported_as_absent_not_broken() {
+        let mut tracker = KindTracker::new("BottlerocketShadow", "bottlerocketshadows");
+        tracker.mark_failed(FailureCause::NotInstalled {
+            resource: "bottlerocketshadows".into(),
+        });
+        let status = tracker.status_at(t(100));
+        assert_eq!(status.label(), "not installed");
+        assert!(
+            status.is_authoritative(),
+            "an uninstalled CRD genuinely has zero instances"
+        );
     }
 
     #[test]

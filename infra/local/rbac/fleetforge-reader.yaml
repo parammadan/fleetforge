@@ -43,6 +43,14 @@ rules:
   - apiGroups: ["policy"]
     resources: ["poddisruptionbudgets"]
     verbs: ["get", "list", "watch"]
+  # Brupop's node state. Read-only: Brupop is the executor and FleetForge
+  # observes it (ADR-0012). Granting read on a CRD that is not installed is
+  # harmless, and it is what lets FleetForge distinguish "Brupop is not here"
+  # from "I am not allowed to look" — which are different problems with
+  # different fixes.
+  - apiGroups: ["brupop.bottlerocket.aws"]
+    resources: ["bottlerocketshadows"]
+    verbs: ["get", "list", "watch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding

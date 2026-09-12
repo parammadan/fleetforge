@@ -106,12 +106,7 @@ mod tests {
                 Utc::now(),
                 Mode::Live,
                 cluster.to_owned(),
-                Vec::new(),
-                Vec::new(),
-                Vec::new(),
-                Vec::new(),
-                Vec::new(),
-                Vec::new(),
+                ff_core::SnapshotFacts::default(),
             )
             .unwrap(),
         )
