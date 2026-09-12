@@ -4,6 +4,7 @@ use std::convert::Infallible;
 use std::sync::Arc;
 use std::time::Duration;
 
+use axum::extract::Json as ExtractJson;
 use axum::extract::State;
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
@@ -13,6 +14,7 @@ use axum::{Json, Router};
 use chrono::Utc;
 use ff_core::{ClusterSnapshot, KindCoverage};
 use futures::stream::Stream;
+use serde::Deserialize;
 use serde::Serialize;
 
 use crate::state::{AppState, DataSource};
@@ -31,6 +33,7 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/api/v1/pdbs", get(pdbs))
         .route("/api/v1/events", get(events))
         .route("/api/v1/stream", get(stream))
+        .route("/api/v1/preflight", axum::routing::post(preflight))
         .with_state(state)
 }
 
@@ -164,6 +167,96 @@ async fn pdbs(State(state): State<Arc<AppState>>) -> axum::response::Response {
 
 async fn events(State(state): State<Arc<AppState>>) -> axum::response::Response {
     respond(&state, |s| s.events().to_vec()).await
+}
+
+/// What the operator is proposing.
+///
+/// `snapshot_id` is optional. When supplied, it is checked against the current
+/// snapshot and a mismatch is rejected rather than silently analyzed against
+/// newer state — the operator asked about a cluster they were looking at, and
+/// answering about a different one is answering a different question.
+#[derive(Debug, Deserialize)]
+struct PreflightRequest {
+    node_names: Vec<String>,
+    #[serde(default = "default_concurrency")]
+    desired_concurrency: u32,
+    #[serde(default)]
+    snapshot_id: Option<String>,
+}
+
+const fn default_concurrency() -> u32 {
+    1
+}
+
+/// Run preflight against the current snapshot.
+///
+/// A POST because the request body carries the node selection and concurrency.
+/// It mutates nothing: it computes over an immutable snapshot and returns.
+async fn preflight(
+    State(state): State<Arc<AppState>>,
+    ExtractJson(body): ExtractJson<PreflightRequest>,
+) -> axum::response::Response {
+    let Some(snapshot) = state.snapshot() else {
+        return (
+            StatusCode::SERVICE_UNAVAILABLE,
+            Json(ApiError {
+                code: "syncing",
+                message: "the first cluster sync has not completed yet".to_owned(),
+                retriable: true,
+            }),
+        )
+            .into_response();
+    };
+
+    let stale_request = body
+        .snapshot_id
+        .as_ref()
+        .is_some_and(|requested| requested != snapshot.snapshot_id().as_str());
+    if stale_request {
+        return (
+            StatusCode::CONFLICT,
+            Json(ApiError {
+                code: "snapshot_changed",
+                message: format!(
+                    "the cluster changed since that snapshot; current is {}",
+                    snapshot.snapshot_id().short()
+                ),
+                retriable: true,
+            }),
+        )
+            .into_response();
+    }
+
+    if body.node_names.is_empty() {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(ApiError {
+                code: "no_nodes_selected",
+                message: "select at least one node to analyze".to_owned(),
+                retriable: false,
+            }),
+        )
+            .into_response();
+    }
+
+    let request = ff_core::MaintenanceRequest {
+        snapshot_id: snapshot.snapshot_id().clone(),
+        node_names: body.node_names,
+        desired_concurrency: body.desired_concurrency,
+    };
+
+    let result = ff_preflight::run(&snapshot, &request);
+
+    // A preflight result is a calculation. The envelope says WHAT-IF because
+    // the result is WHAT-IF, regardless of how live its inputs were.
+    Json(Envelope::new(
+        result.mode(),
+        snapshot.cluster_id(),
+        result.provenance.observed_at(),
+        state.authoritative().await,
+        result,
+    ))
+    .into_response()
 }
 
 /// The live stream.

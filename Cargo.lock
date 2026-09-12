@@ -479,6 +479,7 @@ dependencies = [
  "chrono",
  "ff-collect",
  "ff-core",
+ "ff-preflight",
  "futures",
  "serde",
  "serde_json",
@@ -523,7 +524,9 @@ dependencies = [
 name = "ff-preflight"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "ff-core",
+ "serde_json",
 ]
 
 [[package]]

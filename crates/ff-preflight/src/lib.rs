@@ -1,48 +1,30 @@
-//! Evidence-based preflight analyzers.
+//! Evidence-based preflight analysis.
 //!
 //! Pure functions over a [`ClusterSnapshot`](ff_core::ClusterSnapshot): no I/O,
-//! no clock beyond what the caller supplies, no Kubernetes client. That is what
+//! no Kubernetes client, no clock beyond stamping provenance. That is what
 //! makes the analysis deterministic, exhaustively testable against fixtures,
 //! and developable without a cluster on an 8 GB machine.
 //!
+//! # What this is not
+//!
 //! Version one does not simulate the Kubernetes scheduler and does not claim
 //! to. Each analyzer declares what it proves and what it does not, and every
-//! finding it emits carries those limitations (ADR-0004).
+//! finding it emits carries those limitations (ADR-0004). An aggregate capacity
+//! check proves insufficiency and never proves sufficiency, and it says so in
+//! its own output.
 //!
-//! # Status
+//! # Refusing to guess
 //!
-//! Milestone 1 defines the trait. The analyzers arrive in Milestone 3.
+//! An analyzer whose inputs were not collected authoritatively does not run,
+//! and its absence becomes a blocker. A check that did not run has cleared
+//! nothing — and for PodDisruptionBudgets in particular, an unseen list reads
+//! as "no blockers", which reads as safe to drain.
 
-use ff_core::{ClusterSnapshot, Finding, MaintenanceRequest, Result};
+pub mod analyzer;
+pub mod analyzers;
+pub mod context;
+pub mod engine;
 
-/// One evidence-based check.
-///
-/// Analyzers are independent and registered in a table, so adding a check never
-/// requires editing an existing one.
-pub trait Analyzer {
-    /// Stable identifier prefix for the findings this analyzer emits, for
-    /// example `FF-PDB`.
-    fn id_prefix(&self) -> &'static str;
-
-    /// A one-line description of what this analyzer checks.
-    fn describes(&self) -> &'static str;
-
-    /// The Kubernetes kinds this analyzer's conclusions depend on.
-    ///
-    /// The engine checks coverage for each before running the analyzer. An
-    /// analyzer that needs PodDisruptionBudgets must not report "no blockers"
-    /// when the collector was forbidden from listing them.
-    fn required_kinds(&self) -> &'static [&'static str];
-
-    /// Run the check.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error when the snapshot does not contain the facts this
-    /// analyzer needs to reach a sound conclusion.
-    fn analyze(
-        &self,
-        snapshot: &ClusterSnapshot,
-        request: &MaintenanceRequest,
-    ) -> Result<Vec<Finding>>;
-}
+pub use analyzer::{Analyzer, FindingBuilder};
+pub use context::AnalysisContext;
+pub use engine::run;

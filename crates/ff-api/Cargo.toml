@@ -21,6 +21,7 @@ path = "src/main.rs"
 [dependencies]
 ff-core.workspace = true
 ff-collect.workspace = true
+ff-preflight.workspace = true
 axum.workspace = true
 async-stream.workspace = true
 chrono.workspace = true

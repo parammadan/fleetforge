@@ -9,6 +9,7 @@ import {
   TopologyPanel,
   WorkloadsPanel,
 } from "./components";
+import { PreflightWorkspace } from "./PreflightWorkspace";
 import type { CollectionStatus, KindCoverage } from "./types";
 
 function statusFor(coverage: KindCoverage[], kind: string): CollectionStatus | undefined {
@@ -120,6 +121,9 @@ export default function App() {
               snapshotId={snapshot.snapshot_id}
               version={environment?.version ?? "?"}
             />
+            <div style={{ gridColumn: "1 / -1" }}>
+              <PreflightWorkspace nodes={snapshot.nodes} />
+            </div>
             <div style={{ gridColumn: "1 / -1" }}>
               <TopologyPanel
                 nodes={snapshot.nodes}

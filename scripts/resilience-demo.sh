@@ -44,7 +44,9 @@ probe() {
 }
 
 [ -x "$BIN" ] || { echo "build first: cargo build" >&2; exit 1; }
-[ -f "$KUBECONFIG_PATH" ] || ./scripts/make-kubeconfig.sh fleetforge-reader >/dev/null
+# Always reissue: tokens are short-lived by design (ADR-0019), and a demo
+# that assumes yesterday's credential still works is a demo that fails.
+./scripts/make-kubeconfig.sh fleetforge-reader >/dev/null
 
 say "starting fleetforge"
 "$BIN" --kubeconfig "$KUBECONFIG_PATH" --bind "127.0.0.1:${PORT}" >"$SERVER_LOG" 2>&1 &
