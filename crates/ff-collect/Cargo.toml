@@ -1,0 +1,15 @@
+[package]
+name = "ff-collect"
+description = "Kubernetes collector. The only crate permitted to construct a Kubernetes client."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[dependencies]
+ff-core.workspace = true
+
+[lints]
+workspace = true

@@ -1,60 +1,58 @@
 # FleetForge — Status
 
-Last updated: 2026-09-12 · Current milestone: **M0 — repository foundation** (complete, awaiting review)
+Last updated: 2026-09-12 · Current milestone: **M1 complete** → M2 awaiting approval
 
 ## Completed
 
-- **Environment inspection** (actually executed on this machine, 2026-09-12):
+### M0 — repository foundation ✅
+Environment inspected (2026-09-12, read-only commands only). Repository created at
+`~/fleetforge`. Documents written: `README`, `VISION`, `ARCHITECTURE`, `THREAT_MODEL`,
+`ROADMAP`, this file, `CONTRIBUTING`, `DEMO`, ADRs 0001–0018, `LICENSE` (Apache-2.0),
+`.gitignore`, CI. Roadmap recut to the five-milestone critical path.
 
-  | Tool | Result |
-  | --- | --- |
-  | macOS 26.4, arm64, 8 GB RAM, 8 CPU | ✅ |
-  | Free disk | ⚠️ 35 GB available — a real constraint for Rust `target/` + container images |
-  | Node / npm / pnpm | ✅ v25.8.2 / 11.11.1 / 11.20.0 |
-  | Docker CLI | ✅ v29.6.1 (Docker Desktop) — **daemon not running** |
-  | kubectl | ✅ v1.36.1 — **no contexts configured**, no current context |
-  | AWS CLI | ✅ v2.35.21 — profile `default`, region `us-east-2` |
-  | git | ✅ 2.50.1 · Homebrew ✅ 6.0.20 |
-  | Rust / cargo / rustup | ❌ **not installed** |
-  | Colima / Kind / Helm / Terraform | ❌ **not installed** |
+### M1 — workspace and domain model ✅
+**Actually executed and verified on this machine, 2026-09-12:**
 
-- **Repository created** at `~/fleetforge`, git initialised, no commits yet.
-- **Documents written**: `README`, `VISION`, `ARCHITECTURE`, `THREAT_MODEL`, `ROADMAP`, this file,
-  `CONTRIBUTING`, `DEMO`, ADRs 0001–0018, `LICENSE` (Apache-2.0), `.gitignore`, CI skeleton.
+| Check | Result |
+| --- | --- |
+| Rust toolchain installed | ✅ rustc 1.98.1, pinned in `rust-toolchain.toml` |
+| `cargo build --workspace` | ✅ 4 crates compile |
+| `cargo fmt --all -- --check` | ✅ clean |
+| `cargo clippy --all-targets --all-features -- -D warnings` | ✅ clean |
+| `cargo test --workspace` | ✅ **33 passed, 0 failed** |
+| `cargo deny check` | ✅ advisories, bans, licenses, sources all ok |
+| `target/` disk cost | 443 MB (34 GB free remaining) |
+
+Crates: `ff-core` (domain model, complete), `ff-collect`, `ff-preflight`, `ff-api`
+(boundaries and traits declared, implementations land in M2/M3).
+
+What `ff-core` actually enforces, with tests:
+
+- **Provenance cannot lie.** Fields are private; construction and *deserialization* both
+  validate that a source permits the mode it claims. A hand-edited event log claiming fixture
+  data is `LIVE` fails to deserialize.
+- **Snapshot identity is canonical.** Content hash over sorted facts and sorted JSON keys.
+  Observation timestamps are stripped, so the same cluster state observed twice yields the same
+  identifier; `mode` is *not* stripped, so fixture data can never collide with live data.
+- **Collection status is part of identity.** A snapshot that was forbidden from listing PDBs
+  hashes differently from one that listed them and found none — the two must never be confused.
+  `require_authoritative()` lets an analyzer refuse to guess.
+- **Tampering is detected.** Editing a fact without recomputing the hash fails deserialization.
+- **Crate boundaries are tested, not documented.** `crate_boundaries.rs` fails the build if any
+  crate but `ff-collect` declares `kube`, or if `ff-core` grows an I/O dependency.
+- **A caller cannot assert a status.** `PreflightResult::new` derives Safe/Blocked from the
+  findings and clamps concurrency to 0 when blocked, so a report cannot contradict itself.
 
 ## Not done — stated explicitly so nothing is assumed
 
-- No Rust code, no TypeScript code, no Cargo workspace files.
-- No dependency installed for this project.
-- No Kubernetes connection attempted. No cluster read, no cluster mutation.
-- No AWS API call made — **not even `sts get-caller-identity`**. Deferred until M6 planning.
-- No CI run. The workflow file is a skeleton and has never executed.
-- Nothing committed or pushed.
-
-## In progress
-
-- **Roadmap recut to the critical path** (2026-09-12, at your direction). Five milestones, not
-  eleven. M0 foundation → M1 workspace → M2 live read-only → M3 preflight + recommendation summary
-  → M4 Brupop observation + event log + report → M5 ephemeral EKS run and recording.
-- Five subsystems deferred with ADRs stating the evidence that would justify each: wave planner
-  (0011), execution controller (0012), host agent (0013), replay engine (0014), chaos framework
-  (0015).
-
-## Next (after approval)
-
-1. **M1 — workspace and domain model.** Install Rust, create the cargo workspace (`ff-core`,
-   `ff-collect`, `ff-preflight`, `ff-api`), implement `ff-core` types with tests, get
-   `fmt` + `clippy -D warnings` + `test` green in CI on both architectures. ~4 days.
-2. **M2 — live read-only slice.** Requires separate explicit approval.
-
-## Blockers
-
-| # | Blocker | Needed from Param |
-| --- | --- | --- |
-| B1 | No Rust toolchain | Approval to install `rustup` + stable toolchain (~1.5 GB) |
-| B2 | No Kubernetes cluster | Approval to install Kind + Helm at M2, or the name of an existing context |
-| B3 | 35 GB free disk | Confirmation this is acceptable, or a decision to prune first |
-| B4 | AWS access at M5 | SSO or a named profile. `~/.aws/credentials` currently holds static long-lived keys — I have not read their values and would rather not use them |
+- No Kubernetes connection attempted. No cluster read, no cluster mutation. `ff-collect`
+  contains a constant and a test, not a client.
+- No analyzers implemented. `ff-preflight` is a trait.
+- No frontend. `web/` is empty.
+- No AWS API call made — **not even `sts get-caller-identity`**. Deferred to M5.
+- **CI has never run.** The workflow is enabled but there is no remote and no push. The
+  cross-architecture hash-stability claim is therefore verified on `aarch64` only.
+- Nothing pushed. 6 local commits.
 
 ## Decisions taken
 
@@ -75,14 +73,18 @@ Last updated: 2026-09-12 · Current milestone: **M0 — repository foundation** 
 
 Nothing has been installed or changed outside `~/fleetforge`. To unblock M1:
 
-```bash
-# B1 — Rust toolchain (~1.5 GB). Run yourself, or tell me to run it.
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+Rust is installed. To verify M1 yourself:
 
-# B2 — local cluster tooling, only when we reach M2
-brew install kind helm
+```bash
+cd ~/fleetforge && export PATH="$HOME/.cargo/bin:$PATH" && make check
 ```
 
-Approvals needed: **(a)** install Rust, **(b)** architecture sign-off, **(c)** start M1.
-M2, M5 AWS provisioning, and every individual `kubectl` change during the demonstration each
-require their own separate approval in-session.
+To unblock M2, when you are ready:
+
+```bash
+brew install kind helm          # local cluster tooling
+```
+
+Approvals needed: **(a)** start M2, **(b)** install Kind/Helm or name an existing context.
+M5 AWS provisioning and every individual `kubectl` change during the demonstration each require
+their own separate approval in-session.

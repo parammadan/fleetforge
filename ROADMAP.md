@@ -40,7 +40,7 @@ documents, ADRs. No dependencies installed, no cluster contacted, no AWS call.
 
 ---
 
-## M1 — Workspace and domain model ⬜ · ~4 days
+## M1 — Workspace and domain model ✅ · completed 2026-09-12
 
 **Scope.** Install the Rust toolchain, pinned in `rust-toolchain.toml`. Cargo workspace with four
 crates: `ff-core`, `ff-collect`, `ff-preflight`, `ff-api`. Real types in `ff-core` —
@@ -55,7 +55,10 @@ crates: `ff-core`, `ff-collect`, `ff-preflight`, `ff-api`. Real types in `ff-cor
   property-tested. This is load-bearing: approval binds to a plan which binds to a snapshot id.
 - A test asserts no crate outside `ff-collect` depends on `kube` (ADR-0008).
 
-**Limitations.** Types are unvalidated against real cluster objects until M2.
+**Delivered.** 33 tests green; `fmt`, `clippy -D warnings`, and `cargo deny` all clean.
+
+**Limitations.** Types are unvalidated against real cluster objects until M2. CI has not run —
+there is no remote — so cross-architecture hash stability is verified on `aarch64` only.
 
 ---
 

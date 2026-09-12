@@ -1,0 +1,15 @@
+[package]
+name = "ff-preflight"
+description = "Evidence-based preflight analyzers. Pure functions over a ClusterSnapshot."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[dependencies]
+ff-core.workspace = true
+
+[lints]
+workspace = true
