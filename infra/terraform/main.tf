@@ -16,6 +16,20 @@ data "aws_availability_zones" "available" {
 }
 
 locals {
+  # The lean profile trades network isolation for credit runway. On a free-plan
+  # account that is a defensible trade for a cluster measured in days: a NAT
+  # gateway is about $1/day of defence-in-depth, and the same dollar buys a day
+  # of not having to hurry the teardown.
+  lean = var.cost_profile == "lean"
+
+  instance_type = coalesce(
+    var.node_instance_type,
+    local.lean ? "t4g.medium" : "m6g.large",
+  )
+
+  # Estimated from published us-east-2 on-demand pricing, not a live API.
+  hourly_instance_cost = local.lean ? 0.0336 : 0.077
+
   # Two AZs, not three. Enough for the availability-zone analyzer to have
   # something real to reason about, without a third NAT gateway's worth of cost
   # for a cluster that lives for days.
@@ -24,6 +38,8 @@ locals {
   # A private VPC range unlikely to collide with anything the operator already
   # has, so peering or a VPN never needs thinking about.
   vpc_cidr = "10.42.0.0/16"
+
+  hourly_cost = 0.10 + (var.node_count * local.hourly_instance_cost) + (local.lean ? 0 : 0.045)
 }
 
 module "vpc" {
@@ -37,12 +53,18 @@ module "vpc" {
   private_subnets = [for i, _ in local.azs : cidrsubnet(local.vpc_cidr, 8, i)]
   public_subnets  = [for i, _ in local.azs : cidrsubnet(local.vpc_cidr, 8, i + 100)]
 
-  # Nodes sit in private subnets and reach the internet through NAT. A single
-  # gateway rather than one per AZ: it costs about $1/day instead of $2, and the
-  # availability it gives up does not matter for a cluster that exists for a
+  # Under the isolated profile, nodes sit in private subnets and reach the
+  # internet through a single NAT gateway — one rather than one per AZ, because
+  # the availability that buys does not matter for a cluster that lives for a
   # long afternoon.
-  enable_nat_gateway = true
-  single_nat_gateway = true
+  #
+  # Under the lean profile there is no NAT at all and nodes sit in public
+  # subnets with public IPs. Inbound is still closed by security groups; what is
+  # given up is the second layer, not the first.
+  enable_nat_gateway = !local.lean
+  single_nat_gateway = !local.lean
+
+  map_public_ip_on_launch = local.lean
 
   enable_dns_hostnames = true
   enable_dns_support   = true
@@ -65,7 +87,7 @@ module "eks" {
   kubernetes_version = var.kubernetes_version
 
   vpc_id     = module.vpc.vpc_id
-  subnet_ids = module.vpc.private_subnets
+  subnet_ids = local.lean ? module.vpc.public_subnets : module.vpc.private_subnets
 
   # The public endpoint is what the operator's laptop talks to. It is locked to
   # a single address: see the `allowed_public_cidr` variable, which refuses
@@ -85,7 +107,7 @@ module "eks" {
       # ARM64 Bottlerocket. This is the whole point of the environment: Brupop
       # manages Bottlerocket hosts and nothing else.
       ami_type       = "BOTTLEROCKET_ARM_64"
-      instance_types = [var.node_instance_type]
+      instance_types = [local.instance_type]
       capacity_type  = "ON_DEMAND"
 
       # Fixed size. No autoscaling, because a cluster that quietly adds capacity

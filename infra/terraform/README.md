@@ -41,6 +41,31 @@ aws ssm get-parameters-by-path \
   --query 'Parameters[].Name' --profile <profile>
 ```
 
+## Cost profiles
+
+Set `cost_profile`. Both were computed from the configuration itself
+(`terraform console`), not estimated by hand:
+
+| Profile | Workers | Network | Hourly | Daily | $120 of credits lasts |
+| --- | --- | --- | --- | --- | --- |
+| `lean` (default) | 3 × `t4g.medium` | Public subnets, **no NAT** | $0.2008 | **$4.82** | **24.9 days** |
+| `isolated` | 3 × `m6g.large` | Private subnets, 1 NAT gateway | $0.3760 | **$9.02** | **13.3 days** |
+
+`lean` gives nodes public IPs. Inbound is still closed by security groups; what
+is given up is the second layer, not the first. For a cluster that lives for two
+days that is a defensible trade — and the dollar a day it saves buys a day of
+not having to hurry the teardown.
+
+`isolated` is the shape you would actually run in production, and is the right
+choice if the demonstration is meant to look like production.
+
+### Why this matters more than usual here
+
+On an AWS free-plan account, credits are finite and **account access ends when
+they are depleted**. A forgotten cluster is not an expensive mistake; it is a
+terminal one. That is why the burn rate is a Terraform *output* — visible at plan
+time — rather than a figure in a document nobody re-reads.
+
 ## Cost
 
 Hand-calculated from published `us-east-2` on-demand pricing, **not** from a live

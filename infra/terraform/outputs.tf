@@ -1,3 +1,15 @@
+# Credits on a free-plan account are finite, and access ends when they run out.
+# Surfacing the burn rate as an output means it is in front of the operator at
+# plan time, not discovered in a billing console two weeks later.
+output "credit_runway" {
+  description = "How long a fixed credit balance lasts at this configuration's burn rate."
+  value = format(
+    "$120 of credits lasts ~%.1f days at ~$%.2f/day. Tear down with ./scripts/eks-down.sh.",
+    120.0 / (local.hourly_cost * 24),
+    local.hourly_cost * 24,
+  )
+}
+
 output "cluster_name" {
   description = "EKS cluster name."
   value       = module.eks.cluster_name
@@ -49,9 +61,12 @@ output "estimated_hourly_cost_usd" {
     relying on it, and note it excludes data transfer and EBS snapshots.
   EOT
   value = format(
-    "~$%.2f/hr (EKS control plane $0.10 + %d x %s + 1 NAT gateway $0.045)",
-    0.10 + (var.node_count * 0.077) + 0.045,
+    "~$%.2f/hr = ~$%.2f/day  [%s profile: EKS $0.10 + %d x %s%s]",
+    local.hourly_cost,
+    local.hourly_cost * 24,
+    var.cost_profile,
     var.node_count,
-    var.node_instance_type,
+    local.instance_type,
+    local.lean ? ", no NAT" : " + 1 NAT gateway $0.045",
   )
 }
