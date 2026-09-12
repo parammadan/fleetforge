@@ -58,8 +58,13 @@ fn parse_scaled(input: &str) -> Result<Scaled, QuantityParseError> {
     }
 
     // Decimal digits, kept as an integer plus a decimal shift.
-    let negative = number.starts_with('-');
-    let digits = number.trim_start_matches(['-', '+']);
+    // Exactly one optional sign. `trim_start_matches` would happily accept
+    // "--5" and read it as -5, which is a malformed quantity being silently
+    // given a meaning.
+    let (negative, digits) = match number.strip_prefix('-') {
+        Some(rest) => (true, rest),
+        None => (false, number.strip_prefix('+').unwrap_or(number)),
+    };
     let (int_part, frac_part) = match digits.split_once('.') {
         Some((i, f)) => (i, f),
         None => (digits, ""),
@@ -83,8 +88,8 @@ fn parse_scaled(input: &str) -> Result<Scaled, QuantityParseError> {
     }
     // `value` is now the digits with the decimal point removed; it is therefore
     // 10^frac_len times too large.
-    let mut decimal_shift: i32 = -i32::try_from(frac_part.len())
-        .map_err(|_| err("too many fractional digits"))?;
+    let mut decimal_shift: i32 =
+        -i32::try_from(frac_part.len()).map_err(|_| err("too many fractional digits"))?;
 
     // Suffix: binary multiplier, decimal power of ten, or an exponent.
     let mut binary_shift: u32 = 0;

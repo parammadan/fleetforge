@@ -33,12 +33,15 @@ proptest = "1"
 # assuming it is harmless — see ADR-0022.
 kube = { version = "4", default-features = false, features = ["client", "runtime", "rustls-tls"] }
 k8s-openapi = { version = "0.28", features = ["v1_36"] }
+# kube pulls rustls but leaves the crypto provider ambiguous; pick one explicitly.
+rustls = { version = "0.23", default-features = false, features = ["ring"] }
 
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "time", "signal"] }
 futures = "0.3"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 axum = "0.8"
+async-stream = "0.3"
 tower-http = { version = "0.6", features = ["cors", "trace", "timeout"] }
 ff-collect = { path = "crates/ff-collect", version = "0.1.0" }
 

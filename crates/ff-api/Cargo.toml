@@ -8,10 +8,21 @@ license.workspace = true
 repository.workspace = true
 authors.workspace = true
 
+[lib]
+name = "ff_api"
+path = "src/lib.rs"
+
+# The binary is `fleetforge`, not `ff-api`. The crate is an implementation
+# detail; the command is the product.
+[[bin]]
+name = "fleetforge"
+path = "src/main.rs"
+
 [dependencies]
 ff-core.workspace = true
 ff-collect.workspace = true
 axum.workspace = true
+async-stream.workspace = true
 chrono.workspace = true
 futures.workspace = true
 serde.workspace = true

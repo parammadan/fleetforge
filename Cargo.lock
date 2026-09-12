@@ -474,6 +474,7 @@ checksum = "da7c62ceae207dd37ea5b845da6a0696c799f85e97da1ab5b7910be3c1c80223"
 name = "ff-api"
 version = "0.1.0"
 dependencies = [
+ "async-stream",
  "axum",
  "chrono",
  "ff-collect",
@@ -497,6 +498,7 @@ dependencies = [
  "futures",
  "k8s-openapi",
  "kube",
+ "rustls",
  "serde",
  "serde_json",
  "thiserror",
@@ -1573,6 +1575,7 @@ checksum = "6725596c3f2c3a0aef021139e145d4eafe314a6623e4680ca83852b2c67ab2ba"
 dependencies = [
  "log",
  "once_cell",
+ "ring",
  "rustls-pki-types",
  "rustls-webpki",
  "subtle",

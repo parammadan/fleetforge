@@ -8,10 +8,15 @@
 #    does not make them live, and FixtureSource stamps every fact accordingly.
 #
 # 2. Scrub before committing. Removed below: managedFields, the
-#    last-applied-configuration annotation, node addresses, machineID,
-#    systemUUID, bootID, and kubelet/container-runtime endpoint detail. UIDs are
+#    last-applied-configuration annotation, machineID, systemUUID, bootID, and
+#    every IP address (node addresses, podIP/podIPs, hostIP/hostIPs). UIDs are
 #    pseudonymised deterministically — the model needs their shape and
 #    uniqueness, not their real values.
+#
+#    The local Kind cluster's RFC1918 addresses are not themselves sensitive.
+#    They are stripped because this same script will be pointed at EKS, where
+#    node addresses reveal VPC layout, and a scrub that only runs properly on
+#    the harmless cluster is not a scrub.
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -36,9 +41,19 @@ scrub() {
               select(.key | IN("kubectl.kubernetes.io/last-applied-configuration") | not)))
           else . end
         | if has("addresses") then .addresses = [] else . end
+        | if has("podIP") then .podIP = "10.0.0.0" else . end
+        | if has("hostIP") then .hostIP = "10.0.0.0" else . end
+        | if has("podIPs") then .podIPs = [] else . end
+        | if has("hostIPs") then .hostIPs = [] else . end
         | if has("uid") then .uid |= pseudo_uid else . end
         | map_values(walk_scrub)
       elif type == "array" then map(walk_scrub)
+      elif type == "string" then
+        # Control-plane static pods carry advertise addresses in annotations and
+        # container arguments, so field-by-field stripping is not enough. Redact
+        # any IPv4 literal wherever it appears. Three-component version strings
+        # like "v1.37.0" do not match; four-component addresses do.
+        gsub("\\b(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\b"; "0.0.0.0")
       else . end;
 
     walk_scrub
@@ -65,10 +80,12 @@ capture events                 events.json -A
 
 echo
 echo "Scrub check — these must all report 0:"
-for pattern in managedFields machineID systemUUID bootID last-applied-configuration; do
-  n=$(grep -ro "$pattern" "$OUT" 2>/dev/null | wc -l | tr -d ' ')
+for pattern in managedFields machineID systemUUID bootID last-applied-configuration '172\.1[6-9]\.' '172\.2[0-9]\.' '192\.168\.'; do
+  # grep exits 1 when it finds nothing, which is the success case here.
+  n=$(grep -ro "$pattern" "$OUT" 2>/dev/null | wc -l | tr -d ' ' || true)
+  n=${n:-0}
   printf "  %-32s %s\n" "$pattern" "$n"
-  [ "$n" != "0" ] && { echo "  SCRUB FAILED for $pattern" >&2; exit 1; }
+  if [ "$n" != "0" ]; then echo "  SCRUB FAILED for $pattern" >&2; exit 1; fi
 done
 echo
 echo "Captured fixtures are FIXTURE data. FixtureSource stamps them at"

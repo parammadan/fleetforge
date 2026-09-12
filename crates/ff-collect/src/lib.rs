@@ -1,25 +1,42 @@
 //! Kubernetes collector.
 //!
 //! This crate owns **every** call to the Kubernetes API (ADR-0008). Nothing
-//! else in the workspace may depend on `kube`, and
-//! `tests/crate_boundaries.rs` in `ff-core` fails the build if that changes.
+//! else in the workspace may depend on `kube`, and the boundary tests in
+//! `ff-core` fail the build if that changes — including a source-level check
+//! that no `kube::` path appears outside this crate.
 //!
-//! That single rule is what makes "read-only mode cannot mutate the cluster" a
+//! That rule is what makes "read-only mode cannot mutate the cluster" a
 //! structural property rather than a policy someone has to remember. In the
 //! vertical slice no mutating client is constructed anywhere, because no
 //! execution adapter exists (ADR-0012).
 //!
-//! # Status
+//! # What the collector guarantees
 //!
-//! Milestone 1 defines the boundary. The watchers, normalizers, and
-//! `FixtureSource` arrive in Milestone 2.
+//! It never reports absence it cannot vouch for. A watch that is forbidden, a
+//! credential that expired, a stream that died, and a resource that genuinely
+//! has no objects are four different states, and only the last one is an empty
+//! list. See [`status`] and ADR-0019.
+
+pub mod collector;
+pub mod config;
+pub mod error;
+pub mod fixture;
+pub mod normalize;
+pub mod status;
+pub mod store;
+
+pub use collector::{Collector, start};
+pub use config::CollectorConfig;
+pub use error::CollectError;
+pub use fixture::FixtureSource;
+pub use status::{DEFAULT_STALENESS_BUDGET, FailureCause, KindTracker};
+pub use store::{SnapshotStore, SnapshotUpdate};
 
 /// The Kubernetes kinds the collector watches.
 ///
-/// Declared here in Milestone 1 so the coverage model has something concrete to
-/// check against: a snapshot must carry a
-/// [`KindCoverage`](ff_core::KindCoverage) entry for each of these, and an
-/// analyzer that needs one may refuse to run when it is missing.
+/// A snapshot carries a [`KindCoverage`](ff_core::KindCoverage) entry for each,
+/// so an analyzer can tell the difference between "none exist" and "we could
+/// not look".
 pub const WATCHED_KINDS: &[&str] = &[
     "Node",
     "Pod",
@@ -36,7 +53,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn watched_kinds_are_unique_and_sorted_for_stable_coverage_reporting() {
+    fn watched_kinds_are_unique() {
         let mut sorted = WATCHED_KINDS.to_vec();
         sorted.sort_unstable();
         sorted.dedup();

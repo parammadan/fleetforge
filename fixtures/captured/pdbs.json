@@ -1,0 +1,47 @@
+{
+  "apiVersion": "v1",
+  "items": [
+    {
+      "apiVersion": "policy/v1",
+      "kind": "PodDisruptionBudget",
+      "metadata": {
+        "annotations": {},
+        "creationTimestamp": "2026-09-12T16:08:41Z",
+        "generation": 1,
+        "name": "web-pdb",
+        "namespace": "demo",
+        "resourceVersion": "794",
+        "uid": "fixture-uid-owqyyzm2mdkt"
+      },
+      "spec": {
+        "minAvailable": 2,
+        "selector": {
+          "matchLabels": {
+            "app": "web"
+          }
+        }
+      },
+      "status": {
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-09-12T16:08:48Z",
+            "message": "",
+            "observedGeneration": 1,
+            "reason": "SufficientPods",
+            "status": "True",
+            "type": "DisruptionAllowed"
+          }
+        ],
+        "currentHealthy": 3,
+        "desiredHealthy": 2,
+        "disruptionsAllowed": 1,
+        "expectedPods": 3,
+        "observedGeneration": 1
+      }
+    }
+  ],
+  "kind": "List",
+  "metadata": {
+    "resourceVersion": ""
+  }
+}

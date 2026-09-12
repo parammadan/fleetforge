@@ -131,6 +131,19 @@ impl KindTracker {
         self.observed_count = observed_count;
     }
 
+    /// Confirm the data is still current without a change having occurred.
+    ///
+    /// Only meaningful for a tracker that is already current. A watch sends
+    /// nothing while the cluster is quiet, so without an external confirmation
+    /// there is no way to distinguish "nothing changed" from "the connection
+    /// died" — which is exactly the confusion that makes an interface show a
+    /// stale cluster as a healthy one.
+    pub fn confirm_still_current(&mut self, at: DateTime<Utc>) {
+        if matches!(self.state, TrackerState::Current) {
+            self.last_current_at = Some(at);
+        }
+    }
+
     /// The watch failed.
     ///
     /// The observed count is deliberately **not** reset to zero. Whatever was
@@ -201,7 +214,7 @@ impl KindTracker {
 }
 
 #[cfg(test)]
-#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 mod tests {
     use super::*;
 
@@ -243,7 +256,10 @@ mod tests {
         tracker.mark_failed(FailureCause::Unauthorized);
 
         let status = tracker.status_at(t(110));
-        assert!(!status.is_authoritative(), "expired credential must not be authoritative");
+        assert!(
+            !status.is_authoritative(),
+            "expired credential must not be authoritative"
+        );
         assert_eq!(
             tracker.observed_count(),
             3,
@@ -259,11 +275,14 @@ mod tests {
 
     #[test]
     fn data_goes_stale_through_the_passage_of_time_alone() {
-        let mut tracker = KindTracker::new("Node", "nodes")
-            .with_staleness_budget(Duration::from_secs(30));
+        let mut tracker =
+            KindTracker::new("Node", "nodes").with_staleness_budget(Duration::from_secs(30));
         tracker.mark_current(t(100), 3);
 
-        assert!(tracker.status_at(t(120)).is_authoritative(), "20s is within budget");
+        assert!(
+            tracker.status_at(t(120)).is_authoritative(),
+            "20s is within budget"
+        );
         let stale = tracker.status_at(t(200));
         assert!(!stale.is_authoritative(), "100s is beyond budget");
         match stale {

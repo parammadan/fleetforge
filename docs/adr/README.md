@@ -42,3 +42,5 @@ would justify building the thing**, so "not yet" has a trigger rather than being
 | [0019](0019-short-lived-credentials-and-expiry-state.md) | Short-lived credentials; expiry is an explicit non-authoritative state | Accepted |
 | [0020](0020-captured-data-is-fixture-on-replay.md) | Data replayed from disk is FIXTURE, whatever its origin | Accepted |
 | [0021](0021-pinned-local-environment.md) | The local environment is pinned by digest and verified | Accepted |
+| [0022](0022-version-skew-is-reported-not-assumed.md) | Client/server version skew is reported, not assumed | Accepted |
+| [0023](0023-watch-silence-is-ambiguous.md) | Watch silence is ambiguous; probe the connection independently | Accepted |
