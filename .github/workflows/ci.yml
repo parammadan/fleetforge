@@ -1,0 +1,60 @@
+# FleetForge CI — SKELETON, never executed as of M0.
+# The Rust jobs are commented out until the cargo workspace exists (M1).
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  docs:
+    name: docs and secrets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for committed secrets
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Enabled in M1, once crates/ exists.
+  #
+  # rust:
+  #   name: fmt / clippy / test
+  #   runs-on: ${{ matrix.os }}
+  #   strategy:
+  #     matrix:
+  #       os: [ubuntu-latest, ubuntu-24.04-arm]
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: dtolnay/rust-toolchain@stable
+  #       with: { components: rustfmt, clippy }
+  #     - uses: Swatinem/rust-cache@v2
+  #     - run: cargo fmt --all -- --check
+  #     - run: cargo clippy --all-targets --all-features -- -D warnings
+  #     - run: cargo test --workspace
+  #
+  # deny:
+  #   name: cargo deny
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: EmbarkStudios/cargo-deny-action@v2
+  #
+  # web:
+  #   name: typecheck / test
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-node@v4
+  #       with: { node-version: 22, cache: npm, cache-dependency-path: web/package-lock.json }
+  #     - run: npm ci
+  #       working-directory: web
+  #     - run: npm run typecheck
+  #       working-directory: web
+  #     - run: npm test
+  #       working-directory: web

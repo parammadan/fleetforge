@@ -1,0 +1,42 @@
+# Rust
+/target/
+**/target/
+*.pdb
+
+# Node
+node_modules/
+web/dist/
+.vite/
+*.tsbuildinfo
+
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+*.kubeconfig
+kubeconfig*
+*.pem
+*.key
+*.crt
+credentials
+.aws/
+
+# Terraform
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+.terraform/
+.terraform.lock.hcl
+
+# Local data
+*.db
+*.sqlite
+*.sqlite3
+/data/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
