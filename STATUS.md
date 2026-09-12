@@ -1,6 +1,6 @@
 # FleetForge — Status
 
-Last updated: 2026-09-12 · Current milestone: **M2 complete** → M3 awaiting approval
+Last updated: 2026-09-12 · Current milestone: **M3 complete** → M4 awaiting approval
 
 ## Completed
 
@@ -64,15 +64,72 @@ and crate-boundary tests. 33 tests.
    network when the fix is to reissue a token. Now distinguished: `degraded` with a credential
    message versus `stale`.
 
+### M3 — evidence-based preflight ✅ 2026-09-12
+
+Ten analyzers over the snapshot `ff-collect` produces, plus the recommendation summary and the
+preflight workspace UI.
+
+| Analyzer | Findings | Confidence |
+| --- | --- | --- |
+| PodDisruptionBudget | `FF-PDB-001` no disruption permitted · `FF-PDB-002` one node holds more covered pods than allowed · `FF-PDB-003` permitted | Certain |
+| Singleton workload | `FF-SINGLETON-001` | Certain |
+| Unmanaged pod | `FF-UNMANAGED-001` | Certain |
+| Aggregate CPU / memory | `FF-CPU-001/002` · `FF-MEM-001/002` | **Heuristic** |
+| Node selector | `FF-SELECTOR-001` | Likely |
+| Toleration | `FF-TOLERATION-001` | Likely |
+| Required node affinity | `FF-AFFINITY-001` | Likely |
+| Node-bound storage | `FF-STORAGE-001` · `FF-STORAGE-002` (emptyDir) | Certain |
+| AZ / multi-node | `FF-AZ-001` whole zone · `FF-AZ-002` every replica | Heuristic |
+| Coverage gate | `FF-COVERAGE-001` · `FF-REQUEST-001` | Certain |
+
+**Tests — all executed:**
+
+| Suite | Result |
+| --- | --- |
+| `cargo test --workspace` | ✅ **118 passed, 0 failed** (31 new analyzer tests) |
+| `cargo test -p ff-collect --test live_cluster -- --ignored` | ✅ 3 passed against the live cluster |
+| `npm test` · `npm run typecheck` · `npm run build` | ✅ **15 passed** · clean · 248 kB |
+| `make check` | ✅ PASS |
+
+**The M3 demonstration, run end to end** (`./scripts/preflight-demo.sh`): SAFE → tighten the PDB
+with `kubectl` → **BLOCKED** with the exact object, the arithmetic, and the limitations → relax it
+→ SAFE. Each run prints the snapshot id it analyzed. See `DEMO.md` for the verbatim output.
+
+**Three design decisions worth naming:**
+
+1. **Concurrency is defined, not guessed.** `recommended_max_concurrency` is *the largest wave
+   size that produces no blocker*, found by re-running the analysis at each size. An operator can
+   verify the number by re-running preflight at it. `concurrency_constraint` names the finding
+   that blocked at one node more, so "why 1?" has an answer rather than a heuristic to trust.
+2. **The concurrency control is real.** Preflight analyzes a *wave* — the k highest-impact nodes
+   from the selection — so the same selection is genuinely safe at 1 and blocked at 2. There is a
+   test asserting exactly that.
+3. **An analyzer that cannot see its inputs does not run, and its silence is a blocker.** If the
+   PDB list was forbidden, `FF-COVERAGE-001` blocks rather than the PDB analyzer finding nothing
+   and the result reading as safe. That is the same failure as M2's, one layer up.
+
+**A real finding the analyzers caught unprompted:** `fleetforge-dev-worker` holds 2 of the 3 `web`
+pods, so draining it is blocked by `FF-PDB-002` even under the permissive budget — a drain evicts
+a node's pods together while the budget allows one disruption at a time. Same cluster, same
+budget, different node, different answer. I had not set that up; the analyzer found it.
+
 ## Not done — stated explicitly
 
 - **CI has never run.** There is no git remote. The workflow is written and enabled, so the
   cross-architecture snapshot-hash claim is verified on `aarch64` only.
-- **The UI has not been viewed in a browser.** Typecheck, 8 component tests, and a production
-  build all pass, and the API was verified serving correct data — but no human or headless browser
-  has rendered the page. Playwright coverage of the UI states is planned and not written.
-- No preflight analysis (M3). No AWS call. No Brupop. No cluster mutation capability.
-- `target/` is now **3.7 GB** — more than the 2–3 GB I estimated. 25 GB free.
+- **The UI has still not been viewed in a browser.** Typecheck, 15 component tests, and a
+  production build all pass, and every API response was verified by hand — but no human or headless
+  browser has rendered the page. Playwright coverage of the UI states remains unwritten. This is
+  the largest unverified claim in the project.
+- **No scheduler predicate evaluation.** Capacity findings are `Heuristic` and say so in their own
+  `limitations`. `FF-STORAGE-001` cannot read PersistentVolume node affinity, because FleetForge
+  has no PV read permission at this milestone — a network PV that is in fact zone-bound is not
+  flagged.
+- **No pod anti-affinity or topology-spread analyzer.** Both are modelled in `ff-core` and
+  collected by `ff-collect`, but no analyzer reads them yet. `FF-AZ-001/002` covers the zone case
+  only.
+- No AWS call. No Brupop. No cluster mutation capability.
+- `target/` is now **4.5 GB**. Check `df -h` before the next milestone.
 
 ## Decisions taken
 
