@@ -78,6 +78,15 @@ capture replicasets            replicasets.json -A
 capture poddisruptionbudgets   pdbs.json -A
 capture events                 events.json -A
 
+# Brupop's custom resource, when the CRD is installed. Absent in most clusters,
+# which is fine — the capture is skipped and FixtureSource records the kind as
+# uncollected rather than silently omitting it.
+if kubectl get crd bottlerocketshadows.brupop.bottlerocket.aws >/dev/null 2>&1; then
+  capture bottlerocketshadows  brupop.json -A
+else
+  echo "  bottlerocketshadows -> skipped (CRD not installed)"
+fi
+
 echo
 echo "Scrub check — these must all report 0:"
 for pattern in managedFields machineID systemUUID bootID last-applied-configuration '172\.1[6-9]\.' '172\.2[0-9]\.' '192\.168\.'; do

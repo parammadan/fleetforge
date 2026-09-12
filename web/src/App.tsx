@@ -35,11 +35,11 @@ export default function App() {
           FleetForge <span>· node-maintenance intelligence</span>
         </span>
         <ModeBadge mode={mode} label={modeLabel} />
-        <StreamIndicator stream={stream} />
+        <StreamIndicator stream={stream} mode={mode} />
         <span className="chrome-spacer" />
         <span className="meta">
           {snapshot ? `snapshot ${snapshot.snapshot_id.slice(0, 12)}` : "no snapshot yet"}
-          {updateCount > 0 && ` · ${updateCount} updates`}
+          {updateCount > 0 && ` · ${updateCount} update${updateCount === 1 ? "" : "s"}`}
         </span>
       </header>
 

@@ -108,13 +108,13 @@
           "deployment.kubernetes.io/revision": "1"
         },
         "creationTimestamp": "2026-09-12T16:08:41Z",
-        "generation": 5,
+        "generation": 1,
         "labels": {
           "app": "web"
         },
         "name": "web",
         "namespace": "demo",
-        "resourceVersion": "8716",
+        "resourceVersion": "798",
         "uid": "fixture-uid-mjhlzwvinjut"
       },
       "spec": {
@@ -176,23 +176,23 @@
         "availableReplicas": 3,
         "conditions": [
           {
+            "lastTransitionTime": "2026-09-12T16:08:48Z",
+            "lastUpdateTime": "2026-09-12T16:08:48Z",
+            "message": "Deployment has minimum availability.",
+            "reason": "MinimumReplicasAvailable",
+            "status": "True",
+            "type": "Available"
+          },
+          {
             "lastTransitionTime": "2026-09-12T16:08:41Z",
             "lastUpdateTime": "2026-09-12T16:08:48Z",
             "message": "ReplicaSet \"web-57f44446c5\" has successfully progressed.",
             "reason": "NewReplicaSetAvailable",
             "status": "True",
             "type": "Progressing"
-          },
-          {
-            "lastTransitionTime": "2026-09-12T18:57:18Z",
-            "lastUpdateTime": "2026-09-12T18:57:18Z",
-            "message": "Deployment has minimum availability.",
-            "reason": "MinimumReplicasAvailable",
-            "status": "True",
-            "type": "Available"
           }
         ],
-        "observedGeneration": 5,
+        "observedGeneration": 1,
         "readyReplicas": 3,
         "replicas": 3,
         "terminatingReplicas": 0,

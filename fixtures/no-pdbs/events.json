@@ -1,0 +1,4412 @@
+{
+  "apiVersion": "v1",
+  "items": [
+    {
+      "apiVersion": "v1",
+      "count": 8,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:22Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "name": "fleetforge-dev-control-plane"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:22Z",
+      "message": "Node fleetforge-dev-control-plane status is now: NodeHasSufficientMemory",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:39Z",
+        "name": "fleetforge-dev-control-plane.18d49e84292285a5",
+        "namespace": "default",
+        "resourceVersion": "91",
+        "uid": "fixture-uid-yjvknmuymmit",
+        "annotations": {}
+      },
+      "reason": "NodeHasSufficientMemory",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 8,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:22Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "name": "fleetforge-dev-control-plane"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:22Z",
+      "message": "Node fleetforge-dev-control-plane status is now: NodeHasNoDiskPressure",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:39Z",
+        "name": "fleetforge-dev-control-plane.18d49e842922ab92",
+        "namespace": "default",
+        "resourceVersion": "92",
+        "uid": "fixture-uid-yzewztiyngqt",
+        "annotations": {}
+      },
+      "reason": "NodeHasNoDiskPressure",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 7,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:22Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "name": "fleetforge-dev-control-plane"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:22Z",
+      "message": "Node fleetforge-dev-control-plane status is now: NodeHasSufficientPID",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:39Z",
+        "name": "fleetforge-dev-control-plane.18d49e842922bc7f",
+        "namespace": "default",
+        "resourceVersion": "90",
+        "uid": "fixture-uid-odk5mja2nmit",
+        "annotations": {}
+      },
+      "reason": "NodeHasSufficientPID",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:22Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "name": "fleetforge-dev-control-plane"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:22Z",
+      "message": "Updated Node Allocatable limit across pods",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:39Z",
+        "name": "fleetforge-dev-control-plane.18d49e8431389ecc",
+        "namespace": "default",
+        "resourceVersion": "64",
+        "uid": "fixture-uid-n2jiowiyzdmt",
+        "annotations": {}
+      },
+      "reason": "NodeAllocatableEnforced",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:42Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "name": "fleetforge-dev-control-plane"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:42Z",
+      "message": "Starting kubelet.",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:42Z",
+        "name": "fleetforge-dev-control-plane.18d49e88cb995ee2",
+        "namespace": "default",
+        "resourceVersion": "285",
+        "uid": "fixture-uid-mjdjngeymgit",
+        "annotations": {}
+      },
+      "reason": "Starting",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:42Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "name": "fleetforge-dev-control-plane"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:42Z",
+      "message": "Updated Node Allocatable limit across pods",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:42Z",
+        "name": "fleetforge-dev-control-plane.18d49e88d0ea5ad4",
+        "namespace": "default",
+        "resourceVersion": "287",
+        "uid": "fixture-uid-nzkxmdc4ndqt",
+        "annotations": {}
+      },
+      "reason": "NodeAllocatableEnforced",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:42Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "name": "fleetforge-dev-control-plane",
+        "uid": "fixture-uid-otnjywjlmjmt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:42Z",
+      "message": "Node fleetforge-dev-control-plane status is now: NodeHasSufficientMemory",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:42Z",
+        "name": "fleetforge-dev-control-plane.18d49e88d6dc481c",
+        "namespace": "default",
+        "resourceVersion": "292",
+        "uid": "fixture-uid-mwfimdk0mmit",
+        "annotations": {}
+      },
+      "reason": "NodeHasSufficientMemory",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:42Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "name": "fleetforge-dev-control-plane",
+        "uid": "fixture-uid-otnjywjlmjmt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:42Z",
+      "message": "Node fleetforge-dev-control-plane status is now: NodeHasNoDiskPressure",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:42Z",
+        "name": "fleetforge-dev-control-plane.18d49e88d6dc5f0f",
+        "namespace": "default",
+        "resourceVersion": "293",
+        "uid": "fixture-uid-zjhiyjcwzjut",
+        "annotations": {}
+      },
+      "reason": "NodeHasNoDiskPressure",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:42Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "name": "fleetforge-dev-control-plane",
+        "uid": "fixture-uid-otnjywjlmjmt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:42Z",
+      "message": "Node fleetforge-dev-control-plane status is now: NodeHasSufficientPID",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:42Z",
+        "name": "fleetforge-dev-control-plane.18d49e88d6dc68d3",
+        "namespace": "default",
+        "resourceVersion": "294",
+        "uid": "fixture-uid-mtjimzzjnzgt",
+        "annotations": {}
+      },
+      "reason": "NodeHasSufficientPID",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:49Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "name": "fleetforge-dev-control-plane",
+        "uid": "fixture-uid-otnjywjlmjmt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:49Z",
+      "message": "Node fleetforge-dev-control-plane event: Registered Node fleetforge-dev-control-plane in Controller",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:49Z",
+        "name": "fleetforge-dev-control-plane.18d49e8a710b7369",
+        "namespace": "default",
+        "resourceVersion": "368",
+        "uid": "fixture-uid-zdqyndbkm2qt",
+        "annotations": {}
+      },
+      "reason": "RegisteredNode",
+      "reportingComponent": "node-controller",
+      "reportingInstance": "",
+      "source": {
+        "component": "node-controller"
+      },
+      "type": "Normal"
+    },
+    {
+      "action": "StartKubeProxy",
+      "apiVersion": "v1",
+      "eventTime": "2026-09-12T16:07:58.738573Z",
+      "firstTimestamp": null,
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "name": "fleetforge-dev-control-plane"
+      },
+      "kind": "Event",
+      "lastTimestamp": null,
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:58Z",
+        "name": "fleetforge-dev-control-plane.18d49e8c9cf0fa09",
+        "namespace": "default",
+        "resourceVersion": "526",
+        "uid": "fixture-uid-zdrkywrjmget",
+        "annotations": {}
+      },
+      "reason": "Starting",
+      "reportingComponent": "kube-proxy",
+      "reportingInstance": "kube-proxy-fleetforge-dev-control-plane",
+      "source": {},
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:07Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "name": "fleetforge-dev-control-plane",
+        "uid": "fixture-uid-otnjywjlmjmt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:07Z",
+      "message": "Node fleetforge-dev-control-plane status is now: NodeReady",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:08Z",
+        "name": "fleetforge-dev-control-plane.18d49e8ec37fc13c",
+        "namespace": "default",
+        "resourceVersion": "554",
+        "uid": "fixture-uid-mwfkn2nlotat",
+        "annotations": {}
+      },
+      "reason": "NodeReady",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:54Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "name": "fleetforge-dev-worker"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:54Z",
+      "message": "Starting kubelet.",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:54Z",
+        "name": "fleetforge-dev-worker.18d49e8b87a0a75c",
+        "namespace": "default",
+        "resourceVersion": "457",
+        "uid": "fixture-uid-ytm2oty2mjmt",
+        "annotations": {}
+      },
+      "reason": "Starting",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 3,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:54Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "name": "fleetforge-dev-worker"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:54Z",
+      "message": "Node fleetforge-dev-worker status is now: NodeHasSufficientMemory",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:54Z",
+        "name": "fleetforge-dev-worker.18d49e8b8d9d52a4",
+        "namespace": "default",
+        "resourceVersion": "490",
+        "uid": "fixture-uid-nwy5mza5zgqt",
+        "annotations": {}
+      },
+      "reason": "NodeHasSufficientMemory",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 3,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:54Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "name": "fleetforge-dev-worker"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:54Z",
+      "message": "Node fleetforge-dev-worker status is now: NodeHasNoDiskPressure",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:54Z",
+        "name": "fleetforge-dev-worker.18d49e8b8d9d7f3c",
+        "namespace": "default",
+        "resourceVersion": "494",
+        "uid": "fixture-uid-mgmyywvhztet",
+        "annotations": {}
+      },
+      "reason": "NodeHasNoDiskPressure",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 3,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:54Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "name": "fleetforge-dev-worker"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:54Z",
+      "message": "Node fleetforge-dev-worker status is now: NodeHasSufficientPID",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:54Z",
+        "name": "fleetforge-dev-worker.18d49e8b8d9d8cbf",
+        "namespace": "default",
+        "resourceVersion": "499",
+        "uid": "fixture-uid-otewyzdmntqt",
+        "annotations": {}
+      },
+      "reason": "NodeHasSufficientPID",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:54Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "name": "fleetforge-dev-worker"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:54Z",
+      "message": "Updated Node Allocatable limit across pods",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:54Z",
+        "name": "fleetforge-dev-worker.18d49e8ba69c77a1",
+        "namespace": "default",
+        "resourceVersion": "475",
+        "uid": "fixture-uid-odq1yjgzyjat",
+        "annotations": {}
+      },
+      "reason": "NodeAllocatableEnforced",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:59Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "name": "fleetforge-dev-worker",
+        "uid": "fixture-uid-mguxzdjkmwmt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:59Z",
+      "message": "Node fleetforge-dev-worker event: Registered Node fleetforge-dev-worker in Controller",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:59Z",
+        "name": "fleetforge-dev-worker.18d49e8cd2f7b81f",
+        "namespace": "default",
+        "resourceVersion": "533",
+        "uid": "fixture-uid-nde4yzc5njct",
+        "annotations": {}
+      },
+      "reason": "RegisteredNode",
+      "reportingComponent": "node-controller",
+      "reportingInstance": "",
+      "source": {
+        "component": "node-controller"
+      },
+      "type": "Normal"
+    },
+    {
+      "action": "StartKubeProxy",
+      "apiVersion": "v1",
+      "eventTime": "2026-09-12T16:08:12.484845Z",
+      "firstTimestamp": null,
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "name": "fleetforge-dev-worker"
+      },
+      "kind": "Event",
+      "lastTimestamp": null,
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:12Z",
+        "name": "fleetforge-dev-worker.18d49e8fd04861b4",
+        "namespace": "default",
+        "resourceVersion": "595",
+        "uid": "fixture-uid-ytazmgjmntct",
+        "annotations": {}
+      },
+      "reason": "Starting",
+      "reportingComponent": "kube-proxy",
+      "reportingInstance": "kube-proxy-fleetforge-dev-worker",
+      "source": {},
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:22Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "name": "fleetforge-dev-worker",
+        "uid": "fixture-uid-mguxzdjkmwmt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:22Z",
+      "message": "Node fleetforge-dev-worker status is now: NodeReady",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:22Z",
+        "name": "fleetforge-dev-worker.18d49e920fe9756f",
+        "namespace": "default",
+        "resourceVersion": "643",
+        "uid": "fixture-uid-n2nmzwy3nmyt",
+        "annotations": {}
+      },
+      "reason": "NodeReady",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:54Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "name": "fleetforge-dev-worker2"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:54Z",
+      "message": "Starting kubelet.",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:54Z",
+        "name": "fleetforge-dev-worker2.18d49e8b84b02d68",
+        "namespace": "default",
+        "resourceVersion": "456",
+        "uid": "fixture-uid-yjlizwzkztet",
+        "annotations": {}
+      },
+      "reason": "Starting",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker2",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker2"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 3,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:54Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "name": "fleetforge-dev-worker2"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:54Z",
+      "message": "Node fleetforge-dev-worker2 status is now: NodeHasSufficientMemory",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:54Z",
+        "name": "fleetforge-dev-worker2.18d49e8b8c7528c5",
+        "namespace": "default",
+        "resourceVersion": "471",
+        "uid": "fixture-uid-yjm4nwrhymyt",
+        "annotations": {}
+      },
+      "reason": "NodeHasSufficientMemory",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker2",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker2"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 3,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:54Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "name": "fleetforge-dev-worker2"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:54Z",
+      "message": "Node fleetforge-dev-worker2 status is now: NodeHasNoDiskPressure",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:54Z",
+        "name": "fleetforge-dev-worker2.18d49e8b8c75690f",
+        "namespace": "default",
+        "resourceVersion": "472",
+        "uid": "fixture-uid-y2njytfknjet",
+        "annotations": {}
+      },
+      "reason": "NodeHasNoDiskPressure",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker2",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker2"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 3,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:54Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "name": "fleetforge-dev-worker2"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:54Z",
+      "message": "Node fleetforge-dev-worker2 status is now: NodeHasSufficientPID",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:54Z",
+        "name": "fleetforge-dev-worker2.18d49e8b8c7589c6",
+        "namespace": "default",
+        "resourceVersion": "473",
+        "uid": "fixture-uid-yzu3ndjmyjgt",
+        "annotations": {}
+      },
+      "reason": "NodeHasSufficientPID",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker2",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker2"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:54Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "name": "fleetforge-dev-worker2"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:54Z",
+      "message": "Updated Node Allocatable limit across pods",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:54Z",
+        "name": "fleetforge-dev-worker2.18d49e8b9be1923a",
+        "namespace": "default",
+        "resourceVersion": "470",
+        "uid": "fixture-uid-mtgwyjy2nzut",
+        "annotations": {}
+      },
+      "reason": "NodeAllocatableEnforced",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker2",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker2"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:59Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "name": "fleetforge-dev-worker2",
+        "uid": "fixture-uid-mdrizwqyntct"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:59Z",
+      "message": "Node fleetforge-dev-worker2 event: Registered Node fleetforge-dev-worker2 in Controller",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:59Z",
+        "name": "fleetforge-dev-worker2.18d49e8cd2c8f1d6",
+        "namespace": "default",
+        "resourceVersion": "531",
+        "uid": "fixture-uid-yzy2zwniogyt",
+        "annotations": {}
+      },
+      "reason": "RegisteredNode",
+      "reportingComponent": "node-controller",
+      "reportingInstance": "",
+      "source": {
+        "component": "node-controller"
+      },
+      "type": "Normal"
+    },
+    {
+      "action": "StartKubeProxy",
+      "apiVersion": "v1",
+      "eventTime": "2026-09-12T16:08:09.120685Z",
+      "firstTimestamp": null,
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "name": "fleetforge-dev-worker2"
+      },
+      "kind": "Event",
+      "lastTimestamp": null,
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:09Z",
+        "name": "fleetforge-dev-worker2.18d49e8f07c378ed",
+        "namespace": "default",
+        "resourceVersion": "559",
+        "uid": "fixture-uid-odq5nta1yjat",
+        "annotations": {}
+      },
+      "reason": "Starting",
+      "reportingComponent": "kube-proxy",
+      "reportingInstance": "kube-proxy-fleetforge-dev-worker2",
+      "source": {},
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:20Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "name": "fleetforge-dev-worker2",
+        "uid": "fixture-uid-mdrizwqyntct"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:20Z",
+      "message": "Node fleetforge-dev-worker2 status is now: NodeReady",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:20Z",
+        "name": "fleetforge-dev-worker2.18d49e91b59a34f2",
+        "namespace": "default",
+        "resourceVersion": "637",
+        "uid": "fixture-uid-zwu4n2u2yjmt",
+        "annotations": {}
+      },
+      "reason": "NodeReady",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker2",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker2"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:42Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "name": "api-5854b9c569-lkdj5",
+        "namespace": "demo",
+        "resourceVersion": "698",
+        "uid": "fixture-uid-mdk5ntq3mdkt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:42Z",
+      "message": "Successfully assigned demo/api-5854b9c569-lkdj5 to fleetforge-dev-worker2",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:42Z",
+        "name": "api-5854b9c569-lkdj5.18d49e96b447ca15",
+        "namespace": "demo",
+        "resourceVersion": "731",
+        "uid": "fixture-uid-mmmxoda1otut",
+        "annotations": {}
+      },
+      "reason": "Scheduled",
+      "reportingComponent": "default-scheduler",
+      "reportingInstance": "",
+      "source": {
+        "component": "default-scheduler"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:43Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{nginx}",
+        "kind": "Pod",
+        "name": "api-5854b9c569-lkdj5",
+        "namespace": "demo",
+        "resourceVersion": "726",
+        "uid": "fixture-uid-mdk5ntq3mdkt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:43Z",
+      "message": "Pulling image \"nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10\"",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:43Z",
+        "name": "api-5854b9c569-lkdj5.18d49e96fecad1c4",
+        "namespace": "demo",
+        "resourceVersion": "751",
+        "uid": "fixture-uid-ymjlmgqznmyt",
+        "annotations": {}
+      },
+      "reason": "Pulling",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker2",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker2"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:48Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{nginx}",
+        "kind": "Pod",
+        "name": "api-5854b9c569-lkdj5",
+        "namespace": "demo",
+        "resourceVersion": "726",
+        "uid": "fixture-uid-mdk5ntq3mdkt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:48Z",
+      "message": "Successfully pulled image \"nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10\" in 452ms (5.003s including waiting). Image size: 21832241 bytes.",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:48Z",
+        "name": "api-5854b9c569-lkdj5.18d49e98290c01f4",
+        "namespace": "demo",
+        "resourceVersion": "786",
+        "uid": "fixture-uid-ode0otq0mjet",
+        "annotations": {}
+      },
+      "reason": "Pulled",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker2",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker2"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:48Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{nginx}",
+        "kind": "Pod",
+        "name": "api-5854b9c569-lkdj5",
+        "namespace": "demo",
+        "resourceVersion": "726",
+        "uid": "fixture-uid-mdk5ntq3mdkt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:48Z",
+      "message": "Container created",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:48Z",
+        "name": "api-5854b9c569-lkdj5.18d49e982ab714af",
+        "namespace": "demo",
+        "resourceVersion": "789",
+        "uid": "fixture-uid-ownhzwe2mget",
+        "annotations": {}
+      },
+      "reason": "Created",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker2",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker2"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:48Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{nginx}",
+        "kind": "Pod",
+        "name": "api-5854b9c569-lkdj5",
+        "namespace": "demo",
+        "resourceVersion": "726",
+        "uid": "fixture-uid-mdk5ntq3mdkt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:48Z",
+      "message": "Container started",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:48Z",
+        "name": "api-5854b9c569-lkdj5.18d49e98367433b8",
+        "namespace": "demo",
+        "resourceVersion": "795",
+        "uid": "fixture-uid-ywexndiznget",
+        "annotations": {}
+      },
+      "reason": "Started",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker2",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker2"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:41Z",
+      "involvedObject": {
+        "apiVersion": "apps/v1",
+        "kind": "ReplicaSet",
+        "name": "api-5854b9c569",
+        "namespace": "demo",
+        "resourceVersion": "694",
+        "uid": "fixture-uid-zjkyztq0odyt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:41Z",
+      "message": "Created pod: api-5854b9c569-lkdj5",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:41Z",
+        "name": "api-5854b9c569.18d49e96ad03f879",
+        "namespace": "demo",
+        "resourceVersion": "708",
+        "uid": "fixture-uid-ymi5nwmzntat",
+        "annotations": {}
+      },
+      "reason": "SuccessfulCreate",
+      "reportingComponent": "replicaset-controller",
+      "reportingInstance": "",
+      "source": {
+        "component": "replicaset-controller"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:41Z",
+      "involvedObject": {
+        "apiVersion": "apps/v1",
+        "kind": "Deployment",
+        "name": "api",
+        "namespace": "demo",
+        "resourceVersion": "691",
+        "uid": "fixture-uid-nddjotg2ogqt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:41Z",
+      "message": "Scaled up replica set api-5854b9c569 from 0 to 1",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:41Z",
+        "name": "api.18d49e96ac0f763c",
+        "namespace": "demo",
+        "resourceVersion": "703",
+        "uid": "fixture-uid-nmuyytm5ztit",
+        "annotations": {}
+      },
+      "reason": "ScalingReplicaSet",
+      "reportingComponent": "deployment-controller",
+      "reportingInstance": "",
+      "source": {
+        "component": "deployment-controller"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:42Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "name": "node-agent-4zp55",
+        "namespace": "demo",
+        "resourceVersion": "701",
+        "uid": "fixture-uid-mdbjywnhmjit"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:42Z",
+      "message": "Successfully assigned demo/node-agent-4zp55 to fleetforge-dev-worker2",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:42Z",
+        "name": "node-agent-4zp55.18d49e96b451b06c",
+        "namespace": "demo",
+        "resourceVersion": "734",
+        "uid": "fixture-uid-yjlimdc3m2et",
+        "annotations": {}
+      },
+      "reason": "Scheduled",
+      "reportingComponent": "default-scheduler",
+      "reportingInstance": "",
+      "source": {
+        "component": "default-scheduler"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:43Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{pause}",
+        "kind": "Pod",
+        "name": "node-agent-4zp55",
+        "namespace": "demo",
+        "resourceVersion": "727",
+        "uid": "fixture-uid-mdbjywnhmjit"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:43Z",
+      "message": "Pulling image \"registry.k8s.io/pause:3.10@sha256:ee6521f290b2168b6e0935a181d4cff9be1ac3f505666ef0e3c98fae8199917a\"",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:43Z",
+        "name": "node-agent-4zp55.18d49e96fc91c502",
+        "namespace": "demo",
+        "resourceVersion": "745",
+        "uid": "fixture-uid-otvmnwu5mzmt",
+        "annotations": {}
+      },
+      "reason": "Pulling",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker2",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker2"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:43Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{pause}",
+        "kind": "Pod",
+        "name": "node-agent-4zp55",
+        "namespace": "demo",
+        "resourceVersion": "727",
+        "uid": "fixture-uid-mdbjywnhmjit"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:43Z",
+      "message": "Successfully pulled image \"registry.k8s.io/pause:3.10@sha256:ee6521f290b2168b6e0935a181d4cff9be1ac3f505666ef0e3c98fae8199917a\" in 666ms (667ms including waiting). Image size: 267933 bytes.",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:43Z",
+        "name": "node-agent-4zp55.18d49e97245c7265",
+        "namespace": "demo",
+        "resourceVersion": "757",
+        "uid": "fixture-uid-mzhmztljogit",
+        "annotations": {}
+      },
+      "reason": "Pulled",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker2",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker2"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:43Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{pause}",
+        "kind": "Pod",
+        "name": "node-agent-4zp55",
+        "namespace": "demo",
+        "resourceVersion": "727",
+        "uid": "fixture-uid-mdbjywnhmjit"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:43Z",
+      "message": "Container created",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:43Z",
+        "name": "node-agent-4zp55.18d49e972621e732",
+        "namespace": "demo",
+        "resourceVersion": "758",
+        "uid": "fixture-uid-mjy4ngnhntit",
+        "annotations": {}
+      },
+      "reason": "Created",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker2",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker2"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:44Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{pause}",
+        "kind": "Pod",
+        "name": "node-agent-4zp55",
+        "namespace": "demo",
+        "resourceVersion": "727",
+        "uid": "fixture-uid-mdbjywnhmjit"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:44Z",
+      "message": "Container started",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:44Z",
+        "name": "node-agent-4zp55.18d49e972d6cf7c8",
+        "namespace": "demo",
+        "resourceVersion": "759",
+        "uid": "fixture-uid-mtriymzmnzet",
+        "annotations": {}
+      },
+      "reason": "Started",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker2",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker2"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:42Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "name": "node-agent-s6xzb",
+        "namespace": "demo",
+        "resourceVersion": "706",
+        "uid": "fixture-uid-ytfhmde1zjut"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:42Z",
+      "message": "Successfully assigned demo/node-agent-s6xzb to fleetforge-dev-worker",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:42Z",
+        "name": "node-agent-s6xzb.18d49e96b49f357a",
+        "namespace": "demo",
+        "resourceVersion": "739",
+        "uid": "fixture-uid-nmy0zjixzmyt",
+        "annotations": {}
+      },
+      "reason": "Scheduled",
+      "reportingComponent": "default-scheduler",
+      "reportingInstance": "",
+      "source": {
+        "component": "default-scheduler"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:43Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{pause}",
+        "kind": "Pod",
+        "name": "node-agent-s6xzb",
+        "namespace": "demo",
+        "resourceVersion": "729",
+        "uid": "fixture-uid-ytfhmde1zjut"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:43Z",
+      "message": "Pulling image \"registry.k8s.io/pause:3.10@sha256:ee6521f290b2168b6e0935a181d4cff9be1ac3f505666ef0e3c98fae8199917a\"",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:43Z",
+        "name": "node-agent-s6xzb.18d49e96fd1328de",
+        "namespace": "demo",
+        "resourceVersion": "748",
+        "uid": "fixture-uid-m2fhndllnwqt",
+        "annotations": {}
+      },
+      "reason": "Pulling",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:47Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{pause}",
+        "kind": "Pod",
+        "name": "node-agent-s6xzb",
+        "namespace": "demo",
+        "resourceVersion": "729",
+        "uid": "fixture-uid-ytfhmde1zjut"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:47Z",
+      "message": "Successfully pulled image \"registry.k8s.io/pause:3.10@sha256:ee6521f290b2168b6e0935a181d4cff9be1ac3f505666ef0e3c98fae8199917a\" in 285ms (4.358s including waiting). Image size: 267933 bytes.",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:47Z",
+        "name": "node-agent-s6xzb.18d49e9800d91493",
+        "namespace": "demo",
+        "resourceVersion": "771",
+        "uid": "fixture-uid-mtawzdmxzdit",
+        "annotations": {}
+      },
+      "reason": "Pulled",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:47Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{pause}",
+        "kind": "Pod",
+        "name": "node-agent-s6xzb",
+        "namespace": "demo",
+        "resourceVersion": "729",
+        "uid": "fixture-uid-ytfhmde1zjut"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:47Z",
+      "message": "Container created",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:47Z",
+        "name": "node-agent-s6xzb.18d49e980378827b",
+        "namespace": "demo",
+        "resourceVersion": "772",
+        "uid": "fixture-uid-mzi1zwe5yjqt",
+        "annotations": {}
+      },
+      "reason": "Created",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:47Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{pause}",
+        "kind": "Pod",
+        "name": "node-agent-s6xzb",
+        "namespace": "demo",
+        "resourceVersion": "729",
+        "uid": "fixture-uid-ytfhmde1zjut"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:47Z",
+      "message": "Container started",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:47Z",
+        "name": "node-agent-s6xzb.18d49e980d0a45a4",
+        "namespace": "demo",
+        "resourceVersion": "777",
+        "uid": "fixture-uid-nwjjnwm4nmut",
+        "annotations": {}
+      },
+      "reason": "Started",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:41Z",
+      "involvedObject": {
+        "apiVersion": "apps/v1",
+        "kind": "DaemonSet",
+        "name": "node-agent",
+        "namespace": "demo",
+        "resourceVersion": "692",
+        "uid": "fixture-uid-mtuyndy0ywmt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:41Z",
+      "message": "Created pod: node-agent-4zp55",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:41Z",
+        "name": "node-agent.18d49e96ad195e80",
+        "namespace": "demo",
+        "resourceVersion": "707",
+        "uid": "fixture-uid-odeymtg2owqt",
+        "annotations": {}
+      },
+      "reason": "SuccessfulCreate",
+      "reportingComponent": "daemonset-controller",
+      "reportingInstance": "",
+      "source": {
+        "component": "daemonset-controller"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:41Z",
+      "involvedObject": {
+        "apiVersion": "apps/v1",
+        "kind": "DaemonSet",
+        "name": "node-agent",
+        "namespace": "demo",
+        "resourceVersion": "692",
+        "uid": "fixture-uid-mtuyndy0ywmt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:41Z",
+      "message": "Created pod: node-agent-s6xzb",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:41Z",
+        "name": "node-agent.18d49e96aebb2171",
+        "namespace": "demo",
+        "resourceVersion": "713",
+        "uid": "fixture-uid-ndu0mja3zjyt",
+        "annotations": {}
+      },
+      "reason": "SuccessfulCreate",
+      "reportingComponent": "daemonset-controller",
+      "reportingInstance": "",
+      "source": {
+        "component": "daemonset-controller"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:42Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "name": "web-57f44446c5-fvvkb",
+        "namespace": "demo",
+        "resourceVersion": "700",
+        "uid": "fixture-uid-yjgzzdc3zmet"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:42Z",
+      "message": "Successfully assigned demo/web-57f44446c5-fvvkb to fleetforge-dev-worker2",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:42Z",
+        "name": "web-57f44446c5-fvvkb.18d49e96b4511868",
+        "namespace": "demo",
+        "resourceVersion": "732",
+        "uid": "fixture-uid-zdc5zdi5yjqt",
+        "annotations": {}
+      },
+      "reason": "Scheduled",
+      "reportingComponent": "default-scheduler",
+      "reportingInstance": "",
+      "source": {
+        "component": "default-scheduler"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:43Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{nginx}",
+        "kind": "Pod",
+        "name": "web-57f44446c5-fvvkb",
+        "namespace": "demo",
+        "resourceVersion": "725",
+        "uid": "fixture-uid-yjgzzdc3zmet"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:43Z",
+      "message": "Pulling image \"nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10\"",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:43Z",
+        "name": "web-57f44446c5-fvvkb.18d49e96fd67d90b",
+        "namespace": "demo",
+        "resourceVersion": "747",
+        "uid": "fixture-uid-ndk4zja5yzqt",
+        "annotations": {}
+      },
+      "reason": "Pulling",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker2",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker2"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:47Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{nginx}",
+        "kind": "Pod",
+        "name": "web-57f44446c5-fvvkb",
+        "namespace": "demo",
+        "resourceVersion": "725",
+        "uid": "fixture-uid-yjgzzdc3zmet"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:47Z",
+      "message": "Successfully pulled image \"nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10\" in 3.921s (4.574s including waiting). Image size: 21832241 bytes.",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:47Z",
+        "name": "web-57f44446c5-fvvkb.18d49e980e1c30b0",
+        "namespace": "demo",
+        "resourceVersion": "780",
+        "uid": "fixture-uid-ndvizteym2it",
+        "annotations": {}
+      },
+      "reason": "Pulled",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker2",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker2"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:47Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{nginx}",
+        "kind": "Pod",
+        "name": "web-57f44446c5-fvvkb",
+        "namespace": "demo",
+        "resourceVersion": "725",
+        "uid": "fixture-uid-yjgzzdc3zmet"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:47Z",
+      "message": "Container created",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:47Z",
+        "name": "web-57f44446c5-fvvkb.18d49e9810e5f6c3",
+        "namespace": "demo",
+        "resourceVersion": "782",
+        "uid": "fixture-uid-n2jmotbmowet",
+        "annotations": {}
+      },
+      "reason": "Created",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker2",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker2"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:48Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{nginx}",
+        "kind": "Pod",
+        "name": "web-57f44446c5-fvvkb",
+        "namespace": "demo",
+        "resourceVersion": "725",
+        "uid": "fixture-uid-yjgzzdc3zmet"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:48Z",
+      "message": "Container started",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:48Z",
+        "name": "web-57f44446c5-fvvkb.18d49e9827a2eaa9",
+        "namespace": "demo",
+        "resourceVersion": "785",
+        "uid": "fixture-uid-yza3yjdiytat",
+        "annotations": {}
+      },
+      "reason": "Started",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker2",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker2"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:42Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "name": "web-57f44446c5-lv5m5",
+        "namespace": "demo",
+        "resourceVersion": "705",
+        "uid": "fixture-uid-zmqxztgzmdkt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:42Z",
+      "message": "Successfully assigned demo/web-57f44446c5-lv5m5 to fleetforge-dev-worker",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:42Z",
+        "name": "web-57f44446c5-lv5m5.18d49e96b53d7ecc",
+        "namespace": "demo",
+        "resourceVersion": "740",
+        "uid": "fixture-uid-zwi1ztnlywqt",
+        "annotations": {}
+      },
+      "reason": "Scheduled",
+      "reportingComponent": "default-scheduler",
+      "reportingInstance": "",
+      "source": {
+        "component": "default-scheduler"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:43Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{nginx}",
+        "kind": "Pod",
+        "name": "web-57f44446c5-lv5m5",
+        "namespace": "demo",
+        "resourceVersion": "730",
+        "uid": "fixture-uid-zmqxztgzmdkt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:43Z",
+      "message": "Pulling image \"nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10\"",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:43Z",
+        "name": "web-57f44446c5-lv5m5.18d49e96fdb195ff",
+        "namespace": "demo",
+        "resourceVersion": "752",
+        "uid": "fixture-uid-mjzjm2vkogmt",
+        "annotations": {}
+      },
+      "reason": "Pulling",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:48Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{nginx}",
+        "kind": "Pod",
+        "name": "web-57f44446c5-lv5m5",
+        "namespace": "demo",
+        "resourceVersion": "730",
+        "uid": "fixture-uid-zmqxztgzmdkt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:48Z",
+      "message": "Successfully pulled image \"nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10\" in 388ms (4.735s including waiting). Image size: 21832241 bytes.",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:48Z",
+        "name": "web-57f44446c5-lv5m5.18d49e9817fc13af",
+        "namespace": "demo",
+        "resourceVersion": "783",
+        "uid": "fixture-uid-zthlywe3zwqt",
+        "annotations": {}
+      },
+      "reason": "Pulled",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:48Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{nginx}",
+        "kind": "Pod",
+        "name": "web-57f44446c5-lv5m5",
+        "namespace": "demo",
+        "resourceVersion": "730",
+        "uid": "fixture-uid-zmqxztgzmdkt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:48Z",
+      "message": "Container created",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:48Z",
+        "name": "web-57f44446c5-lv5m5.18d49e981938c4c4",
+        "namespace": "demo",
+        "resourceVersion": "784",
+        "uid": "fixture-uid-mwqxngjlzwqt",
+        "annotations": {}
+      },
+      "reason": "Created",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:48Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{nginx}",
+        "kind": "Pod",
+        "name": "web-57f44446c5-lv5m5",
+        "namespace": "demo",
+        "resourceVersion": "730",
+        "uid": "fixture-uid-zmqxztgzmdkt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:48Z",
+      "message": "Container started",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:48Z",
+        "name": "web-57f44446c5-lv5m5.18d49e9830220894",
+        "namespace": "demo",
+        "resourceVersion": "788",
+        "uid": "fixture-uid-ymyxmdlimdyt",
+        "annotations": {}
+      },
+      "reason": "Started",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:42Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "name": "web-57f44446c5-x9dbf",
+        "namespace": "demo",
+        "resourceVersion": "704",
+        "uid": "fixture-uid-mjvjywzjmdqt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:42Z",
+      "message": "Successfully assigned demo/web-57f44446c5-x9dbf to fleetforge-dev-worker",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:42Z",
+        "name": "web-57f44446c5-x9dbf.18d49e96b43a18df",
+        "namespace": "demo",
+        "resourceVersion": "736",
+        "uid": "fixture-uid-mzvinmziodmt",
+        "annotations": {}
+      },
+      "reason": "Scheduled",
+      "reportingComponent": "default-scheduler",
+      "reportingInstance": "",
+      "source": {
+        "component": "default-scheduler"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:43Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{nginx}",
+        "kind": "Pod",
+        "name": "web-57f44446c5-x9dbf",
+        "namespace": "demo",
+        "resourceVersion": "728",
+        "uid": "fixture-uid-mjvjywzjmdqt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:43Z",
+      "message": "Pulling image \"nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10\"",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:43Z",
+        "name": "web-57f44446c5-x9dbf.18d49e96fd0b3aeb",
+        "namespace": "demo",
+        "resourceVersion": "746",
+        "uid": "fixture-uid-mdm4otmxmmut",
+        "annotations": {}
+      },
+      "reason": "Pulling",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:47Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{nginx}",
+        "kind": "Pod",
+        "name": "web-57f44446c5-x9dbf",
+        "namespace": "demo",
+        "resourceVersion": "728",
+        "uid": "fixture-uid-mjvjywzjmdqt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:47Z",
+      "message": "Successfully pulled image \"nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10\" in 4.073s (4.073s including waiting). Image size: 21832241 bytes.",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:47Z",
+        "name": "web-57f44446c5-x9dbf.18d49e97efdd17f0",
+        "namespace": "demo",
+        "resourceVersion": "769",
+        "uid": "fixture-uid-ytzhmzi2mzct",
+        "annotations": {}
+      },
+      "reason": "Pulled",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:47Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{nginx}",
+        "kind": "Pod",
+        "name": "web-57f44446c5-x9dbf",
+        "namespace": "demo",
+        "resourceVersion": "728",
+        "uid": "fixture-uid-mjvjywzjmdqt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:47Z",
+      "message": "Container created",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:47Z",
+        "name": "web-57f44446c5-x9dbf.18d49e97f2f85e6f",
+        "namespace": "demo",
+        "resourceVersion": "770",
+        "uid": "fixture-uid-mgrjymjim2ut",
+        "annotations": {}
+      },
+      "reason": "Created",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:47Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{nginx}",
+        "kind": "Pod",
+        "name": "web-57f44446c5-x9dbf",
+        "namespace": "demo",
+        "resourceVersion": "728",
+        "uid": "fixture-uid-mjvjywzjmdqt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:47Z",
+      "message": "Container started",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:47Z",
+        "name": "web-57f44446c5-x9dbf.18d49e980568fca0",
+        "namespace": "demo",
+        "resourceVersion": "773",
+        "uid": "fixture-uid-n2nhndllmjct",
+        "annotations": {}
+      },
+      "reason": "Started",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:41Z",
+      "involvedObject": {
+        "apiVersion": "apps/v1",
+        "kind": "ReplicaSet",
+        "name": "web-57f44446c5",
+        "namespace": "demo",
+        "resourceVersion": "693",
+        "uid": "fixture-uid-njg5ntaymjut"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:41Z",
+      "message": "Created pod: web-57f44446c5-fvvkb",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:41Z",
+        "name": "web-57f44446c5.18d49e96ad13d7a0",
+        "namespace": "demo",
+        "resourceVersion": "712",
+        "uid": "fixture-uid-ntg1ogixzjet",
+        "annotations": {}
+      },
+      "reason": "SuccessfulCreate",
+      "reportingComponent": "replicaset-controller",
+      "reportingInstance": "",
+      "source": {
+        "component": "replicaset-controller"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:41Z",
+      "involvedObject": {
+        "apiVersion": "apps/v1",
+        "kind": "ReplicaSet",
+        "name": "web-57f44446c5",
+        "namespace": "demo",
+        "resourceVersion": "693",
+        "uid": "fixture-uid-njg5ntaymjut"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:41Z",
+      "message": "Created pod: web-57f44446c5-x9dbf",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:41Z",
+        "name": "web-57f44446c5.18d49e96aeb3ea46",
+        "namespace": "demo",
+        "resourceVersion": "714",
+        "uid": "fixture-uid-nzm1nwvlzdit",
+        "annotations": {}
+      },
+      "reason": "SuccessfulCreate",
+      "reportingComponent": "replicaset-controller",
+      "reportingInstance": "",
+      "source": {
+        "component": "replicaset-controller"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:41Z",
+      "involvedObject": {
+        "apiVersion": "apps/v1",
+        "kind": "ReplicaSet",
+        "name": "web-57f44446c5",
+        "namespace": "demo",
+        "resourceVersion": "693",
+        "uid": "fixture-uid-njg5ntaymjut"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:41Z",
+      "message": "Created pod: web-57f44446c5-lv5m5",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:41Z",
+        "name": "web-57f44446c5.18d49e96aeb4bbe8",
+        "namespace": "demo",
+        "resourceVersion": "718",
+        "uid": "fixture-uid-ytezmdg0otut",
+        "annotations": {}
+      },
+      "reason": "SuccessfulCreate",
+      "reportingComponent": "replicaset-controller",
+      "reportingInstance": "",
+      "source": {
+        "component": "replicaset-controller"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:41Z",
+      "involvedObject": {
+        "apiVersion": "apps/v1",
+        "kind": "Deployment",
+        "name": "web",
+        "namespace": "demo",
+        "resourceVersion": "690",
+        "uid": "fixture-uid-mjhlzwvinjut"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:41Z",
+      "message": "Scaled up replica set web-57f44446c5 from 0 to 3",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:41Z",
+        "name": "web.18d49e96abef1291",
+        "namespace": "demo",
+        "resourceVersion": "699",
+        "uid": "fixture-uid-njdlyjfimtit",
+        "annotations": {}
+      },
+      "reason": "ScalingReplicaSet",
+      "reportingComponent": "deployment-controller",
+      "reportingInstance": "",
+      "source": {
+        "component": "deployment-controller"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:50Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "name": "coredns-559f6c778d-lczck",
+        "namespace": "kube-system",
+        "resourceVersion": "421",
+        "uid": "fixture-uid-mmu1yjqyyzgt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:50Z",
+      "message": "0/1 nodes are available: 1 node(s) had untolerated taint(s). preemption: 0/1 nodes are available: 1 Preemption is not helpful for scheduling.",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:50Z",
+        "name": "coredns-559f6c778d-lczck.18d49e8abd581af3",
+        "namespace": "kube-system",
+        "resourceVersion": "425",
+        "uid": "fixture-uid-nty5m2u1owmt",
+        "annotations": {}
+      },
+      "reason": "FailedScheduling",
+      "reportingComponent": "default-scheduler",
+      "reportingInstance": "",
+      "source": {
+        "component": "default-scheduler"
+      },
+      "type": "Warning"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:09Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "name": "coredns-559f6c778d-lczck",
+        "namespace": "kube-system",
+        "resourceVersion": "430",
+        "uid": "fixture-uid-mmu1yjqyyzgt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:09Z",
+      "message": "Successfully assigned kube-system/coredns-559f6c778d-lczck to fleetforge-dev-control-plane",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:09Z",
+        "name": "coredns-559f6c778d-lczck.18d49e8f26911d60",
+        "namespace": "kube-system",
+        "resourceVersion": "570",
+        "uid": "fixture-uid-nta2otgyotut",
+        "annotations": {}
+      },
+      "reason": "Scheduled",
+      "reportingComponent": "default-scheduler",
+      "reportingInstance": "",
+      "source": {
+        "component": "default-scheduler"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:10Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "name": "coredns-559f6c778d-lczck",
+        "namespace": "kube-system"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:10Z",
+      "message": "Cancelling deletion of Pod kube-system/coredns-559f6c778d-lczck",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:10Z",
+        "name": "coredns-559f6c778d-lczck.18d49e8f3db0c1ec",
+        "namespace": "kube-system",
+        "resourceVersion": "577",
+        "uid": "fixture-uid-mde4nzc2ndct",
+        "annotations": {}
+      },
+      "reason": "TaintManagerEviction",
+      "reportingComponent": "taint-eviction-controller",
+      "reportingInstance": "",
+      "source": {
+        "component": "taint-eviction-controller"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:12Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{coredns}",
+        "kind": "Pod",
+        "name": "coredns-559f6c778d-lczck",
+        "namespace": "kube-system",
+        "resourceVersion": "562",
+        "uid": "fixture-uid-mmu1yjqyyzgt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:12Z",
+      "message": "Container image \"registry.k8s.io/coredns/coredns:v1.14.6\" already present on machine and can be accessed by the pod",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:12Z",
+        "name": "coredns-559f6c778d-lczck.18d49e8fc8ddddaf",
+        "namespace": "kube-system",
+        "resourceVersion": "591",
+        "uid": "fixture-uid-otblnjk4otit",
+        "annotations": {}
+      },
+      "reason": "Pulled",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:17Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{coredns}",
+        "kind": "Pod",
+        "name": "coredns-559f6c778d-lczck",
+        "namespace": "kube-system",
+        "resourceVersion": "562",
+        "uid": "fixture-uid-mmu1yjqyyzgt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:17Z",
+      "message": "Container created",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:17Z",
+        "name": "coredns-559f6c778d-lczck.18d49e90faae2556",
+        "namespace": "kube-system",
+        "resourceVersion": "605",
+        "uid": "fixture-uid-ytuyotm1ztkt",
+        "annotations": {}
+      },
+      "reason": "Created",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:18Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{coredns}",
+        "kind": "Pod",
+        "name": "coredns-559f6c778d-lczck",
+        "namespace": "kube-system",
+        "resourceVersion": "562",
+        "uid": "fixture-uid-mmu1yjqyyzgt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:18Z",
+      "message": "Container started",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:18Z",
+        "name": "coredns-559f6c778d-lczck.18d49e914941a395",
+        "namespace": "kube-system",
+        "resourceVersion": "608",
+        "uid": "fixture-uid-mdkymza4otmt",
+        "annotations": {}
+      },
+      "reason": "Started",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:19Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{coredns}",
+        "kind": "Pod",
+        "name": "coredns-559f6c778d-lczck",
+        "namespace": "kube-system",
+        "resourceVersion": "562",
+        "uid": "fixture-uid-mmu1yjqyyzgt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:19Z",
+      "message": "Readiness probe failed: Get \"http://0.0.0.0:8181/ready\": dial tcp 0.0.0.0:8181: connect: connection refused",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:19Z",
+        "name": "coredns-559f6c778d-lczck.18d49e915de287a0",
+        "namespace": "kube-system",
+        "resourceVersion": "613",
+        "uid": "fixture-uid-yzq1zjfizdit",
+        "annotations": {}
+      },
+      "reason": "Unhealthy",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Warning"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:50Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "name": "coredns-559f6c778d-rmgz7",
+        "namespace": "kube-system",
+        "resourceVersion": "424",
+        "uid": "fixture-uid-nmu5mmrknjat"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:50Z",
+      "message": "0/1 nodes are available: 1 node(s) had untolerated taint(s). preemption: 0/1 nodes are available: 1 Preemption is not helpful for scheduling.",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:50Z",
+        "name": "coredns-559f6c778d-rmgz7.18d49e8abe29a822",
+        "namespace": "kube-system",
+        "resourceVersion": "432",
+        "uid": "fixture-uid-n2yyzje5yjqt",
+        "annotations": {}
+      },
+      "reason": "FailedScheduling",
+      "reportingComponent": "default-scheduler",
+      "reportingInstance": "",
+      "source": {
+        "component": "default-scheduler"
+      },
+      "type": "Warning"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:09Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "name": "coredns-559f6c778d-rmgz7",
+        "namespace": "kube-system",
+        "resourceVersion": "435",
+        "uid": "fixture-uid-nmu5mmrknjat"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:09Z",
+      "message": "Successfully assigned kube-system/coredns-559f6c778d-rmgz7 to fleetforge-dev-control-plane",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:09Z",
+        "name": "coredns-559f6c778d-rmgz7.18d49e8f24cbf05a",
+        "namespace": "kube-system",
+        "resourceVersion": "564",
+        "uid": "fixture-uid-yty0mwe5ywqt",
+        "annotations": {}
+      },
+      "reason": "Scheduled",
+      "reportingComponent": "default-scheduler",
+      "reportingInstance": "",
+      "source": {
+        "component": "default-scheduler"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:10Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "name": "coredns-559f6c778d-rmgz7",
+        "namespace": "kube-system"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:10Z",
+      "message": "Cancelling deletion of Pod kube-system/coredns-559f6c778d-rmgz7",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:10Z",
+        "name": "coredns-559f6c778d-rmgz7.18d49e8f3cb52b83",
+        "namespace": "kube-system",
+        "resourceVersion": "575",
+        "uid": "fixture-uid-yti1mde3mmqt",
+        "annotations": {}
+      },
+      "reason": "TaintManagerEviction",
+      "reportingComponent": "taint-eviction-controller",
+      "reportingInstance": "",
+      "source": {
+        "component": "taint-eviction-controller"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:12Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{coredns}",
+        "kind": "Pod",
+        "name": "coredns-559f6c778d-rmgz7",
+        "namespace": "kube-system",
+        "resourceVersion": "560",
+        "uid": "fixture-uid-nmu5mmrknjat"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:12Z",
+      "message": "Container image \"registry.k8s.io/coredns/coredns:v1.14.6\" already present on machine and can be accessed by the pod",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:12Z",
+        "name": "coredns-559f6c778d-rmgz7.18d49e8fc9606efa",
+        "namespace": "kube-system",
+        "resourceVersion": "592",
+        "uid": "fixture-uid-mgqzmtfiodct",
+        "annotations": {}
+      },
+      "reason": "Pulled",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:17Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{coredns}",
+        "kind": "Pod",
+        "name": "coredns-559f6c778d-rmgz7",
+        "namespace": "kube-system",
+        "resourceVersion": "560",
+        "uid": "fixture-uid-nmu5mmrknjat"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:17Z",
+      "message": "Container created",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:17Z",
+        "name": "coredns-559f6c778d-rmgz7.18d49e90fa073b08",
+        "namespace": "kube-system",
+        "resourceVersion": "604",
+        "uid": "fixture-uid-njgxntk2y2ut",
+        "annotations": {}
+      },
+      "reason": "Created",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:18Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{coredns}",
+        "kind": "Pod",
+        "name": "coredns-559f6c778d-rmgz7",
+        "namespace": "kube-system",
+        "resourceVersion": "560",
+        "uid": "fixture-uid-nmu5mmrknjat"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:18Z",
+      "message": "Container started",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:18Z",
+        "name": "coredns-559f6c778d-rmgz7.18d49e91495e75d6",
+        "namespace": "kube-system",
+        "resourceVersion": "609",
+        "uid": "fixture-uid-ntdmmdnlzdyt",
+        "annotations": {}
+      },
+      "reason": "Started",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:19Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{coredns}",
+        "kind": "Pod",
+        "name": "coredns-559f6c778d-rmgz7",
+        "namespace": "kube-system",
+        "resourceVersion": "560",
+        "uid": "fixture-uid-nmu5mmrknjat"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:19Z",
+      "message": "Readiness probe failed: Get \"http://0.0.0.0:8181/ready\": dial tcp 0.0.0.0:8181: connect: connection refused",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:19Z",
+        "name": "coredns-559f6c778d-rmgz7.18d49e915eabd0c2",
+        "namespace": "kube-system",
+        "resourceVersion": "614",
+        "uid": "fixture-uid-mmzmn2uxzmmt",
+        "annotations": {}
+      },
+      "reason": "Unhealthy",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Warning"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:50Z",
+      "involvedObject": {
+        "apiVersion": "apps/v1",
+        "kind": "ReplicaSet",
+        "name": "coredns-559f6c778d",
+        "namespace": "kube-system",
+        "resourceVersion": "385",
+        "uid": "fixture-uid-otjknzfiodyt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:50Z",
+      "message": "Created pod: coredns-559f6c778d-lczck",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:50Z",
+        "name": "coredns-559f6c778d.18d49e8abd39cbac",
+        "namespace": "kube-system",
+        "resourceVersion": "423",
+        "uid": "fixture-uid-zwqxogjkyjyt",
+        "annotations": {}
+      },
+      "reason": "SuccessfulCreate",
+      "reportingComponent": "replicaset-controller",
+      "reportingInstance": "",
+      "source": {
+        "component": "replicaset-controller"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:50Z",
+      "involvedObject": {
+        "apiVersion": "apps/v1",
+        "kind": "ReplicaSet",
+        "name": "coredns-559f6c778d",
+        "namespace": "kube-system",
+        "resourceVersion": "385",
+        "uid": "fixture-uid-otjknzfiodyt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:50Z",
+      "message": "Created pod: coredns-559f6c778d-rmgz7",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:50Z",
+        "name": "coredns-559f6c778d.18d49e8abd898cfe",
+        "namespace": "kube-system",
+        "resourceVersion": "431",
+        "uid": "fixture-uid-mznhnzcxnget",
+        "annotations": {}
+      },
+      "reason": "SuccessfulCreate",
+      "reportingComponent": "replicaset-controller",
+      "reportingInstance": "",
+      "source": {
+        "component": "replicaset-controller"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:50Z",
+      "involvedObject": {
+        "apiVersion": "apps/v1",
+        "kind": "Deployment",
+        "name": "coredns",
+        "namespace": "kube-system",
+        "resourceVersion": "277",
+        "uid": "fixture-uid-n2nmmzu5ntct"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:50Z",
+      "message": "Scaled up replica set coredns-559f6c778d from 0 to 2",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:50Z",
+        "name": "coredns.18d49e8aa5f7a306",
+        "namespace": "kube-system",
+        "resourceVersion": "387",
+        "uid": "fixture-uid-odm0odq5mzet",
+        "annotations": {}
+      },
+      "reason": "ScalingReplicaSet",
+      "reportingComponent": "deployment-controller",
+      "reportingInstance": "",
+      "source": {
+        "component": "deployment-controller"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:24Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{etcd}",
+        "kind": "Pod",
+        "name": "etcd-fleetforge-dev-control-plane",
+        "namespace": "kube-system",
+        "uid": "db3e5ac45239e6557917299272110ff3"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:24Z",
+      "message": "Container image \"registry.k8s.io/etcd:3.7.0-0\" already present on machine and can be accessed by the pod",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:39Z",
+        "name": "etcd-fleetforge-dev-control-plane.18d49e8488d5532c",
+        "namespace": "kube-system",
+        "resourceVersion": "93",
+        "uid": "fixture-uid-zdnlmgywzwmt",
+        "annotations": {}
+      },
+      "reason": "Pulled",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:26Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{etcd}",
+        "kind": "Pod",
+        "name": "etcd-fleetforge-dev-control-plane",
+        "namespace": "kube-system",
+        "uid": "db3e5ac45239e6557917299272110ff3"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:26Z",
+      "message": "Container created",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:39Z",
+        "name": "etcd-fleetforge-dev-control-plane.18d49e8528a0ade4",
+        "namespace": "kube-system",
+        "resourceVersion": "98",
+        "uid": "fixture-uid-ndq3mdywotyt",
+        "annotations": {}
+      },
+      "reason": "Created",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:27Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{etcd}",
+        "kind": "Pod",
+        "name": "etcd-fleetforge-dev-control-plane",
+        "namespace": "kube-system",
+        "uid": "db3e5ac45239e6557917299272110ff3"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:27Z",
+      "message": "Container started",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:39Z",
+        "name": "etcd-fleetforge-dev-control-plane.18d49e856231ba4d",
+        "namespace": "kube-system",
+        "resourceVersion": "99",
+        "uid": "fixture-uid-mzrlyjk2odut",
+        "annotations": {}
+      },
+      "reason": "Started",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:50Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "name": "kindnet-24s5n",
+        "namespace": "kube-system",
+        "resourceVersion": "401",
+        "uid": "fixture-uid-m2jmody2njgt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:50Z",
+      "message": "Successfully assigned kube-system/kindnet-24s5n to fleetforge-dev-control-plane",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:50Z",
+        "name": "kindnet-24s5n.18d49e8ab476216b",
+        "namespace": "kube-system",
+        "resourceVersion": "415",
+        "uid": "fixture-uid-nzuwmtnlntet",
+        "annotations": {}
+      },
+      "reason": "Scheduled",
+      "reportingComponent": "default-scheduler",
+      "reportingInstance": "",
+      "source": {
+        "component": "default-scheduler"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:51Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{kindnet-cni}",
+        "kind": "Pod",
+        "name": "kindnet-24s5n",
+        "namespace": "kube-system",
+        "resourceVersion": "411",
+        "uid": "fixture-uid-m2jmody2njgt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:51Z",
+      "message": "Container image \"docker.io/kindest/kindnetd:v20260820-69b56db7\" already present on machine and can be accessed by the pod",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:51Z",
+        "name": "kindnet-24s5n.18d49e8ae0f0f664",
+        "namespace": "kube-system",
+        "resourceVersion": "441",
+        "uid": "fixture-uid-ytg1mzbhnzct",
+        "annotations": {}
+      },
+      "reason": "Pulled",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:55Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{kindnet-cni}",
+        "kind": "Pod",
+        "name": "kindnet-24s5n",
+        "namespace": "kube-system",
+        "resourceVersion": "411",
+        "uid": "fixture-uid-m2jmody2njgt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:55Z",
+      "message": "Container created",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:55Z",
+        "name": "kindnet-24s5n.18d49e8bd817403f",
+        "namespace": "kube-system",
+        "resourceVersion": "509",
+        "uid": "fixture-uid-njlkztyxnwqt",
+        "annotations": {}
+      },
+      "reason": "Created",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:55Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{kindnet-cni}",
+        "kind": "Pod",
+        "name": "kindnet-24s5n",
+        "namespace": "kube-system",
+        "resourceVersion": "411",
+        "uid": "fixture-uid-m2jmody2njgt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:55Z",
+      "message": "Container started",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:55Z",
+        "name": "kindnet-24s5n.18d49e8be6bd4d6e",
+        "namespace": "kube-system",
+        "resourceVersion": "513",
+        "uid": "fixture-uid-yjbiodg3zmyt",
+        "annotations": {}
+      },
+      "reason": "Started",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:54Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "name": "kindnet-jpxsw",
+        "namespace": "kube-system",
+        "resourceVersion": "493",
+        "uid": "fixture-uid-ndk5ndjhogit"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:54Z",
+      "message": "Successfully assigned kube-system/kindnet-jpxsw to fleetforge-dev-worker",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:54Z",
+        "name": "kindnet-jpxsw.18d49e8bbc5366df",
+        "namespace": "kube-system",
+        "resourceVersion": "505",
+        "uid": "fixture-uid-y2u2zmq2otat",
+        "annotations": {}
+      },
+      "reason": "Scheduled",
+      "reportingComponent": "default-scheduler",
+      "reportingInstance": "",
+      "source": {
+        "component": "default-scheduler"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:59Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{kindnet-cni}",
+        "kind": "Pod",
+        "name": "kindnet-jpxsw",
+        "namespace": "kube-system",
+        "resourceVersion": "500",
+        "uid": "fixture-uid-ndk5ndjhogit"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:59Z",
+      "message": "Container image \"docker.io/kindest/kindnetd:v20260820-69b56db7\" already present on machine and can be accessed by the pod",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:59Z",
+        "name": "kindnet-jpxsw.18d49e8cb009cd6c",
+        "namespace": "kube-system",
+        "resourceVersion": "527",
+        "uid": "fixture-uid-mtzhmdblzdyt",
+        "annotations": {}
+      },
+      "reason": "Pulled",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:10Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{kindnet-cni}",
+        "kind": "Pod",
+        "name": "kindnet-jpxsw",
+        "namespace": "kube-system",
+        "resourceVersion": "500",
+        "uid": "fixture-uid-ndk5ndjhogit"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:10Z",
+      "message": "Container created",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:10Z",
+        "name": "kindnet-jpxsw.18d49e8f4230b898",
+        "namespace": "kube-system",
+        "resourceVersion": "574",
+        "uid": "fixture-uid-n2nlnmnkm2et",
+        "annotations": {}
+      },
+      "reason": "Created",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:10Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{kindnet-cni}",
+        "kind": "Pod",
+        "name": "kindnet-jpxsw",
+        "namespace": "kube-system",
+        "resourceVersion": "500",
+        "uid": "fixture-uid-ndk5ndjhogit"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:10Z",
+      "message": "Container started",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:10Z",
+        "name": "kindnet-jpxsw.18d49e8f7577548a",
+        "namespace": "kube-system",
+        "resourceVersion": "582",
+        "uid": "fixture-uid-zti1yjnkntgt",
+        "annotations": {}
+      },
+      "reason": "Started",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:54Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "name": "kindnet-tgmmp",
+        "namespace": "kube-system",
+        "resourceVersion": "477",
+        "uid": "fixture-uid-ytc1mwewmjet"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:54Z",
+      "message": "Successfully assigned kube-system/kindnet-tgmmp to fleetforge-dev-worker2",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:54Z",
+        "name": "kindnet-tgmmp.18d49e8bb45e1141",
+        "namespace": "kube-system",
+        "resourceVersion": "489",
+        "uid": "fixture-uid-nmq0mjy0otkt",
+        "annotations": {}
+      },
+      "reason": "Scheduled",
+      "reportingComponent": "default-scheduler",
+      "reportingInstance": "",
+      "source": {
+        "component": "default-scheduler"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:56Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{kindnet-cni}",
+        "kind": "Pod",
+        "name": "kindnet-tgmmp",
+        "namespace": "kube-system",
+        "resourceVersion": "484",
+        "uid": "fixture-uid-ytc1mwewmjet"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:56Z",
+      "message": "Container image \"docker.io/kindest/kindnetd:v20260820-69b56db7\" already present on machine and can be accessed by the pod",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:56Z",
+        "name": "kindnet-tgmmp.18d49e8c00eba82a",
+        "namespace": "kube-system",
+        "resourceVersion": "522",
+        "uid": "fixture-uid-ywvhngqxnjct",
+        "annotations": {}
+      },
+      "reason": "Pulled",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker2",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker2"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:05Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{kindnet-cni}",
+        "kind": "Pod",
+        "name": "kindnet-tgmmp",
+        "namespace": "kube-system",
+        "resourceVersion": "484",
+        "uid": "fixture-uid-ytc1mwewmjet"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:05Z",
+      "message": "Container created",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:05Z",
+        "name": "kindnet-tgmmp.18d49e8e3a5e37d0",
+        "namespace": "kube-system",
+        "resourceVersion": "548",
+        "uid": "fixture-uid-zdzmztbmzgut",
+        "annotations": {}
+      },
+      "reason": "Created",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker2",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker2"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:09Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{kindnet-cni}",
+        "kind": "Pod",
+        "name": "kindnet-tgmmp",
+        "namespace": "kube-system",
+        "resourceVersion": "484",
+        "uid": "fixture-uid-ytc1mwewmjet"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:09Z",
+      "message": "Container started",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:09Z",
+        "name": "kindnet-tgmmp.18d49e8f1ae64ff4",
+        "namespace": "kube-system",
+        "resourceVersion": "557",
+        "uid": "fixture-uid-mdy3nmvlmtqt",
+        "annotations": {}
+      },
+      "reason": "Started",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker2",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker2"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:50Z",
+      "involvedObject": {
+        "apiVersion": "apps/v1",
+        "kind": "DaemonSet",
+        "name": "kindnet",
+        "namespace": "kube-system",
+        "resourceVersion": "330",
+        "uid": "fixture-uid-mjezmtk0ymmt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:50Z",
+      "message": "Created pod: kindnet-24s5n",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:50Z",
+        "name": "kindnet.18d49e8ab3210fc7",
+        "namespace": "kube-system",
+        "resourceVersion": "409",
+        "uid": "fixture-uid-ogziywi3ytut",
+        "annotations": {}
+      },
+      "reason": "SuccessfulCreate",
+      "reportingComponent": "daemonset-controller",
+      "reportingInstance": "",
+      "source": {
+        "component": "daemonset-controller"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:54Z",
+      "involvedObject": {
+        "apiVersion": "apps/v1",
+        "kind": "DaemonSet",
+        "name": "kindnet",
+        "namespace": "kube-system",
+        "resourceVersion": "404",
+        "uid": "fixture-uid-mjezmtk0ymmt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:54Z",
+      "message": "Created pod: kindnet-tgmmp",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:54Z",
+        "name": "kindnet.18d49e8bacf0de0f",
+        "namespace": "kube-system",
+        "resourceVersion": "482",
+        "uid": "fixture-uid-mgm4ntq5mtit",
+        "annotations": {}
+      },
+      "reason": "SuccessfulCreate",
+      "reportingComponent": "daemonset-controller",
+      "reportingInstance": "",
+      "source": {
+        "component": "daemonset-controller"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:54Z",
+      "involvedObject": {
+        "apiVersion": "apps/v1",
+        "kind": "DaemonSet",
+        "name": "kindnet",
+        "namespace": "kube-system",
+        "resourceVersion": "483",
+        "uid": "fixture-uid-mjezmtk0ymmt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:54Z",
+      "message": "Created pod: kindnet-jpxsw",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:54Z",
+        "name": "kindnet.18d49e8bba43140e",
+        "namespace": "kube-system",
+        "resourceVersion": "498",
+        "uid": "fixture-uid-ymjjnmmwnwet",
+        "annotations": {}
+      },
+      "reason": "SuccessfulCreate",
+      "reportingComponent": "daemonset-controller",
+      "reportingInstance": "",
+      "source": {
+        "component": "daemonset-controller"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:24Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{kube-apiserver}",
+        "kind": "Pod",
+        "name": "kube-apiserver-fleetforge-dev-control-plane",
+        "namespace": "kube-system",
+        "uid": "bb5fe9ae16c01c5da498c3284ba87f3a"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:24Z",
+      "message": "Container image \"registry.k8s.io/kube-apiserver:v1.37.0\" already present on machine and can be accessed by the pod",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:39Z",
+        "name": "kube-apiserver-fleetforge-dev-control-plane.18d49e8488dd3b42",
+        "namespace": "kube-system",
+        "resourceVersion": "94",
+        "uid": "fixture-uid-yju3zdiymtct",
+        "annotations": {}
+      },
+      "reason": "Pulled",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:31Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{kube-apiserver}",
+        "kind": "Pod",
+        "name": "kube-apiserver-fleetforge-dev-control-plane",
+        "namespace": "kube-system",
+        "uid": "bb5fe9ae16c01c5da498c3284ba87f3a"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:31Z",
+      "message": "Container created",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:39Z",
+        "name": "kube-apiserver-fleetforge-dev-control-plane.18d49e863f987d00",
+        "namespace": "kube-system",
+        "resourceVersion": "104",
+        "uid": "fixture-uid-mzm0zty3n2et",
+        "annotations": {}
+      },
+      "reason": "Created",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:32Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{kube-apiserver}",
+        "kind": "Pod",
+        "name": "kube-apiserver-fleetforge-dev-control-plane",
+        "namespace": "kube-system",
+        "uid": "bb5fe9ae16c01c5da498c3284ba87f3a"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:32Z",
+      "message": "Container started",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:39Z",
+        "name": "kube-apiserver-fleetforge-dev-control-plane.18d49e867197d6bd",
+        "namespace": "kube-system",
+        "resourceVersion": "105",
+        "uid": "fixture-uid-mdu1nze2zdqt",
+        "annotations": {}
+      },
+      "reason": "Started",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:24Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{kube-controller-manager}",
+        "kind": "Pod",
+        "name": "kube-controller-manager-fleetforge-dev-control-plane",
+        "namespace": "kube-system",
+        "uid": "ae20167f56b65ea6f348689b0edff48d"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:24Z",
+      "message": "Container image \"registry.k8s.io/kube-controller-manager:v1.37.0\" already present on machine and can be accessed by the pod",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:39Z",
+        "name": "kube-controller-manager-fleetforge-dev-control-plane.18d49e84896b35f0",
+        "namespace": "kube-system",
+        "resourceVersion": "97",
+        "uid": "fixture-uid-oddlyjlmmwqt",
+        "annotations": {}
+      },
+      "reason": "Pulled",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:28Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{kube-controller-manager}",
+        "kind": "Pod",
+        "name": "kube-controller-manager-fleetforge-dev-control-plane",
+        "namespace": "kube-system",
+        "uid": "ae20167f56b65ea6f348689b0edff48d"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:28Z",
+      "message": "Container created",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:39Z",
+        "name": "kube-controller-manager-fleetforge-dev-control-plane.18d49e85ad72309d",
+        "namespace": "kube-system",
+        "resourceVersion": "100",
+        "uid": "fixture-uid-mgq2mwe3odgt",
+        "annotations": {}
+      },
+      "reason": "Created",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:29Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{kube-controller-manager}",
+        "kind": "Pod",
+        "name": "kube-controller-manager-fleetforge-dev-control-plane",
+        "namespace": "kube-system",
+        "uid": "ae20167f56b65ea6f348689b0edff48d"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:29Z",
+      "message": "Container started",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:39Z",
+        "name": "kube-controller-manager-fleetforge-dev-control-plane.18d49e85e7bff91a",
+        "namespace": "kube-system",
+        "resourceVersion": "103",
+        "uid": "fixture-uid-mjbjotu0ytkt",
+        "annotations": {}
+      },
+      "reason": "Started",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:43Z",
+      "involvedObject": {
+        "apiVersion": "coordination.k8s.io/v1",
+        "kind": "Lease",
+        "name": "kube-controller-manager",
+        "namespace": "kube-system",
+        "resourceVersion": "302",
+        "uid": "fixture-uid-yjk4yzhimget"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:43Z",
+      "message": "fleetforge-dev-control-plane_914bb1fb-3152-4cb2-afbe-a8c279f13538 became leader",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:43Z",
+        "name": "kube-controller-manager.18d49e8920d449a0",
+        "namespace": "kube-system",
+        "resourceVersion": "304",
+        "uid": "fixture-uid-zje4ytdmyzet",
+        "annotations": {}
+      },
+      "reason": "LeaderElection",
+      "reportingComponent": "kube-controller-manager",
+      "reportingInstance": "",
+      "source": {
+        "component": "kube-controller-manager"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:50Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "name": "kube-proxy-672zm",
+        "namespace": "kube-system",
+        "resourceVersion": "400",
+        "uid": "fixture-uid-yzm2owjiywet"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:50Z",
+      "message": "Successfully assigned kube-system/kube-proxy-672zm to fleetforge-dev-control-plane",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:50Z",
+        "name": "kube-proxy-672zm.18d49e8ab44b865b",
+        "namespace": "kube-system",
+        "resourceVersion": "417",
+        "uid": "fixture-uid-ndk3njbiymit",
+        "annotations": {}
+      },
+      "reason": "Scheduled",
+      "reportingComponent": "default-scheduler",
+      "reportingInstance": "",
+      "source": {
+        "component": "default-scheduler"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:51Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{kube-proxy}",
+        "kind": "Pod",
+        "name": "kube-proxy-672zm",
+        "namespace": "kube-system",
+        "resourceVersion": "410",
+        "uid": "fixture-uid-yzm2owjiywet"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:51Z",
+      "message": "Container image \"registry.k8s.io/kube-proxy:v1.37.0\" already present on machine and can be accessed by the pod",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:51Z",
+        "name": "kube-proxy-672zm.18d49e8ae1d0d8d8",
+        "namespace": "kube-system",
+        "resourceVersion": "442",
+        "uid": "fixture-uid-y2i5mgi3zmyt",
+        "annotations": {}
+      },
+      "reason": "Pulled",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:54Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{kube-proxy}",
+        "kind": "Pod",
+        "name": "kube-proxy-672zm",
+        "namespace": "kube-system",
+        "resourceVersion": "410",
+        "uid": "fixture-uid-yzm2owjiywet"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:54Z",
+      "message": "Container created",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:54Z",
+        "name": "kube-proxy-672zm.18d49e8bbabee86a",
+        "namespace": "kube-system",
+        "resourceVersion": "503",
+        "uid": "fixture-uid-nze0zgm4y2ut",
+        "annotations": {}
+      },
+      "reason": "Created",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:55Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{kube-proxy}",
+        "kind": "Pod",
+        "name": "kube-proxy-672zm",
+        "namespace": "kube-system",
+        "resourceVersion": "410",
+        "uid": "fixture-uid-yzm2owjiywet"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:55Z",
+      "message": "Container started",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:55Z",
+        "name": "kube-proxy-672zm.18d49e8bde5188cd",
+        "namespace": "kube-system",
+        "resourceVersion": "510",
+        "uid": "fixture-uid-mdeymzm1ndut",
+        "annotations": {}
+      },
+      "reason": "Started",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:54Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "name": "kube-proxy-kbwsj",
+        "namespace": "kube-system",
+        "resourceVersion": "495",
+        "uid": "fixture-uid-otzmowixntmt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:54Z",
+      "message": "Successfully assigned kube-system/kube-proxy-kbwsj to fleetforge-dev-worker",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:55Z",
+        "name": "kube-proxy-kbwsj.18d49e8bbd85c29b",
+        "namespace": "kube-system",
+        "resourceVersion": "506",
+        "uid": "fixture-uid-yzkxzjdlnwqt",
+        "annotations": {}
+      },
+      "reason": "Scheduled",
+      "reportingComponent": "default-scheduler",
+      "reportingInstance": "",
+      "source": {
+        "component": "default-scheduler"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:59Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{kube-proxy}",
+        "kind": "Pod",
+        "name": "kube-proxy-kbwsj",
+        "namespace": "kube-system",
+        "resourceVersion": "502",
+        "uid": "fixture-uid-otzmowixntmt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:59Z",
+      "message": "Container image \"registry.k8s.io/kube-proxy:v1.37.0\" already present on machine and can be accessed by the pod",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:59Z",
+        "name": "kube-proxy-kbwsj.18d49e8cb08c1797",
+        "namespace": "kube-system",
+        "resourceVersion": "528",
+        "uid": "fixture-uid-otgwodqxmwqt",
+        "annotations": {}
+      },
+      "reason": "Pulled",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:09Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{kube-proxy}",
+        "kind": "Pod",
+        "name": "kube-proxy-kbwsj",
+        "namespace": "kube-system",
+        "resourceVersion": "502",
+        "uid": "fixture-uid-otzmowixntmt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:09Z",
+      "message": "Container created",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:09Z",
+        "name": "kube-proxy-kbwsj.18d49e8f1b10ad7f",
+        "namespace": "kube-system",
+        "resourceVersion": "558",
+        "uid": "fixture-uid-ymy1n2m0mjut",
+        "annotations": {}
+      },
+      "reason": "Created",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:10Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{kube-proxy}",
+        "kind": "Pod",
+        "name": "kube-proxy-kbwsj",
+        "namespace": "kube-system",
+        "resourceVersion": "502",
+        "uid": "fixture-uid-otzmowixntmt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:10Z",
+      "message": "Container started",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:10Z",
+        "name": "kube-proxy-kbwsj.18d49e8f5779b171",
+        "namespace": "kube-system",
+        "resourceVersion": "579",
+        "uid": "fixture-uid-oddintgzmwyt",
+        "annotations": {}
+      },
+      "reason": "Started",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:54Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "name": "kube-proxy-twhr2",
+        "namespace": "kube-system",
+        "resourceVersion": "479",
+        "uid": "fixture-uid-ymnjmtblzdgt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:54Z",
+      "message": "Successfully assigned kube-system/kube-proxy-twhr2 to fleetforge-dev-worker2",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:54Z",
+        "name": "kube-proxy-twhr2.18d49e8bb7eeaa17",
+        "namespace": "kube-system",
+        "resourceVersion": "496",
+        "uid": "fixture-uid-ywm4mgfmmgit",
+        "annotations": {}
+      },
+      "reason": "Scheduled",
+      "reportingComponent": "default-scheduler",
+      "reportingInstance": "",
+      "source": {
+        "component": "default-scheduler"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:56Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{kube-proxy}",
+        "kind": "Pod",
+        "name": "kube-proxy-twhr2",
+        "namespace": "kube-system",
+        "resourceVersion": "486",
+        "uid": "fixture-uid-ymnjmtblzdgt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:56Z",
+      "message": "Container image \"registry.k8s.io/kube-proxy:v1.37.0\" already present on machine and can be accessed by the pod",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:56Z",
+        "name": "kube-proxy-twhr2.18d49e8bff5d16a3",
+        "namespace": "kube-system",
+        "resourceVersion": "520",
+        "uid": "fixture-uid-ztzkmwm2zmet",
+        "annotations": {}
+      },
+      "reason": "Pulled",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker2",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker2"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:01Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{kube-proxy}",
+        "kind": "Pod",
+        "name": "kube-proxy-twhr2",
+        "namespace": "kube-system",
+        "resourceVersion": "486",
+        "uid": "fixture-uid-ymnjmtblzdgt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:01Z",
+      "message": "Container created",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:01Z",
+        "name": "kube-proxy-twhr2.18d49e8d4ae1bd7c",
+        "namespace": "kube-system",
+        "resourceVersion": "538",
+        "uid": "fixture-uid-zda1yzq4zdut",
+        "annotations": {}
+      },
+      "reason": "Created",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker2",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker2"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:04Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{kube-proxy}",
+        "kind": "Pod",
+        "name": "kube-proxy-twhr2",
+        "namespace": "kube-system",
+        "resourceVersion": "486",
+        "uid": "fixture-uid-ymnjmtblzdgt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:04Z",
+      "message": "Container started",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:04Z",
+        "name": "kube-proxy-twhr2.18d49e8ddd114aa2",
+        "namespace": "kube-system",
+        "resourceVersion": "542",
+        "uid": "fixture-uid-ytvlztfjogmt",
+        "annotations": {}
+      },
+      "reason": "Started",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-worker2",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-worker2"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:50Z",
+      "involvedObject": {
+        "apiVersion": "apps/v1",
+        "kind": "DaemonSet",
+        "name": "kube-proxy",
+        "namespace": "kube-system",
+        "resourceVersion": "281",
+        "uid": "fixture-uid-zwe3ytkxzdmt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:50Z",
+      "message": "Created pod: kube-proxy-672zm",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:50Z",
+        "name": "kube-proxy.18d49e8ab3208a27",
+        "namespace": "kube-system",
+        "resourceVersion": "403",
+        "uid": "fixture-uid-otg3yjvhnmet",
+        "annotations": {}
+      },
+      "reason": "SuccessfulCreate",
+      "reportingComponent": "daemonset-controller",
+      "reportingInstance": "",
+      "source": {
+        "component": "daemonset-controller"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:54Z",
+      "involvedObject": {
+        "apiVersion": "apps/v1",
+        "kind": "DaemonSet",
+        "name": "kube-proxy",
+        "namespace": "kube-system",
+        "resourceVersion": "405",
+        "uid": "fixture-uid-zwe3ytkxzdmt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:54Z",
+      "message": "Created pod: kube-proxy-twhr2",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:54Z",
+        "name": "kube-proxy.18d49e8bb2e83f03",
+        "namespace": "kube-system",
+        "resourceVersion": "491",
+        "uid": "fixture-uid-odniyze0nzet",
+        "annotations": {}
+      },
+      "reason": "SuccessfulCreate",
+      "reportingComponent": "daemonset-controller",
+      "reportingInstance": "",
+      "source": {
+        "component": "daemonset-controller"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:54Z",
+      "involvedObject": {
+        "apiVersion": "apps/v1",
+        "kind": "DaemonSet",
+        "name": "kube-proxy",
+        "namespace": "kube-system",
+        "resourceVersion": "488",
+        "uid": "fixture-uid-zwe3ytkxzdmt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:54Z",
+      "message": "Created pod: kube-proxy-kbwsj",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:54Z",
+        "name": "kube-proxy.18d49e8bba671b5d",
+        "namespace": "kube-system",
+        "resourceVersion": "504",
+        "uid": "fixture-uid-mdixodvlytat",
+        "annotations": {}
+      },
+      "reason": "SuccessfulCreate",
+      "reportingComponent": "daemonset-controller",
+      "reportingInstance": "",
+      "source": {
+        "component": "daemonset-controller"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:24Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{kube-scheduler}",
+        "kind": "Pod",
+        "name": "kube-scheduler-fleetforge-dev-control-plane",
+        "namespace": "kube-system",
+        "uid": "ae190bc30ffe82835d443b8a382f6217"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:24Z",
+      "message": "Container image \"registry.k8s.io/kube-scheduler:v1.37.0\" already present on machine and can be accessed by the pod",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:39Z",
+        "name": "kube-scheduler-fleetforge-dev-control-plane.18d49e84890981bb",
+        "namespace": "kube-system",
+        "resourceVersion": "95",
+        "uid": "fixture-uid-zwjkyzq0zdet",
+        "annotations": {}
+      },
+      "reason": "Pulled",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:29Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{kube-scheduler}",
+        "kind": "Pod",
+        "name": "kube-scheduler-fleetforge-dev-control-plane",
+        "namespace": "kube-system",
+        "uid": "ae190bc30ffe82835d443b8a382f6217"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:29Z",
+      "message": "Container created",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:39Z",
+        "name": "kube-scheduler-fleetforge-dev-control-plane.18d49e85d04e5c04",
+        "namespace": "kube-system",
+        "resourceVersion": "101",
+        "uid": "fixture-uid-mte5mmqxyjet",
+        "annotations": {}
+      },
+      "reason": "Created",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:29Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{kube-scheduler}",
+        "kind": "Pod",
+        "name": "kube-scheduler-fleetforge-dev-control-plane",
+        "namespace": "kube-system",
+        "uid": "ae190bc30ffe82835d443b8a382f6217"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:29Z",
+      "message": "Container started",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:39Z",
+        "name": "kube-scheduler-fleetforge-dev-control-plane.18d49e85e5ecc08b",
+        "namespace": "kube-system",
+        "resourceVersion": "102",
+        "uid": "fixture-uid-mdexnmq3mzet",
+        "annotations": {}
+      },
+      "reason": "Started",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 5,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:43Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{kube-scheduler}",
+        "kind": "Pod",
+        "name": "kube-scheduler-fleetforge-dev-control-plane",
+        "namespace": "kube-system",
+        "uid": "ae190bc30ffe82835d443b8a382f6217"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:45Z",
+      "message": "Readiness probe failed: HTTP probe failed with statuscode: 500",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:43Z",
+        "name": "kube-scheduler-fleetforge-dev-control-plane.18d49e88fb73d178",
+        "namespace": "kube-system",
+        "resourceVersion": "329",
+        "uid": "fixture-uid-odi0mte5nwqt",
+        "annotations": {}
+      },
+      "reason": "Unhealthy",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Warning"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:45Z",
+      "involvedObject": {
+        "apiVersion": "coordination.k8s.io/v1",
+        "kind": "Lease",
+        "name": "kube-scheduler",
+        "namespace": "kube-system",
+        "resourceVersion": "332",
+        "uid": "fixture-uid-ytk3ymu1mzkt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:45Z",
+      "message": "fleetforge-dev-control-plane_27e090f6-0d3c-458f-905b-1caac0fa8bb7 became leader",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:45Z",
+        "name": "kube-scheduler.18d49e89968cce86",
+        "namespace": "kube-system",
+        "resourceVersion": "334",
+        "uid": "fixture-uid-nzyxodiwmgyt",
+        "annotations": {}
+      },
+      "reason": "LeaderElection",
+      "reportingComponent": "default-scheduler",
+      "reportingInstance": "",
+      "source": {
+        "component": "default-scheduler"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:50Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "name": "local-path-provisioner-75f7fc7dc5-xwfbc",
+        "namespace": "local-path-storage",
+        "resourceVersion": "422",
+        "uid": "fixture-uid-zje5otbkztmt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:50Z",
+      "message": "0/1 nodes are available: 1 node(s) had untolerated taint(s). preemption: 0/1 nodes are available: 1 Preemption is not helpful for scheduling.",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:50Z",
+        "name": "local-path-provisioner-75f7fc7dc5-xwfbc.18d49e8abea52f04",
+        "namespace": "local-path-storage",
+        "resourceVersion": "437",
+        "uid": "fixture-uid-y2ewnte4ogut",
+        "annotations": {}
+      },
+      "reason": "FailedScheduling",
+      "reportingComponent": "default-scheduler",
+      "reportingInstance": "",
+      "source": {
+        "component": "default-scheduler"
+      },
+      "type": "Warning"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:09Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "name": "local-path-provisioner-75f7fc7dc5-xwfbc",
+        "namespace": "local-path-storage",
+        "resourceVersion": "438",
+        "uid": "fixture-uid-zje5otbkztmt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:09Z",
+      "message": "Successfully assigned local-path-storage/local-path-provisioner-75f7fc7dc5-xwfbc to fleetforge-dev-control-plane",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:09Z",
+        "name": "local-path-provisioner-75f7fc7dc5-xwfbc.18d49e8f25b14f97",
+        "namespace": "local-path-storage",
+        "resourceVersion": "567",
+        "uid": "fixture-uid-n2nimzjindet",
+        "annotations": {}
+      },
+      "reason": "Scheduled",
+      "reportingComponent": "default-scheduler",
+      "reportingInstance": "",
+      "source": {
+        "component": "default-scheduler"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:10Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "name": "local-path-provisioner-75f7fc7dc5-xwfbc",
+        "namespace": "local-path-storage"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:10Z",
+      "message": "Cancelling deletion of Pod local-path-storage/local-path-provisioner-75f7fc7dc5-xwfbc",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:10Z",
+        "name": "local-path-provisioner-75f7fc7dc5-xwfbc.18d49e8f3db0354c",
+        "namespace": "local-path-storage",
+        "resourceVersion": "576",
+        "uid": "fixture-uid-ywewy2qxymut",
+        "annotations": {}
+      },
+      "reason": "TaintManagerEviction",
+      "reportingComponent": "taint-eviction-controller",
+      "reportingInstance": "",
+      "source": {
+        "component": "taint-eviction-controller"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:12Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{local-path-provisioner}",
+        "kind": "Pod",
+        "name": "local-path-provisioner-75f7fc7dc5-xwfbc",
+        "namespace": "local-path-storage",
+        "resourceVersion": "561",
+        "uid": "fixture-uid-zje5otbkztmt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:12Z",
+      "message": "Container image \"docker.io/kindest/local-path-provisioner:v20260820-69b56db7\" already present on machine and can be accessed by the pod",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:12Z",
+        "name": "local-path-provisioner-75f7fc7dc5-xwfbc.18d49e8fba3e9593",
+        "namespace": "local-path-storage",
+        "resourceVersion": "589",
+        "uid": "fixture-uid-ogqwzwvhyjgt",
+        "annotations": {}
+      },
+      "reason": "Pulled",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:16Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{local-path-provisioner}",
+        "kind": "Pod",
+        "name": "local-path-provisioner-75f7fc7dc5-xwfbc",
+        "namespace": "local-path-storage",
+        "resourceVersion": "561",
+        "uid": "fixture-uid-zje5otbkztmt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:16Z",
+      "message": "Container created",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:16Z",
+        "name": "local-path-provisioner-75f7fc7dc5-xwfbc.18d49e90c8a23b66",
+        "namespace": "local-path-storage",
+        "resourceVersion": "603",
+        "uid": "fixture-uid-mdu5ztbjotgt",
+        "annotations": {}
+      },
+      "reason": "Created",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:08:18Z",
+      "involvedObject": {
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{local-path-provisioner}",
+        "kind": "Pod",
+        "name": "local-path-provisioner-75f7fc7dc5-xwfbc",
+        "namespace": "local-path-storage",
+        "resourceVersion": "561",
+        "uid": "fixture-uid-zje5otbkztmt"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:08:18Z",
+      "message": "Container started",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:08:18Z",
+        "name": "local-path-provisioner-75f7fc7dc5-xwfbc.18d49e914a6cd913",
+        "namespace": "local-path-storage",
+        "resourceVersion": "610",
+        "uid": "fixture-uid-mjrlnwe5otkt",
+        "annotations": {}
+      },
+      "reason": "Started",
+      "reportingComponent": "kubelet",
+      "reportingInstance": "fleetforge-dev-control-plane",
+      "source": {
+        "component": "kubelet",
+        "host": "fleetforge-dev-control-plane"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:50Z",
+      "involvedObject": {
+        "apiVersion": "apps/v1",
+        "kind": "ReplicaSet",
+        "name": "local-path-provisioner-75f7fc7dc5",
+        "namespace": "local-path-storage",
+        "resourceVersion": "386",
+        "uid": "fixture-uid-ntm5ytbhymit"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:50Z",
+      "message": "Created pod: local-path-provisioner-75f7fc7dc5-xwfbc",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:50Z",
+        "name": "local-path-provisioner-75f7fc7dc5.18d49e8abd3e4170",
+        "namespace": "local-path-storage",
+        "resourceVersion": "427",
+        "uid": "fixture-uid-mgnlngvmnzyt",
+        "annotations": {}
+      },
+      "reason": "SuccessfulCreate",
+      "reportingComponent": "replicaset-controller",
+      "reportingInstance": "",
+      "source": {
+        "component": "replicaset-controller"
+      },
+      "type": "Normal"
+    },
+    {
+      "apiVersion": "v1",
+      "count": 1,
+      "eventTime": null,
+      "firstTimestamp": "2026-09-12T16:07:50Z",
+      "involvedObject": {
+        "apiVersion": "apps/v1",
+        "kind": "Deployment",
+        "name": "local-path-provisioner",
+        "namespace": "local-path-storage",
+        "resourceVersion": "345",
+        "uid": "fixture-uid-yzm0ymqyyzit"
+      },
+      "kind": "Event",
+      "lastTimestamp": "2026-09-12T16:07:50Z",
+      "message": "Scaled up replica set local-path-provisioner-75f7fc7dc5 from 0 to 1",
+      "metadata": {
+        "creationTimestamp": "2026-09-12T16:07:50Z",
+        "name": "local-path-provisioner.18d49e8aa5f7a236",
+        "namespace": "local-path-storage",
+        "resourceVersion": "390",
+        "uid": "fixture-uid-ymfmzdljntut",
+        "annotations": {}
+      },
+      "reason": "ScalingReplicaSet",
+      "reportingComponent": "deployment-controller",
+      "reportingInstance": "",
+      "source": {
+        "component": "deployment-controller"
+      },
+      "type": "Normal"
+    }
+  ],
+  "kind": "List",
+  "metadata": {
+    "resourceVersion": ""
+  }
+}

@@ -6,7 +6,7 @@
 // different empty-looking outcomes: syncing, forbidden, degraded, or genuinely
 // empty (ADR-0019).
 
-import type { CollectionStatus, EventFact, KindCoverage, NodeFact, PdbFact, PodFact,
+import type { CollectionStatus, EventFact, KindCoverage, Mode, NodeFact, PdbFact, PodFact,
   StreamState, WorkloadFact } from "./types";
 import { formatBytes, formatMillicores, isAuthoritative, statusLabel } from "./types";
 
@@ -18,10 +18,21 @@ export function ModeBadge({ mode, label }: { mode: string; label: string }) {
   );
 }
 
-export function StreamIndicator({ stream }: { stream: StreamState }) {
+export function StreamIndicator({
+  stream,
+  mode,
+}: {
+  stream: StreamState;
+  mode: Mode;
+}) {
+  // In fixture mode there is a stream — the backend still sends heartbeats —
+  // but calling it "live" would contradict the badge sitting next to it. The
+  // connection is healthy; the data is not current, and it never will be.
+  const connectedText = mode === "live" ? "live stream connected" : "connected — fixture data";
+
   const text =
     stream.kind === "open"
-      ? "live stream connected"
+      ? connectedText
       : stream.kind === "connecting"
         ? "connecting"
         : stream.kind === "stale"
@@ -63,7 +74,21 @@ export function EmptyState({
   kind: string;
   status: CollectionStatus | undefined;
 }) {
-  if (!status || status.state === "syncing") {
+  if (!status) {
+    // No coverage entry at all. That is not the same as a watch in progress:
+    // it means FleetForge never reported on this kind, so nothing is known
+    // about it — and a spinner would imply an answer is coming.
+    return (
+      <div className="state-block state-forbidden">
+        <h3>No collection status for {kind}</h3>
+        <p>
+          FleetForge did not report on this kind, so nothing is known about it. This is not an
+          empty result.
+        </p>
+      </div>
+    );
+  }
+  if (status.state === "syncing") {
     return (
       <div className="state-block">
         <div className="spinner" aria-hidden="true" />
@@ -122,15 +147,17 @@ function Panel({
   title,
   count,
   status,
+  wide,
   children,
 }: {
   title: string;
   count?: number;
   status?: CollectionStatus;
+  wide?: boolean;
   children: React.ReactNode;
 }) {
   return (
-    <section className="panel">
+    <section className={wide ? "panel span-2" : "panel"}>
       <header>
         <h2>{title}</h2>
         {count !== undefined && <span className="count">{count}</span>}
@@ -149,7 +176,7 @@ export function NodesPanel({
   status: CollectionStatus | undefined;
 }) {
   return (
-    <Panel title="Fleet overview" count={nodes.length} status={status}>
+    <Panel title="Fleet overview" count={nodes.length} status={status} wide>
       {nodes.length === 0 ? (
         <EmptyState kind="nodes" status={status} />
       ) : (

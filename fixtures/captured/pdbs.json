@@ -7,10 +7,10 @@
       "metadata": {
         "annotations": {},
         "creationTimestamp": "2026-09-12T16:08:41Z",
-        "generation": 1,
+        "generation": 9,
         "name": "web-pdb",
         "namespace": "demo",
-        "resourceVersion": "794",
+        "resourceVersion": "8720",
         "uid": "fixture-uid-owqyyzm2mdkt"
       },
       "spec": {
@@ -24,9 +24,9 @@
       "status": {
         "conditions": [
           {
-            "lastTransitionTime": "2026-09-12T16:08:48Z",
+            "lastTransitionTime": "2026-09-12T18:57:18Z",
             "message": "",
-            "observedGeneration": 1,
+            "observedGeneration": 9,
             "reason": "SufficientPods",
             "status": "True",
             "type": "DisruptionAllowed"
@@ -36,7 +36,7 @@
         "desiredHealthy": 2,
         "disruptionsAllowed": 1,
         "expectedPods": 3,
-        "observedGeneration": 1
+        "observedGeneration": 9
       }
     }
   ],

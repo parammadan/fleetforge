@@ -20,7 +20,7 @@
           "node.kubernetes.io/exclude-from-external-load-balancers": ""
         },
         "name": "fleetforge-dev-control-plane",
-        "resourceVersion": "10270",
+        "resourceVersion": "1958",
         "uid": "fixture-uid-otnjywjlmjmt"
       },
       "spec": {
@@ -60,7 +60,7 @@
         },
         "conditions": [
           {
-            "lastHeartbeatTime": "2026-09-12T19:29:57Z",
+            "lastHeartbeatTime": "2026-09-12T16:21:01Z",
             "lastTransitionTime": "2026-09-12T16:07:35Z",
             "message": "kubelet has sufficient memory available",
             "reason": "KubeletHasSufficientMemory",
@@ -68,7 +68,7 @@
             "type": "MemoryPressure"
           },
           {
-            "lastHeartbeatTime": "2026-09-12T19:29:57Z",
+            "lastHeartbeatTime": "2026-09-12T16:21:01Z",
             "lastTransitionTime": "2026-09-12T16:07:35Z",
             "message": "kubelet has no disk pressure",
             "reason": "KubeletHasNoDiskPressure",
@@ -76,7 +76,7 @@
             "type": "DiskPressure"
           },
           {
-            "lastHeartbeatTime": "2026-09-12T19:29:57Z",
+            "lastHeartbeatTime": "2026-09-12T16:21:01Z",
             "lastTransitionTime": "2026-09-12T16:07:35Z",
             "message": "kubelet has sufficient PID available",
             "reason": "KubeletHasSufficientPID",
@@ -84,7 +84,7 @@
             "type": "PIDPressure"
           },
           {
-            "lastHeartbeatTime": "2026-09-12T19:29:57Z",
+            "lastHeartbeatTime": "2026-09-12T16:21:01Z",
             "lastTransitionTime": "2026-09-12T16:08:07Z",
             "message": "kubelet is posting ready status",
             "reason": "KubeletReady",
@@ -231,7 +231,7 @@
           "kubernetes.io/os": "linux"
         },
         "name": "fleetforge-dev-worker",
-        "resourceVersion": "10498",
+        "resourceVersion": "1714",
         "uid": "fixture-uid-mguxzdjkmwmt"
       },
       "spec": {
@@ -265,7 +265,7 @@
         },
         "conditions": [
           {
-            "lastHeartbeatTime": "2026-09-12T19:32:20Z",
+            "lastHeartbeatTime": "2026-09-12T16:18:20Z",
             "lastTransitionTime": "2026-09-12T16:07:54Z",
             "message": "kubelet has sufficient memory available",
             "reason": "KubeletHasSufficientMemory",
@@ -273,7 +273,7 @@
             "type": "MemoryPressure"
           },
           {
-            "lastHeartbeatTime": "2026-09-12T19:32:20Z",
+            "lastHeartbeatTime": "2026-09-12T16:18:20Z",
             "lastTransitionTime": "2026-09-12T16:07:54Z",
             "message": "kubelet has no disk pressure",
             "reason": "KubeletHasNoDiskPressure",
@@ -281,7 +281,7 @@
             "type": "DiskPressure"
           },
           {
-            "lastHeartbeatTime": "2026-09-12T19:32:20Z",
+            "lastHeartbeatTime": "2026-09-12T16:18:20Z",
             "lastTransitionTime": "2026-09-12T16:07:54Z",
             "message": "kubelet has sufficient PID available",
             "reason": "KubeletHasSufficientPID",
@@ -289,7 +289,7 @@
             "type": "PIDPressure"
           },
           {
-            "lastHeartbeatTime": "2026-09-12T19:32:20Z",
+            "lastHeartbeatTime": "2026-09-12T16:18:20Z",
             "lastTransitionTime": "2026-09-12T16:08:22Z",
             "message": "kubelet is posting ready status",
             "reason": "KubeletReady",
@@ -443,7 +443,7 @@
           "kubernetes.io/os": "linux"
         },
         "name": "fleetforge-dev-worker2",
-        "resourceVersion": "10465",
+        "resourceVersion": "1681",
         "uid": "fixture-uid-mdrizwqyntct"
       },
       "spec": {
@@ -477,7 +477,7 @@
         },
         "conditions": [
           {
-            "lastHeartbeatTime": "2026-09-12T19:31:58Z",
+            "lastHeartbeatTime": "2026-09-12T16:17:58Z",
             "lastTransitionTime": "2026-09-12T16:07:54Z",
             "message": "kubelet has sufficient memory available",
             "reason": "KubeletHasSufficientMemory",
@@ -485,7 +485,7 @@
             "type": "MemoryPressure"
           },
           {
-            "lastHeartbeatTime": "2026-09-12T19:31:58Z",
+            "lastHeartbeatTime": "2026-09-12T16:17:58Z",
             "lastTransitionTime": "2026-09-12T16:07:54Z",
             "message": "kubelet has no disk pressure",
             "reason": "KubeletHasNoDiskPressure",
@@ -493,7 +493,7 @@
             "type": "DiskPressure"
           },
           {
-            "lastHeartbeatTime": "2026-09-12T19:31:58Z",
+            "lastHeartbeatTime": "2026-09-12T16:17:58Z",
             "lastTransitionTime": "2026-09-12T16:07:54Z",
             "message": "kubelet has sufficient PID available",
             "reason": "KubeletHasSufficientPID",
@@ -501,7 +501,7 @@
             "type": "PIDPressure"
           },
           {
-            "lastHeartbeatTime": "2026-09-12T19:31:58Z",
+            "lastHeartbeatTime": "2026-09-12T16:17:58Z",
             "lastTransitionTime": "2026-09-12T16:08:20Z",
             "message": "kubelet is posting ready status",
             "reason": "KubeletReady",

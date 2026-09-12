@@ -23,7 +23,14 @@ cargo fmt --all -- --check
 cargo clippy --all-targets --all-features -- -D warnings
 cargo test --workspace
 cd web && npm ci && npm run typecheck && npm test
+
+# End-to-end, in a real browser. Needs the binary built first.
+cargo build --bin fleetforge
+cd web && npx playwright install chromium && npm run test:e2e
 ```
+
+The end-to-end tests run against **fixture mode**, never a live cluster: the assertions are about
+what the interface renders, and those must not change because a pod restarted mid-test.
 
 `make check` runs all of it (added in M1, once the workspace exists).
 

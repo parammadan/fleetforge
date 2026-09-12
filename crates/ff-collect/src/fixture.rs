@@ -13,6 +13,7 @@ use ff_core::{ClusterSnapshot, CollectionStatus, KindCoverage, Mode};
 use k8s_openapi::api::apps::v1::{DaemonSet, Deployment, ReplicaSet, StatefulSet};
 use k8s_openapi::api::core::v1::{Event, Node, Pod};
 use k8s_openapi::api::policy::v1::PodDisruptionBudget;
+use kube::api::DynamicObject;
 use serde::de::DeserializeOwned;
 
 use crate::error::CollectError;
@@ -173,6 +174,21 @@ impl FixtureSource {
             .unwrap_or_default();
         record("PodDisruptionBudget", pdbs_raw.is_some(), pdbs.len());
 
+        let brupop_raw: Option<Vec<DynamicObject>> = self.read_list("brupop.json")?;
+        let brupop: Vec<_> = brupop_raw
+            .as_ref()
+            .map(|items| {
+                items
+                    .iter()
+                    .map(|b| normalize::brupop::normalize(b, &ctx("brupop.json")))
+                    .collect()
+            })
+            .unwrap_or_default();
+        // Recorded even when absent. A kind with no coverage entry at all leaves
+        // the interface unable to say anything about it, and "no entry" is
+        // easily rendered as "still loading".
+        record("BottlerocketShadow", brupop_raw.is_some(), brupop.len());
+
         let events: Vec<_> = events_raw
             .as_ref()
             .map(|items| {
@@ -194,8 +210,7 @@ impl FixtureSource {
                 workloads,
                 pdbs,
                 events,
-                // Brupop shadows are not captured as fixtures yet.
-                brupop: Vec::new(),
+                brupop,
                 coverage,
             },
         )

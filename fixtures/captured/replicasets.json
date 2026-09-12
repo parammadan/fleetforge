@@ -98,7 +98,7 @@
           "deployment.kubernetes.io/revision": "1"
         },
         "creationTimestamp": "2026-09-12T16:08:41Z",
-        "generation": 1,
+        "generation": 5,
         "labels": {
           "app": "web",
           "pod-template-hash": "57f44446c5"
@@ -115,7 +115,7 @@
             "uid": "fixture-uid-mjhlzwvinjut"
           }
         ],
-        "resourceVersion": "793",
+        "resourceVersion": "8715",
         "uid": "fixture-uid-njg5ntaymjut"
       },
       "spec": {
@@ -169,7 +169,7 @@
       "status": {
         "availableReplicas": 3,
         "fullyLabeledReplicas": 3,
-        "observedGeneration": 1,
+        "observedGeneration": 5,
         "readyReplicas": 3,
         "replicas": 3,
         "terminatingReplicas": 0

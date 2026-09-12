@@ -136,6 +136,12 @@ body {
 main { padding: 16px; max-width: 1400px; margin: 0 auto; }
 .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
 
+/* The fleet table carries node name, conditions, capacity, zone, kubelet, and
+ * resourceVersion. Squeezed into a third of the width it clips the rightmost
+ * columns — which are exactly the provenance ones. */
+.grid > .span-2 { grid-column: span 2; }
+@media (max-width: 900px) { .grid > .span-2 { grid-column: span 1; } }
+
 section.panel {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -152,7 +158,13 @@ section.panel {
 }
 .panel > header h2 { margin: 0; font-size: 14px; }
 .panel > header .count { font-family: var(--mono); font-size: 12px; color: var(--text-dim); }
-.panel-body { padding: 12px 14px; }
+.panel-body {
+  padding: 12px 14px;
+  /* Node tables carry resourceVersions and quantities and can exceed a narrow
+   * column. Clipping them silently hides provenance, which is the one thing
+   * that must always be visible. */
+  overflow-x: auto;
+}
 
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
 th { text-align: left; font-weight: 600; color: var(--text-dim); font-size: 12px; padding: 6px 8px; border-bottom: 1px solid var(--border); }
@@ -163,12 +175,15 @@ code, .mono { font-family: var(--mono); font-size: 12px; }
 /* --- State pills --------------------------------------------------------- */
 .pill {
   display: inline-block;
+  max-width: 100%;
+  /* Breaks at spaces only. `anywhere` would let a long status pill wrap, but
+   * it also splits "singleton" into "single/ton". */
+  overflow-wrap: normal;
   font-size: 11px;
   font-family: var(--mono);
   padding: 2px 7px;
   border-radius: 10px;
   border: 1px solid;
-  white-space: nowrap;
 }
 .pill-ok { color: var(--ok); border-color: var(--ok); }
 .pill-warn { color: var(--warn); border-color: var(--warn); }

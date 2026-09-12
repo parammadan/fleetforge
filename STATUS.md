@@ -1,6 +1,6 @@
 # FleetForge — Status
 
-Last updated: 2026-09-12 · Current milestone: **M4 complete** · M5 prepared, **blocked on AWS credentials**
+Last updated: 2026-09-12 · **M4 complete** · M5 prepared, blocked on AWS credentials · **UI verified in a browser**
 
 ## Completed
 
@@ -204,14 +204,45 @@ HashiCorp adopted the Business Source License. The configuration uses no Terrafo
 syntax and runs unchanged under OpenTofu, which is MPL-2.0 and a better licence fit for an
 Apache-2.0 project. Your brief said Terraform, so Terraform is what is installed and tested.
 
+### Browser verification ✅ 2026-09-12 — the largest unverified claim, closed
+
+Since M2 this file has carried the same admission: *nobody has opened the UI in a browser.* That
+is no longer true. Playwright + Chromium, 12 tests against a real browser driving the real
+backend in fixture mode.
+
+**Looking at it found four bugs that no amount of unit testing would have:**
+
+1. **The header said "live stream connected" while the badge said `FIXTURE`.** Two pieces of
+   chrome, six inches apart, contradicting each other. The stream genuinely was connected — the
+   backend sends heartbeats in fixture mode — but calling it *live* next to a `FIXTURE` badge is
+   exactly the confusion this product exists to prevent. Now reads "connected — fixture data".
+2. **The Brupop panel spun on "Syncing BottlerocketShadows" forever.** There was no coverage entry
+   for that kind in fixture mode, and the empty state treated a missing entry as "still loading" —
+   promising an answer that was never coming. An absent status now says so.
+3. **The fleet table clipped its rightmost columns**, which were `rv` — the resourceVersions.
+   Silently hiding provenance, in the panel where provenance matters most.
+4. **"1 updates".**
+
+Fixing (2) properly meant capturing Brupop shadows as fixtures rather than suppressing the
+resulting "incomplete view" banner. Suppressing it would have trained the reader to ignore the
+banner that matters — the same argument as ADR-0024.
+
+**What the tests assert**, as distinct from the component tests: the mode badge has no dismiss
+control and survives scrolling; every finding's limitations are visible *on screen*; the evidence
+drawer shows field, value, and arithmetic; the concurrency control recomputes; the first Tab
+reaches a visible skip link; tables use `th[scope]`; a 390px viewport does not overflow. Plus
+three screenshots, which exist so a human can look.
+
+CI now has an `e2e` job that builds the binary, installs Chromium, and uploads the report.
+
 ## Not done — stated explicitly
 
 - **CI has never run.** There is no git remote. The workflow is written and enabled, so the
   cross-architecture snapshot-hash claim is verified on `aarch64` only.
-- **The UI has still not been viewed in a browser.** Typecheck, 15 component tests, and a
-  production build all pass, and every API response was verified by hand — but no human or headless
-  browser has rendered the page. Playwright coverage of the UI states remains unwritten. This is
-  the largest unverified claim in the project.
+- **The interface has been verified in Chromium only.** No Firefox, no WebKit, no real mobile
+  device. The narrow-viewport test resizes Chromium; it does not prove anything about iOS Safari.
+- **No automated accessibility audit.** Focus order, header cells, and contrast were checked by
+  hand and by targeted assertions, not by axe or similar.
 - **No scheduler predicate evaluation.** Capacity findings are `Heuristic` and say so in their own
   `limitations`. `FF-STORAGE-001` cannot read PersistentVolume node affinity, because FleetForge
   has no PV read permission at this milestone — a network PV that is in fact zone-bound is not
