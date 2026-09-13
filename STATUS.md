@@ -259,18 +259,21 @@ actual, evidence explorer, limitations. The `REPLAY — CAPTURED FROM REAL EKS/B
 EXECUTION` banner is sticky, has no dismiss control, and stays in the viewport at the bottom of
 the page — a screenshot of the fleet panel has to carry the label too.
 
-**Measured** on the M1 MacBook Air (8 GB), release build: **~100 ms** to ready, **25 MiB**
-resident idle, **29 MiB** after serving the full timeline and a complete 5,068-event fold. Any
-timeline position resolves in **under 1 ms**.
+**Measured** on the M1 MacBook Air (8 GB), release build, three warm runs: **107–117 ms** to
+ready, **25 MiB** resident idle, **29 MiB** after serving the full timeline and a complete
+5,068-event fold. Any timeline position resolves in **~1 ms**. Frontend production bundle:
+**293 kB JS (88 kB gzipped)**, **18 kB CSS (4 kB gzipped)**.
 
 | Suite | Result |
 | --- | --- |
-| `cargo test -p ff-replay` | ✅ **24 passed** (17 against the real bundle) |
-| `cargo test -p ff-api` | ✅ **13 passed**, of which 11 are the replay API — including determinism and traversal |
-| `npm test` | ✅ **33 passed** (17 new) |
+| `cargo test --workspace` | ✅ **205 passed** |
+| `cargo test -p ff-replay` | ✅ **42 passed** (35 against the real bundle) |
+| `cargo test -p ff-api` | ✅ **19 passed**, of which 17 are the replay API |
+| `npm test` | ✅ **45 passed** |
 | `npm run test:e2e` (fixture) | ✅ **12 passed** |
-| `npm run test:e2e:replay` | ✅ **17 passed** in Chromium against the real bundle |
-| `cargo clippy --workspace --all-targets` | ✅ clean |
+| `npm run test:e2e:replay` | ✅ **31 passed** in Chromium against the real bundle |
+| `cargo clippy --workspace --all-targets` | ✅ clean, warnings denied |
+| `make check` | ✅ exit 0 |
 
 **Four things the interface refuses to do**, each with a test:
 

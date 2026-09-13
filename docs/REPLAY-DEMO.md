@@ -22,10 +22,14 @@ cd web && npm run dev
 
 Then open **http://127.0.0.1:5173**.
 
-Measured on an M1 MacBook Air (8 GB), release build: ready in **~100 ms**, **25 MiB** resident
-idle and **29 MiB** after serving the full timeline and a complete 5,068-event fold. Any
-position on the timeline resolves in **under 1 ms**. Nothing is pre-computed and nothing is
-cached between requests.
+Measured on an M1 MacBook Air (8 GB), release build, over three warm runs: ready in
+**107–117 ms**, **25 MiB** resident idle and **29 MiB** after serving the full timeline and a
+complete 5,068-event fold. Any position on the timeline resolves in **~1 ms**. The frontend
+production bundle is **293 kB of JavaScript (88 kB gzipped)** and **18 kB of CSS (4 kB
+gzipped)**. Nothing is pre-computed and nothing is cached between requests.
+
+First run after a build is slower — around 700–850 ms — because the binary is not yet in the
+page cache.
 
 If the backend is not running, the page says so and shows nothing else. That is deliberate.
 
@@ -78,7 +82,7 @@ way to close it.*
 *Point at the blue callout under the tiles.*
 
 > FleetForge did not predict this. Brupop started updating the fleet at 14:08:15. FleetForge
-> started recording at 14:15:47 — seven and a half minutes later. By the time it was
+> started recording at 14:15:47 — 7m 32s later. By the time it was
 > watching, two of the three nodes were already cordoned.
 >
 > That timestamp is not written into the interface. It is read out of the Kubernetes events

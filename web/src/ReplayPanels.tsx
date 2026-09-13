@@ -104,11 +104,12 @@ export function ExecutiveSummary({
   const minutes = Math.round(
     (Date.parse(capturedTo) - Date.parse(capturedFrom)) / 60_000,
   );
-  // Exact, not rounded. "About 8 minutes" and the timeline's "7m 32s" are the
-  // same gap, and a reader who notices the discrepancy is right to distrust
-  // both numbers.
+  // Exact, and truncated rather than rounded — `chrono::Duration::num_seconds`
+  // in the Rust chapter narration truncates, and a screen showing "7m 32s" in
+  // one panel and "7m 33s" in another is a screen a careful reader is right to
+  // distrust on both counts.
   const blindSeconds = brupopFirstSeenAt
-    ? Math.round((Date.parse(capturedFrom) - Date.parse(brupopFirstSeenAt)) / 1000)
+    ? Math.floor((Date.parse(capturedFrom) - Date.parse(brupopFirstSeenAt)) / 1000)
     : null;
   const blindMinutes =
     blindSeconds === null
@@ -741,9 +742,10 @@ export function Limitations({
   brupopFirstSeenAt?: string | null;
 }) {
   const soft = claims.filter((c) => !isEvidence(c.basis));
+  // Truncated, to agree with the Rust-side narration. See ExecutiveSummary.
   const gap =
     capturedFrom && brupopFirstSeenAt
-      ? Math.round((Date.parse(capturedFrom) - Date.parse(brupopFirstSeenAt)) / 1000)
+      ? Math.floor((Date.parse(capturedFrom) - Date.parse(brupopFirstSeenAt)) / 1000)
       : null;
 
   return (

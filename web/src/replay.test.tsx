@@ -530,3 +530,24 @@ describe("the five required disclosures", () => {
     expect(screen.getByText(/cannot establish when Brupop started/)).toBeTruthy();
   });
 });
+
+describe("the gap between Brupop starting and recording starting", () => {
+  it("is reported identically everywhere it appears", () => {
+    // Rust composes the chapter narration with truncating integer seconds.
+    // Two panels disagreeing by one second is a screen a careful reader is
+    // right to distrust on both counts.
+    summary();
+    const callout = screen.getByText(/did not predict this/i).closest(".callout");
+    expect(callout?.textContent).toContain("7m 32s");
+
+    render(
+      <Limitations
+        caveats={[]}
+        claims={claims}
+        capturedFrom="2026-09-13T14:15:47.607196Z"
+        brupopFirstSeenAt="2026-09-13T14:08:15Z"
+      />,
+    );
+    expect(screen.getByText(/7m 32s later/)).toBeTruthy();
+  });
+});
