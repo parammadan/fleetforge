@@ -1,7 +1,10 @@
 # FleetForge — reproducible development commands.
-.PHONY: check fmt lint test build clean
+.PHONY: check fmt lint test scripts build clean
 
-check: fmt lint test ## everything CI runs
+check: fmt lint test scripts ## everything CI runs
+
+scripts:
+	./scripts/tests/test-eks-down.sh
 
 fmt:
 	cargo fmt --all -- --check

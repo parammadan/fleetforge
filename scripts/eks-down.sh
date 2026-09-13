@@ -11,7 +11,10 @@
 set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$REPO_ROOT/infra/terraform"
+# Overridable so the regression test can point this at a stub. Nothing else
+# should set it.
+TF_DIR="${FLEETFORGE_TF_DIR:-$REPO_ROOT/infra/terraform}"
+cd "$TF_DIR"
 
 say() { printf '\n\033[1m%s\033[0m\n' "$*"; }
 
@@ -48,7 +51,56 @@ if [ "$reply" != "destroy fleetforge-demo" ]; then
   exit 1
 fi
 
-terraform destroy
+# Everything below exists because of one observed failure. On 2026-09-13 this
+# script printed its banner, ran, and exited 0 — having destroyed nothing. The
+# piped confirmation answered the script's own prompt, Terraform asked for its
+# own approval, got EOF, and aborted. A teardown script that can silently no-op
+# while reporting success is worse than no script: it converts "I tore it down"
+# into a belief rather than a fact, and the cluster keeps billing.
+#
+# So: -auto-approve (the gate above is the confirmation), and three checks.
+
+BEFORE=$(terraform state list 2>/dev/null | grep -c . || true)
+echo "  resources in state before destroy: ${BEFORE}"
+
+set +e
+terraform destroy -auto-approve
+TF_RC=$?
+set -e
+
+# Check 1 — Terraform's own exit code. EOF on a prompt lands here.
+if [ "$TF_RC" -ne 0 ]; then
+  echo >&2
+  echo "TEARDOWN FAILED: terraform destroy exited ${TF_RC}." >&2
+  echo "Resources may still exist and may still be billing. Investigate before" >&2
+  echo "assuming anything was removed." >&2
+  exit "$TF_RC"
+fi
+
+# grep -c, not wc -l: wc counts newlines, so a final line without one is
+# invisible and a surviving resource reads as zero. Caught by the
+# regression test in scripts/tests/.
+AFTER=$(terraform state list 2>/dev/null | grep -c . || true)
+echo "  resources in state after destroy:  ${AFTER}"
+
+# Check 2 — state must be empty afterwards.
+if [ "$AFTER" -ne 0 ]; then
+  echo >&2
+  echo "TEARDOWN FAILED: ${AFTER} resource(s) remain in Terraform state." >&2
+  terraform state list >&2
+  exit 1
+fi
+
+# Check 3 — if there was something to destroy, something must have been
+# destroyed. Catches a silent no-op that still exits 0.
+if [ "$BEFORE" -gt 0 ] && [ "$BEFORE" -eq "$AFTER" ]; then
+  echo >&2
+  echo "TEARDOWN FAILED: state had ${BEFORE} resources before and after." >&2
+  echo "Nothing was destroyed despite a successful exit code." >&2
+  exit 1
+fi
+
+echo "  verified: ${BEFORE} resource(s) destroyed, state is empty"
 
 say "Verify nothing is left billing"
 printf '%s\n' "------------------------------------------------------------"

@@ -94,6 +94,19 @@ jobs:
               --exit-code 1
           done
 
+  scripts:
+    name: shell script tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: shellcheck
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
+          shellcheck -S warning scripts/*.sh scripts/tests/*.sh || true
+      - name: eks-down regression tests
+        # Guards a teardown script that once exited 0 having destroyed nothing.
+        run: ./scripts/tests/test-eks-down.sh
+
   deny:
     name: cargo deny
     runs-on: ubuntu-latest
