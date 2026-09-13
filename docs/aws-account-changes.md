@@ -70,7 +70,48 @@ aws organizations disable-aws-service-access \
 
 Do this after deleting the IdC instance, not before.
 
-## 4. IAM Identity Center organization instance — PENDING, console only
+## 4. IAM Identity Center organization instance — CREATED (built, not in use)
+
+| | |
+| --- | --- |
+| Instance | `arn:aws:sso:::instance/ssoins-6684ec564eebf36b` |
+| Identity store | `d-9a675c79ed` |
+| Portal | `https://d-9a675c79ed.awsapps.com/start` |
+| Primary region | `us-east-2` (single region — the auto-created us-west-2 replica was removed) |
+| Encryption | CUSTOMER_MANAGED_KEY, `mrk-c3b7a2bef7ae478eb6721340827c3707` in us-east-2 |
+| User | `param` / `a1eb75c0-b0b1-70f0-d0ac-8b72c4c7b7fd` / madan.pa@northeastern.edu |
+| Permission set | `FleetForgeAdmin` / `ps-b71fbf90878f8b19`, **PT2H**, AdministratorAccess |
+| Assignment | `SUCCEEDED` |
+| **IAM role created by the assignment** | **`AWSReservedSSO_FleetForgeAdmin_7ab4c86b3b7a9bea`** — IdC-managed, in `aws-reserved/sso.amazonaws.com/us-east-2/`. Not Terraform-managed and not visible in any plan |
+| CLI profile | `fleetforge-admin` in `~/.aws/config` (appended; a timestamped backup of the prior file is alongside it) |
+
+**Status: complete but unused.** Sign-in is blocked by the instance's MFA policy —
+"if a user does not yet have a registered MFA device: block their sign-in" rather than
+"require them to register at sign-in". Changing that one setting in
+**IdC → Settings → Authentication → Multi-factor authentication** is all that stands between this
+and working. Terraform is running under root instead, by explicit decision.
+
+### us-west-2 replica — REMOVED
+
+IdC replicated itself to us-west-2 automatically, 4.4 seconds after creation. Removed with
+`sso-admin remove-region`; converged in ~90s. `remove-region` does **not** clean up the KMS
+replica it created — that was scheduled separately, see below.
+
+### KMS
+
+| Region | Key | State |
+| --- | --- | --- |
+| us-east-2 | `mrk-c3b7a2bef7ae478eb6721340827c3707` (PRIMARY) | **Enabled — do not delete.** IdC encrypts live data with it |
+| us-west-2 | same key ID (REPLICA) | **PendingDeletion, 2026-09-19T20:23:39-04:00** |
+
+Multi-Region key replicas bill independently at ~$1/month each, so this was ~$2/month.
+The us-west-2 replica is still billed until the window elapses; cancel with
+`aws kms cancel-key-deletion --key-id <id> --region us-west-2`.
+
+**Cleanup order at teardown: delete IdC first, then its KMS key.** Deleting the key while IdC
+still uses it leaves an instance that can be neither used nor cleanly removed.
+
+## 4b. Original console-only note (kept for the record)
 
 Enabling an organization instance has **no public API**. `sso-admin
 create-instance` exists but is for standalone account instances and explicitly

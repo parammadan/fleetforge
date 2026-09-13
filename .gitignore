@@ -25,6 +25,7 @@ credentials
 
 # Generated cluster credentials. Short-lived tokens, never committed.
 infra/local/.kubeconfig-*
+infra/eks/.kubeconfig-*
 *.token
 
 # Terraform

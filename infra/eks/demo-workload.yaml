@@ -1,0 +1,124 @@
+# Demonstration workload for the EKS cluster.
+#
+# Mirrors infra/local/demo/ but sized for three Bottlerocket nodes, and with a
+# topology-spread constraint so `web` lands one pod per node. That matters: it
+# makes draining any single node a meaningful, symmetrical operation rather than
+# one that happens to be blocked because two replicas share a host.
+#
+# No Service of type LoadBalancer anywhere. A Kubernetes-created load balancer
+# is made by the cloud controller, not Terraform, so `terraform destroy` does
+# not remove it — it outlives the cluster and keeps billing. Reach the app with
+# `kubectl port-forward`.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: demo
+  labels:
+    app.kubernetes.io/part-of: fleetforge-demo
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: demo
+  labels: { app: web }
+spec:
+  replicas: 3
+  selector:
+    matchLabels: { app: web }
+  template:
+    metadata:
+      labels: { app: web }
+    spec:
+      terminationGracePeriodSeconds: 30
+      # One per node, so every node holds exactly one covered pod.
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels: { app: web }
+      containers:
+        - name: nginx
+          image: nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10
+          ports: [{ containerPort: 80 }]
+          resources:
+            requests: { cpu: 50m, memory: 32Mi }
+            limits:   { memory: 64Mi }
+---
+# A singleton. FF-SINGLETON-001 exists for workloads shaped like this.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: demo
+  labels: { app: api }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: api }
+  template:
+    metadata:
+      labels: { app: api }
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: nginx
+          image: nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10
+          resources:
+            requests: { cpu: 25m, memory: 24Mi }
+            limits:   { memory: 48Mi }
+---
+# Permissive on purpose: minAvailable 2 of 3 leaves one disruption allowed.
+# Tightening it to 3 is the demonstration.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: web-pdb
+  namespace: demo
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels: { app: web }
+---
+# Continuous traffic, so availability during the drain is observable rather
+# than asserted. Writes a line per second; failures show up as non-200s.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: traffic
+  namespace: demo
+  labels: { app: traffic }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: traffic }
+  template:
+    metadata:
+      labels: { app: traffic }
+    spec:
+      containers:
+        - name: curl
+          image: nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              while true; do
+                code=$(wget -q -O /dev/null -S http://web.demo.svc.cluster.local 2>&1 \
+                  | awk '/HTTP\//{print $2; exit}')
+                echo "$(date -u +%H:%M:%S) ${code:-ERR}"
+                sleep 1
+              done
+          resources:
+            requests: { cpu: 10m, memory: 16Mi }
+            limits:   { memory: 32Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  namespace: demo
+spec:
+  type: ClusterIP          # deliberately NOT LoadBalancer
+  selector: { app: web }
+  ports: [{ port: 80, targetPort: 80 }]
