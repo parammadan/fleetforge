@@ -554,6 +554,11 @@ code, .mono { font-family: var(--mono); font-size: 12px; }
  */
 @media (max-width: 640px) {
   .banner { flex-direction: column; gap: 6px; }
+  .provenance { gap: 0 16px; }
+  .chain-head { flex-wrap: wrap; gap: 6px 10px; }
+  .chain-value { flex: 1 0 100%; }
+  .chain-detail { padding-left: 12px; }
+  .chain-because { max-width: none; }
   .banner strong { flex: 0 1 auto; min-width: 0; overflow-wrap: anywhere; }
   .banner-replay { position: static; }
   .tiles { grid-template-columns: 1fr; }
@@ -561,3 +566,135 @@ code, .mono { font-family: var(--mono); font-size: 12px; }
   .chapter-list { flex-direction: column; }
   .chapter-button { width: 100%; }
 }
+
+/* --- Glossary terms ------------------------------------------------------
+ * `<abbr>` is the right element and browsers already give it tooltip
+ * behaviour; the default underline is close to invisible, and it is not
+ * focusable, so both are added back.
+ */
+.term {
+  text-decoration: none;
+  border-bottom: 1px dotted var(--accent);
+  cursor: help;
+}
+.term:hover { border-bottom-style: solid; }
+
+.glossary { margin: 0; font-size: 13px; }
+.glossary dt { font-weight: 600; margin-top: 10px; }
+.glossary dd { margin: 2px 0 0; color: var(--text-dim); }
+
+.headline {
+  font-size: 15px;
+  line-height: 1.55;
+  margin: 0 0 16px;
+  max-width: 92ch;
+}
+
+/* --- Provenance strip ---------------------------------------------------- */
+.provenance {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 28px;
+  margin: 0;
+  padding: 8px 16px;
+  background: var(--surface-raised);
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+.provenance dt { color: var(--text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+.provenance dd { margin: 1px 0 0; }
+
+/* --- Investigation chain -------------------------------------------------
+ * Facts are solid boxes. Arrows are dashed and purple and carry their own
+ * tag, because an arrow here is a causal claim and a box is a measurement.
+ * A uniform diagram would silently promote one to the other.
+ */
+.chain-intro { font-size: 14px; margin: 0 0 16px; color: var(--text); }
+.chain { list-style: none; margin: 0; padding: 0; max-width: 900px; }
+
+.chain-box {
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+}
+.chain-observed_by_fleet_forge { border-left-color: var(--ok); }
+.chain-mathematically_derived { border-left-color: var(--accent); }
+
+.chain-head {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: 10px 12px;
+  border: 0; background: none; color: inherit; font: inherit;
+  text-align: left; cursor: pointer;
+}
+.chain-head:hover { background: var(--surface-raised); }
+.chain-step {
+  flex: none;
+  width: 22px; height: 22px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: var(--surface-raised);
+  font-family: var(--mono); font-size: 11px; color: var(--text-dim);
+}
+.chain-label { flex: none; font-weight: 600; }
+.chain-value { flex: 1; color: var(--text-dim); }
+.chain-toggle { flex: none; color: var(--accent); font-family: var(--mono); }
+
+.chain-detail { padding: 0 12px 12px 46px; font-size: 13px; }
+.chain-detail p { margin: 0 0 6px; }
+.chain-source { color: var(--text-dim); font-size: 12px; }
+
+.chain-arrow {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 2px 0 2px 16px;
+}
+.arrow-line { stroke: var(--whatif); }
+.arrow-head { fill: var(--whatif); }
+.chain-because { font-size: 12px; color: var(--text-dim); padding-top: 4px; max-width: 76ch; }
+.arrow-basis {
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.08em; color: var(--bg);
+  background: var(--whatif); border-radius: 3px; padding: 1px 5px;
+  margin-right: 6px;
+}
+.chain-attribution {
+  margin: 18px 0 0; padding: 12px 14px;
+  border: 1px dashed var(--whatif); border-radius: 6px;
+  font-size: 13px; max-width: 92ch;
+}
+
+/* --- Node transition ----------------------------------------------------- */
+.node-transition {
+  display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: baseline;
+  margin: 0; padding: 6px 10px; font-size: 12px;
+}
+.transition { font-weight: 600; }
+.transition-stuck { color: var(--danger); }
+.transition-active { color: var(--warn); }
+.transition-done { color: var(--ok); }
+.node-evidence { color: var(--text-dim); }
+
+/* --- Disclosures --------------------------------------------------------- */
+.disclosures {
+  margin: 0 0 18px; padding-left: 22px;
+  font-size: 13px; max-width: 92ch;
+}
+.disclosures li { margin-bottom: 10px; }
+
+/* --- Evidence drawer ----------------------------------------------------- */
+.drawer-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px; }
+.drawer-head h4 { margin: 0; font-family: var(--mono); font-size: 13px; text-transform: none; letter-spacing: 0; color: var(--text); }
+.drawer-hash { color: var(--text-dim); }
+.drawer-head .link-button { margin-left: auto; }
+.drawer details summary { cursor: pointer; font-size: 12px; color: var(--text-dim); margin-bottom: 6px; }
+
+.trust-bar {
+  margin: 14px 0 0;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-raised);
+  font-size: 13px;
+  max-width: 100%;
+}
+.strip-empty { color: var(--text-dim); font-style: normal; }

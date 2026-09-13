@@ -17,6 +17,7 @@ import type {
   TrafficValidation,
 } from "./replayTypes";
 import { BASIS_LABEL, BASIS_MEANING, isEvidence } from "./replayTypes";
+import { Term } from "./glossary";
 import { fetchArtifact } from "./useReplay";
 
 /* ---------------------------------------------------------------- primitives */
@@ -75,6 +76,8 @@ export interface SummaryProps {
   claims: Claim[];
   traffic: TrafficValidation;
   nodeCount: number;
+  pdb: PdbArithmetic;
+  onOpenEvidence?: (artifact: string) => void;
 }
 
 /**
@@ -95,13 +98,23 @@ export function ExecutiveSummary({
   claims,
   traffic,
   nodeCount,
+  pdb,
+  onOpenEvidence,
 }: SummaryProps) {
   const minutes = Math.round(
     (Date.parse(capturedTo) - Date.parse(capturedFrom)) / 60_000,
   );
-  const blindMinutes = brupopFirstSeenAt
-    ? Math.round((Date.parse(capturedFrom) - Date.parse(brupopFirstSeenAt)) / 60_000)
+  // Exact, not rounded. "About 8 minutes" and the timeline's "7m 32s" are the
+  // same gap, and a reader who notices the discrepancy is right to distrust
+  // both numbers.
+  const blindSeconds = brupopFirstSeenAt
+    ? Math.round((Date.parse(capturedFrom) - Date.parse(brupopFirstSeenAt)) / 1000)
     : null;
+  const blindMinutes =
+    blindSeconds === null
+      ? null
+      : `${Math.floor(blindSeconds / 60)}m ${blindSeconds % 60}s`;
+  const evidenceClaims = claims.filter((c) => isEvidence(c.basis)).length;
 
   return (
     <Panel
@@ -109,16 +122,34 @@ export function ExecutiveSummary({
       title="Executive summary"
       subtitle={`${timeOf(capturedFrom)} → ${timeOf(capturedTo)} · ${minutes} min captured`}
     >
+      <p className="headline">
+        A routine <Term k="bottlerocket" /> update stalled. <Term k="brupop" /> cordoned two of
+        three nodes, a <Term k="pdb">PodDisruptionBudget</Term> then refused every{" "}
+        <Term k="eviction" />, and the update could not proceed. Two manual uncordons cleared
+        it and all three nodes finished on Bottlerocket 1.64.0.
+      </p>
+
       <div className="tiles">
         <div className="tile tile-unknown">
-          <span className="tile-label">Availability during the incident</span>
-          <strong className="tile-value">UNKNOWN</strong>
+          <span className="tile-label">Customer availability</span>
+          <strong className="tile-value">UNKNOWN DURING INCIDENT</strong>
           <span className="tile-note">
             The traffic sampler running at the time had no request timeout, so its output
-            measured the client's patience rather than the service. Its data was discarded.
-            No availability figure exists for this window.
+            measured the client's patience rather than the service — 31 samples in 34 minutes
+            instead of ~2,000. Its data was discarded. No availability figure exists for this
+            window, in either direction.
           </span>
           <BasisTag basis="unavailable" />
+        </div>
+
+        <div className="tile tile-bad">
+          <span className="tile-label">What was blocked</span>
+          <strong className="tile-value">{pdb.finding_id}</strong>
+          <span className="tile-note">
+            {pdb.title}. {pdb.formula} = {pdb.result}, so the platform refused every voluntary
+            pod removal. Affected: {pdb.affected.join(", ")}.
+          </span>
+          <BasisTag basis="mathematically_derived" />
         </div>
 
         <div className="tile">
@@ -137,8 +168,8 @@ export function ExecutiveSummary({
           <span className="tile-label">Recovery</span>
           <strong className="tile-value">2 manual uncordons</strong>
           <span className="tile-note">
-            Performed by a human. FleetForge has no execution path and issued no mutation at
-            any point in this capture.
+            Both performed by a human with kubectl, at 14:35:11 and 14:53:06. Each restored
+            scheduling progress. FleetForge holds no mutating client and issued nothing.
           </span>
           <BasisTag basis="observed_by_fleet_forge" />
         </div>
@@ -151,27 +182,44 @@ export function ExecutiveSummary({
           <span className="tile-note">{traffic.interpretation}</span>
           <BasisTag basis="observed_by_fleet_forge" />
         </div>
+
       </div>
 
-      {blindMinutes !== null && blindMinutes > 0 && (
+      {/* A statement about the screen rather than about the incident, so it
+          sits outside the tile grid — and stops a sixth tile orphaning onto a
+          row of its own. */}
+      <p className="trust-bar">
+        <strong>Can you trust this?</strong> Every statement below carries where it came from.{" "}
+        {evidenceClaims} of {claims.length} are measurements or arithmetic you can check.
+        The other {claims.length - evidenceClaims} are human analysis, untested hypotheses, or
+        explicitly unknown — labelled as such wherever they appear, including here.
+      </p>
+
+      {blindSeconds !== null && blindSeconds > 0 && (
         <p className="callout">
           <strong>FleetForge did not predict this.</strong> Brupop began updating the fleet
-          at {timeOf(brupopFirstSeenAt ?? "")}, about {blindMinutes} minutes before FleetForge
-          started recording at {timeOf(capturedFrom)}. Two nodes were already cordoned in the
-          first state it ever saw. It detected the blocker that was in front of it; it did
-          not foresee the deadlock, and nothing in this replay should be read as if it had.
+          at {timeOf(brupopFirstSeenAt ?? "")} — {blindMinutes} before FleetForge started
+          recording at {timeOf(capturedFrom)}. Two nodes were already cordoned in the first
+          state it ever saw. It detected the blocker that was in front of it; it did not
+          foresee the deadlock, and nothing in this replay should be read as if it had.
         </p>
       )}
 
       <h3 className="section-heading">What FleetForge established, and how</h3>
-      <ClaimList claims={claims} />
+      <ClaimList claims={claims} onOpenEvidence={onOpenEvidence} />
     </Panel>
   );
 }
 
 /* ------------------------------------------------------------ investigation */
 
-export function ClaimList({ claims }: { claims: Claim[] }) {
+export function ClaimList({
+  claims,
+  onOpenEvidence,
+}: {
+  claims: Claim[];
+  onOpenEvidence?: (artifact: string) => void;
+}) {
   return (
     <ol className="claims">
       {claims.map((claim) => (
@@ -194,7 +242,17 @@ export function ClaimList({ claims }: { claims: Claim[] }) {
               {claim.evidence.map((e, i) => (
                 <span key={e}>
                   {i > 0 && ", "}
-                  <code>{e}</code>
+                  {onOpenEvidence ? (
+                    <button
+                      type="button"
+                      className="link-button"
+                      onClick={() => onOpenEvidence(e)}
+                    >
+                      {e}
+                    </button>
+                  ) : (
+                    <code>{e}</code>
+                  )}
                 </span>
               ))}
             </p>
@@ -207,7 +265,13 @@ export function ClaimList({ claims }: { claims: Claim[] }) {
 
 /* ----------------------------------------------------------------- topology */
 
-export function FleetTopology({ state }: { state: ReplayState | null }) {
+export function FleetTopology({
+  state,
+  onOpenEvidence,
+}: {
+  state: ReplayState | null;
+  onOpenEvidence?: (artifact: string) => void;
+}) {
   if (!state) {
     return (
       <Panel title="Fleet">
@@ -230,7 +294,7 @@ export function FleetTopology({ state }: { state: ReplayState | null }) {
     >
       <div className="fleet">
         {state.nodes.map((node) => (
-          <NodeCard key={node.name} node={node} />
+          <NodeCard key={node.name} node={node} onOpenEvidence={onOpenEvidence} />
         ))}
       </div>
       <p className="fleet-footnote">
@@ -241,7 +305,26 @@ export function FleetTopology({ state }: { state: ReplayState | null }) {
   );
 }
 
-function NodeCard({ node }: { node: NodeReplayState }) {
+/**
+ * Where a node's own state can be checked, per phase of the capture.
+ *
+ * These are the artifacts that contain `kubectl get nodes -o json` at three
+ * points: before the first uncordon, after it, and at the end. A viewer who
+ * doubts what the card says can open the file the card was derived from.
+ */
+const NODE_EVIDENCE = [
+  { name: "06-nodes-before.json", when: "before recovery" },
+  { name: "14-nodes-after.json", when: "after first uncordon" },
+  { name: "25-nodes-final.json", when: "final" },
+];
+
+function NodeCard({
+  node,
+  onOpenEvidence,
+}: {
+  node: NodeReplayState;
+  onOpenEvidence?: (artifact: string) => void;
+}) {
   const short = node.name.replace(/\.us-east-2\.compute\.internal$/, "");
   // 2.0.0 is the updater-interface-version label, read into the wrong field by
   // a bug fixed partway through the capture. Shown as recorded and flagged,
@@ -273,11 +356,34 @@ function NodeCard({ node }: { node: NodeReplayState }) {
       </header>
       <div className="node-meta">
         <span>
-          Brupop: <strong>{node.brupop_state ?? "no shadow observed"}</strong>
+          <Term k="brupop" /> state:{" "}
+          <strong>{node.brupop_state ?? "no shadow observed"}</strong>
           {node.brupop_version && ` (${node.brupop_version})`}
         </span>
         <span>{node.pods.length} pods</span>
+        {node.last_change && <span className="mono">changed {timeOf(node.last_change)}</span>}
       </div>
+      <p className="node-transition">
+        <span className={`transition ${transitionClass(node)}`}>{transitionOf(node)}</span>
+        {onOpenEvidence && (
+          <span className="node-evidence">
+            evidence:{" "}
+            {NODE_EVIDENCE.map((e, i) => (
+              <span key={e.name}>
+                {i > 0 && " · "}
+                <button
+                  type="button"
+                  className="link-button"
+                  onClick={() => onOpenEvidence(e.name)}
+                  title={e.name}
+                >
+                  {e.when}
+                </button>
+              </span>
+            ))}
+          </span>
+        )}
+      </p>
       <ul className="pod-list">
         {node.pods.map((pod) => (
           <li key={pod} className="pod-chip pod-running">
@@ -458,6 +564,48 @@ export function PredictedVsActual({ rows }: { rows: PredictionRow[] }) {
   );
 }
 
+/**
+ * Where this node is in its update, in words.
+ *
+ * Composed from Brupop's own reported state rather than inferred from node
+ * conditions — Brupop is the thing performing the update, so its state is the
+ * observation, and anything FleetForge deduced instead would be a second
+ * opinion presented as a fact.
+ */
+function transitionOf(node: NodeReplayState): string {
+  const s = node.brupop_state;
+  if (!s) {
+    // The most important case in this incident, and the easiest to render as a
+    // shrug: a node held out of service with nothing saying why. Brupop
+    // publishes its per-node state as a custom resource, and FleetForge had not
+    // yet observed one for this node — which is a different statement from
+    // "nothing is happening".
+    return node.unschedulable
+      ? "cordoned — no Brupop state observed for this node yet"
+      : "no Brupop state observed for this node yet";
+  }
+  switch (s) {
+    case "Idle":
+      return node.unschedulable
+        ? "Brupop idle — but this node is still cordoned"
+        : "Brupop idle — nothing in flight";
+    case "StagedAndPerformedUpdate":
+      return "update staged and applied, waiting to reboot";
+    case "RebootedIntoUpdate":
+      return "rebooted into the new release, waiting to be uncordoned";
+    case "MonitoringUpdate":
+      return "rebooted, Brupop is checking health before finishing";
+    default:
+      return `Brupop reports ${s}`;
+  }
+}
+
+function transitionClass(node: NodeReplayState): string {
+  if (node.unschedulable) return "transition-stuck";
+  if (node.brupop_state && node.brupop_state !== "Idle") return "transition-active";
+  return "transition-done";
+}
+
 function pillFor(c: PredictionRow["class"]): string {
   if (c === "under_predicted" || c === "missed") return "danger";
   if (c === "exact") return "ok";
@@ -467,8 +615,16 @@ function pillFor(c: PredictionRow["class"]): string {
 
 /* -------------------------------------------------------- evidence explorer */
 
-export function EvidenceExplorer({ artifacts }: { artifacts: ArtifactRef[] }) {
-  const [open, setOpen] = useState<string | null>(null);
+export function EvidenceExplorer({
+  artifacts,
+  open,
+  onOpen,
+}: {
+  artifacts: ArtifactRef[];
+  /** Controlled from above so a claim elsewhere on the page can open one. */
+  open: string | null;
+  onOpen: (name: string | null) => void;
+}) {
   const [content, setContent] = useState<ArtifactContent | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -522,7 +678,7 @@ export function EvidenceExplorer({ artifacts }: { artifacts: ArtifactRef[] }) {
                 <button
                   type="button"
                   className="link-button"
-                  onClick={() => setOpen(open === a.name ? null : a.name)}
+                  onClick={() => onOpen(open === a.name ? null : a.name)}
                   aria-expanded={open === a.name}
                 >
                   {a.name}
@@ -539,11 +695,31 @@ export function EvidenceExplorer({ artifacts }: { artifacts: ArtifactRef[] }) {
       </table>
 
       {open && (
-        <div className="drawer">
-          <h4>{open}</h4>
+        <div className="drawer" id="evidence-drawer">
+          <div className="drawer-head">
+            <h4>{open}</h4>
+            {content?.sha256 && (
+              <span className="mono drawer-hash" title={`SHA-256: ${content.sha256}`}>
+                sha256 {content.sha256.slice(0, 16)}…
+              </span>
+            )}
+            <button type="button" className="link-button" onClick={() => onOpen(null)}>
+              close
+            </button>
+          </div>
+          {/* Human-readable description first; the raw bytes are below it and
+              are what a reader falls back to, not what they start with. */}
+          <p className="drawer-explanation">
+            {artifacts.find((a) => a.name === open)?.description ?? "Captured artifact."}
+          </p>
           {error && <p className="state-forbidden">{error}</p>}
           {!content && !error && <div className="spinner" aria-hidden="true" />}
-          {content && <pre className="artifact">{content.content}</pre>}
+          {content && (
+            <details open>
+              <summary>Raw {content.kind ?? "file"}</summary>
+              <pre className="artifact">{content.content}</pre>
+            </details>
+          )}
         </div>
       )}
     </Panel>
@@ -555,11 +731,19 @@ export function EvidenceExplorer({ artifacts }: { artifacts: ArtifactRef[] }) {
 export function Limitations({
   caveats,
   claims,
+  capturedFrom,
+  brupopFirstSeenAt,
 }: {
   caveats: DataCaveat[];
   claims: Claim[];
+  capturedFrom?: string;
+  brupopFirstSeenAt?: string | null;
 }) {
   const soft = claims.filter((c) => !isEvidence(c.basis));
+  const gap =
+    capturedFrom && brupopFirstSeenAt
+      ? Math.round((Date.parse(capturedFrom) - Date.parse(brupopFirstSeenAt)) / 1000)
+      : null;
 
   return (
     <Panel
@@ -567,6 +751,45 @@ export function Limitations({
       title="What this replay cannot tell you"
       subtitle={`${caveats.length} data caveats · ${soft.length} unverified or unknown claims`}
     >
+      {/* The five disclosures that must survive a reader who skims. They are
+          first, they are numbered, and each one says what it costs you. */}
+      <ol className="disclosures">
+        <li>
+          <strong>Recording began after Brupop did.</strong>{" "}
+          {gap === null ? (
+            <>The bundle cannot establish when Brupop started, so whether this capture covers
+            the beginning of the incident is unknown.</>
+          ) : (
+            <>
+              Brupop started at {timeOf(brupopFirstSeenAt ?? "")}; FleetForge started recording
+              at {timeOf(capturedFrom ?? "")}, {Math.floor(gap / 60)}m {gap % 60}s later.
+              Everything before that point happened outside the evidence.
+            </>
+          )}
+        </li>
+        <li>
+          <strong>No pre-update prediction exists.</strong> FleetForge was not running when the
+          update began, so there is no preflight from before the first cordon. It cannot be
+          shown to have predicted the deadlock, and this interface does not imply it.
+        </li>
+        <li>
+          <strong>Original availability cannot be determined.</strong> The sampler in use had
+          no request timeout and produced 31 samples in 34 minutes. Its output was discarded.
+          No figure exists, high or low.
+        </li>
+        <li>
+          <strong>The causal chain includes human analysis.</strong> The five facts were
+          observed. The four arrows joining them were drawn by a person afterwards. FleetForge
+          implements no analyzer that correlates cordons, scheduling and disruption budgets.
+        </li>
+        <li>
+          <strong>The networking root cause is unverified.</strong> The add-on ordering
+          hypothesis was never tested — no packet capture, no per-endpoint probe, no controlled
+          comparison. The Terraform correction is written and not verified on a fresh cluster,
+          because the cluster was destroyed first.
+        </li>
+      </ol>
+
       <h3 className="section-heading">Problems with the evidence itself</h3>
       <ul className="limitations">
         {caveats.map((c) => (

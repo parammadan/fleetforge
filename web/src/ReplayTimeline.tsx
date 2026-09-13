@@ -267,8 +267,43 @@ function EventLog({
 }
 
 /** Node and pod counts at the current position, for the strip under the header. */
-export function PositionStrip({ state }: { state: ReplayState | null }) {
+export function PositionStrip({
+  state,
+  stale,
+  firstObservationAt,
+}: {
+  state: ReplayState | null;
+  /** The state shown is for an older position than the controls are on. */
+  stale?: boolean;
+  /** When the first snapshot with contents arrives. */
+  firstObservationAt?: string;
+}) {
   if (!state) return null;
+
+  if (stale) {
+    return (
+      <div className="position-strip strip-empty" data-stale="true">
+        <span>Loading state for this position…</span>
+      </div>
+    );
+  }
+
+  // At the very start of the capture FleetForge has recorded that it started
+  // and nothing else. Rendering "0 nodes · 0 pods" there would be the exact
+  // confusion this project exists to prevent: an empty cluster and a cluster
+  // not yet observed look identical. Say which one it is.
+  if (state.nodes.length === 0 && state.pods.length === 0) {
+    return (
+      <div className="position-strip strip-empty">
+        <span>
+          Nothing observed yet — FleetForge has recorded that it started and no cluster state.
+          {firstObservationAt && ` The first snapshot arrives at ${timeOf(firstObservationAt)}.`}
+        </span>
+        <span className="mono">{timeOf(state.at)}</span>
+      </div>
+    );
+  }
+
   return (
     <div className="position-strip">
       <span>

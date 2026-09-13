@@ -20,6 +20,7 @@ import type {
   ArtifactRef,
   Chapter,
   Claim,
+  InvestigationChain,
   PdbArithmetic,
   PredictionRow,
   ReplayContextResponse,
@@ -49,6 +50,7 @@ export interface ReplayBundle {
   context: ReplayContextResponse;
   chapters: Chapter[];
   claims: Claim[];
+  chain: InvestigationChain;
   pdb: PdbArithmetic;
   predictions: PredictionRow[];
   traffic: TrafficValidation;
@@ -70,11 +72,21 @@ export function useReplayBundle(baseUrl = ""): BundleState {
     let cancelled = false;
     const load = async () => {
       try {
-        const [context, chapters, claims, pdb, predictions, traffic, artifacts, timeline] =
-          await Promise.all([
+        const [
+          context,
+          chapters,
+          claims,
+          chain,
+          pdb,
+          predictions,
+          traffic,
+          artifacts,
+          timeline,
+        ] = await Promise.all([
             getEnvelope<ReplayContextResponse>(`${baseUrl}/api/v1/replay/context`),
             getEnvelope<Chapter[]>(`${baseUrl}/api/v1/replay/chapters`),
             getEnvelope<Claim[]>(`${baseUrl}/api/v1/replay/claims`),
+            getEnvelope<InvestigationChain>(`${baseUrl}/api/v1/replay/chain`),
             getEnvelope<PdbArithmetic>(`${baseUrl}/api/v1/replay/finding`),
             getEnvelope<PredictionRow[]>(`${baseUrl}/api/v1/replay/predictions`),
             getEnvelope<TrafficValidation>(`${baseUrl}/api/v1/replay/traffic`),
@@ -88,6 +100,7 @@ export function useReplayBundle(baseUrl = ""): BundleState {
             context: context.data,
             chapters: chapters.data,
             claims: claims.data,
+            chain: chain.data,
             pdb: pdb.data,
             predictions: predictions.data,
             traffic: traffic.data,
@@ -128,6 +141,16 @@ export interface Playback {
   state: ReplayState | null;
   /** True while the first state fetch is outstanding. */
   loading: boolean;
+  /**
+   * True when the state on screen is for a different position than the one the
+   * controls are on.
+   *
+   * The fold resolves in under a millisecond over loopback, so this is rarely
+   * visible — but "rarely" is not "never", and a header reading 14:35 above a
+   * fleet drawn at 14:15 is the interface lying about which moment it is
+   * showing. Better to say the state is catching up.
+   */
+  stale: boolean;
   error: string | null;
   play: () => void;
   pause: () => void;
@@ -216,6 +239,7 @@ export function usePlayback(timeline: ReplayEvent[], baseUrl = ""): Playback {
     speed,
     state,
     loading,
+    stale: state !== null && state.position !== position,
     error,
     play: useCallback(() => setPlaying(true), []),
     pause: useCallback(() => setPlaying(false), []),

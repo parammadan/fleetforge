@@ -29,6 +29,7 @@
 
 pub mod artifacts;
 pub mod bundle;
+pub mod chain;
 pub mod chapters;
 pub mod error;
 pub mod schema;

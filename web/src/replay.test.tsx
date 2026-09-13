@@ -34,6 +34,31 @@ const traffic: TrafficValidation = {
     "Post-recovery networking validation. This run FAILED. It is not a measurement of availability during the incident.",
 };
 
+const pdbFixture: PdbArithmetic = {
+  finding_id: "FF-PDB-001",
+  title: "PodDisruptionBudget demo/web-pdb permits no disruption",
+  severity: "blocker",
+  confidence: "certain",
+  formula: "disruptionsAllowed = currentHealthy - desiredHealthy",
+  inputs: [
+    ["currentHealthy", "2"],
+    ["desiredHealthy", "2"],
+  ],
+  result: "0",
+  unit: "pods",
+  evidence: [
+    {
+      resource: "PodDisruptionBudget/web-pdb",
+      field_path: ".status.disruptionsAllowed",
+      value: "0",
+      note: "the eviction API will reject every eviction while this is 0",
+    },
+  ],
+  limitations: ["Reflects disruptionsAllowed at the moment of the snapshot."],
+  affected: ["PodDisruptionBudget/web-pdb"],
+  snapshot_id: "5de2639ac583535c443bae827ccb47cb67508bc4e0939c2bc4bd56ec1954fdd8",
+};
+
 const claims: Claim[] = [
   {
     id: "blocker-detected",
@@ -78,6 +103,7 @@ function summary() {
       claims={claims}
       traffic={traffic}
       nodeCount={3}
+      pdb={pdbFixture}
     />,
   );
 }
@@ -86,10 +112,12 @@ describe("executive summary", () => {
   it("reports availability as UNKNOWN rather than borrowing the traffic number", () => {
     summary();
     const tile = screen
-      .getByText("Availability during the incident", { selector: ".tile-label" })
+      .getByText("Customer availability", { selector: ".tile-label" })
       .closest(".tile");
     expect(tile).toBeTruthy();
-    expect(within(tile as HTMLElement).getByText("UNKNOWN")).toBeTruthy();
+    // The spec's exact words, not a paraphrase — "UNKNOWN" alone invites a
+    // reader to assume it means "unknown to this tool".
+    expect(within(tile as HTMLElement).getByText("UNKNOWN DURING INCIDENT")).toBeTruthy();
     // The 30.2% figure must not appear anywhere inside the availability tile.
     expect(within(tile as HTMLElement).queryByText(/30\.2/)).toBeNull();
   });
@@ -127,6 +155,7 @@ describe("executive summary", () => {
         claims={claims}
         traffic={traffic}
         nodeCount={3}
+        pdb={pdbFixture}
       />,
     );
     // No derived time means no claim about who was first. Silence, not a guess.
@@ -345,5 +374,159 @@ describe("limitations", () => {
   it("states that FleetForge never executed anything", () => {
     render(<Limitations caveats={[]} claims={claims} />);
     expect(screen.getByText(/No mutation was issued by FleetForge/i)).toBeTruthy();
+  });
+});
+
+/* --------------------------------------------------------- investigation chain */
+
+import { InvestigationChainPanel } from "./InvestigationChain";
+import { GLOSSARY, Term } from "./glossary";
+import type { InvestigationChain } from "./replayTypes";
+import { fireEvent } from "@testing-library/react";
+
+const chain: InvestigationChain = {
+  links: [
+    {
+      id: "cordons",
+      label: "Nodes unschedulable",
+      value: "2 of 3 cordoned",
+      detail: "Cordoned means marked unschedulable.",
+      basis: "observed_by_fleet_forge",
+      artifact: "06-nodes-before.json",
+      field_path: ".items[].spec.unschedulable",
+      at: "2026-09-13T14:15:48Z",
+    },
+    {
+      id: "disruptions-allowed",
+      label: "Disruption budget exhausted",
+      value: "disruptionsAllowed = 0",
+      detail: "At zero, the promise permits none.",
+      basis: "mathematically_derived",
+      artifact: "04-pdb-before.json",
+      field_path: ".status.disruptionsAllowed",
+      at: null,
+    },
+  ],
+  edges: [
+    {
+      from: "cordons",
+      to: "disruptions-allowed",
+      because: "The third replica had nowhere left to go.",
+      basis: "human_rca",
+    },
+  ],
+  attribution: "A person drew this line. FleetForge did not produce the chain.",
+};
+
+describe("investigation chain", () => {
+  it("tags the facts as evidence and the arrow as human analysis", () => {
+    render(<InvestigationChainPanel chain={chain} onOpenEvidence={() => {}} />);
+    expect(screen.getByTestId("basis-observed_by_fleet_forge")).toBeTruthy();
+    expect(screen.getByTestId("basis-mathematically_derived")).toBeTruthy();
+    // The arrow carries its own label, distinct from the boxes it joins.
+    expect(screen.getByText(/nowhere left to go/)).toBeTruthy();
+    expect(document.querySelector(".chain-arrow .arrow-basis")?.textContent).toBe("HUMAN RCA");
+  });
+
+  it("never presents the arrow with the same weight as a fact", () => {
+    render(<InvestigationChainPanel chain={chain} onOpenEvidence={() => {}} />);
+    const boxes = document.querySelectorAll(".chain-box");
+    const arrows = document.querySelectorAll(".chain-arrow");
+    expect(boxes.length).toBe(2);
+    expect(arrows.length).toBe(1);
+    // Every box is classified; no box renders bare.
+    expect(document.querySelectorAll(".chain-box .basis").length).toBe(boxes.length);
+  });
+
+  it("states that FleetForge did not draw the chain", () => {
+    render(<InvestigationChainPanel chain={chain} onOpenEvidence={() => {}} />);
+    expect(screen.getByText(/did not produce the chain/)).toBeTruthy();
+  });
+
+  it("opens the artifact a fact was read from", () => {
+    const opened: string[] = [];
+    render(<InvestigationChainPanel chain={chain} onOpenEvidence={(a) => opened.push(a)} />);
+    // The first link starts expanded; its source link is reachable.
+    fireEvent.click(screen.getByRole("button", { name: "06-nodes-before.json" }));
+    expect(opened).toEqual(["06-nodes-before.json"]);
+  });
+
+  it("expands and collapses a fact by keyboard", () => {
+    render(<InvestigationChainPanel chain={chain} onOpenEvidence={() => {}} />);
+    const head = screen.getByRole("button", { name: /Disruption budget exhausted/ });
+    expect(head.getAttribute("aria-expanded")).toBe("false");
+    fireEvent.click(head);
+    expect(head.getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getByText(/the promise permits none/)).toBeTruthy();
+  });
+});
+
+/* ------------------------------------------------------------------ glossary */
+
+describe("glossary", () => {
+  it("defines every term the executive summary uses", () => {
+    for (const key of ["pdb", "cordon", "eviction", "brupop", "snapshot"] as const) {
+      expect(GLOSSARY[key]).toBeTruthy();
+      expect(GLOSSARY[key]?.definition.length).toBeGreaterThan(60);
+    }
+  });
+
+  it("attaches the definition to the term, reachable by keyboard", () => {
+    render(<Term k="pdb">PodDisruptionBudget</Term>);
+    const abbr = screen.getByText("PodDisruptionBudget");
+    expect(abbr.tagName).toBe("ABBR");
+    expect(abbr.getAttribute("title")).toMatch(/how many of its copies may be taken offline/);
+    expect(abbr.getAttribute("tabindex")).toBe("0");
+  });
+
+  it("explains PDB where the summary first uses it", () => {
+    summary();
+    const abbr = screen.getAllByText("PodDisruptionBudget").find((e) => e.tagName === "ABBR");
+    expect(abbr).toBeTruthy();
+    expect(abbr?.getAttribute("title")).toContain("PodDisruptionBudget:");
+  });
+});
+
+/* ------------------------------------------------------- limitations, expanded */
+
+describe("the five required disclosures", () => {
+  const render5 = () =>
+    render(
+      <Limitations
+        caveats={[]}
+        claims={claims}
+        capturedFrom="2026-09-13T14:15:47Z"
+        brupopFirstSeenAt="2026-09-13T14:08:15Z"
+      />,
+    );
+
+  it("states each one, numbered, above everything else", () => {
+    render5();
+    const list = document.querySelector(".disclosures");
+    expect(list?.tagName).toBe("OL");
+    expect(list?.children.length).toBe(5);
+    const text = list?.textContent ?? "";
+    expect(text).toMatch(/Recording began after Brupop/);
+    expect(text).toMatch(/No pre-update prediction exists/);
+    expect(text).toMatch(/Original availability cannot be determined/);
+    expect(text).toMatch(/causal chain includes human analysis/);
+    expect(text).toMatch(/networking root cause is unverified/);
+  });
+
+  it("gives the exact gap rather than a rounded one", () => {
+    render5();
+    expect(screen.getByText(/7m 32s later/)).toBeTruthy();
+  });
+
+  it("says the gap is unknown when the bundle cannot date Brupop", () => {
+    render(
+      <Limitations
+        caveats={[]}
+        claims={claims}
+        capturedFrom="2026-09-13T14:15:47Z"
+        brupopFirstSeenAt={null}
+      />,
+    );
+    expect(screen.getByText(/cannot establish when Brupop started/)).toBeTruthy();
   });
 });

@@ -39,6 +39,7 @@ tracing-subscriber.workspace = true
 [dev-dependencies]
 tower.workspace = true
 http-body-util.workspace = true
+tempfile = "3"
 
 [lints]
 workspace = true

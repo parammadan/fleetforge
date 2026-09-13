@@ -214,3 +214,343 @@ fn two_nodes_are_cordoned_early_which_is_the_deadlock_shape() {
     let b = bundle();
     assert_eq!(b.timeline.state_at(40).cordoned_nodes, 2);
 }
+
+/* ---------------------------------------------------------------------------
+ * Malformed and incomplete bundles.
+ *
+ * Each of these builds a copy of the real bundle with exactly one thing broken,
+ * so a failure names the thing that broke rather than "the bundle is bad".
+ * ------------------------------------------------------------------------- */
+
+/// Copy the real bundle into a temporary directory so it can be damaged.
+fn corrupted_copy(damage: impl FnOnce(&std::path::Path)) -> tempfile::TempDir {
+    let dir = tempfile::tempdir().expect("tempdir");
+    for entry in std::fs::read_dir(bundle_path()).expect("read bundle") {
+        let entry = entry.expect("entry");
+        if entry.path().is_file() {
+            std::fs::copy(entry.path(), dir.path().join(entry.file_name())).expect("copy");
+        }
+    }
+    damage(dir.path());
+    dir
+}
+
+#[test]
+fn a_bundle_whose_event_log_is_not_json_is_rejected() {
+    let dir = corrupted_copy(|p| {
+        std::fs::write(p.join("35-fleetforge-events-complete.jsonl"), "{not json\n").unwrap();
+    });
+    let Err(err) = ReplayBundle::load(dir.path()) else {
+        panic!("must not load");
+    };
+    assert!(
+        format!("{err}").contains("35-fleetforge-events-complete.jsonl"),
+        "the error must name the artifact: {err}"
+    );
+}
+
+#[test]
+fn a_bundle_with_an_empty_event_log_is_rejected_rather_than_serving_a_blank_replay() {
+    let dir = corrupted_copy(|p| {
+        std::fs::write(p.join("35-fleetforge-events-complete.jsonl"), "").unwrap();
+    });
+    // An empty timeline would render as a cluster with nothing in it, which is
+    // exactly the confusion between "no data" and "no resources" this project
+    // exists to prevent.
+    assert!(ReplayBundle::load(dir.path()).is_err());
+}
+
+#[test]
+fn a_bundle_missing_the_blocker_finding_is_rejected() {
+    let dir = corrupted_copy(|p| {
+        let text = std::fs::read_to_string(p.join("03-preflight-before.json")).unwrap();
+        let mut v: serde_json::Value = serde_json::from_str(&text).unwrap();
+        // Remove FF-PDB-001 specifically: the bundle is well-formed, it just no
+        // longer contains the thing the whole replay is about.
+        if let Some(findings) = v
+            .pointer_mut("/data/findings")
+            .and_then(|f| f.as_array_mut())
+        {
+            findings.retain(|f| f.get("id").and_then(|i| i.as_str()) != Some("FF-PDB-001"));
+        }
+        std::fs::write(p.join("03-preflight-before.json"), v.to_string()).unwrap();
+    });
+    let Err(err) = ReplayBundle::load(dir.path()) else {
+        panic!("must not load");
+    };
+    assert!(format!("{err}").contains("FF-PDB-001"), "{err}");
+}
+
+#[test]
+fn a_bundle_whose_pdb_lost_its_status_is_rejected_not_defaulted_to_zero() {
+    let dir = corrupted_copy(|p| {
+        let text = std::fs::read_to_string(p.join("04-pdb-before.json")).unwrap();
+        let mut v: serde_json::Value = serde_json::from_str(&text).unwrap();
+        if let Some(items) = v.get_mut("items").and_then(|i| i.as_array_mut()) {
+            for item in items.iter_mut() {
+                if let Some(o) = item.as_object_mut() {
+                    o.remove("status");
+                }
+            }
+        }
+        std::fs::write(p.join("04-pdb-before.json"), v.to_string()).unwrap();
+    });
+    // Defaulting a missing currentHealthy to 0 would render "currentHealthy = 0
+    // of 0" as though it were an observation.
+    let Err(err) = ReplayBundle::load(dir.path()) else {
+        panic!("must not load");
+    };
+    assert!(format!("{err}").contains("04-pdb-before.json"), "{err}");
+}
+
+#[test]
+fn a_bundle_with_no_traffic_samples_is_rejected_rather_than_reporting_zero_percent() {
+    let dir = corrupted_copy(|p| {
+        std::fs::write(p.join("31-traffic-post-recovery.txt"), "\n\n").unwrap();
+    });
+    // Zero of zero requests is not 0% availability; it is no measurement.
+    assert!(ReplayBundle::load(dir.path()).is_err());
+}
+
+/* ---------------------------------------------------------------------------
+ * Timestamps and ordering.
+ * ------------------------------------------------------------------------- */
+
+#[test]
+fn every_event_timestamp_is_utc_and_non_decreasing() {
+    let b = bundle();
+    let mut previous: Option<chrono::DateTime<chrono::Utc>> = None;
+    for event in b.timeline.events() {
+        if let Some(prev) = previous {
+            assert!(
+                event.at >= prev,
+                "event {} went backwards in time: {} < {}",
+                event.seq,
+                event.at,
+                prev
+            );
+        }
+        previous = Some(event.at);
+    }
+    // The capture window is the first and last event, not a stored constant.
+    assert_eq!(b.context.captured_from, b.timeline.events()[0].at);
+    assert_eq!(
+        b.context.captured_to,
+        b.timeline.events()[b.timeline.len() - 1].at
+    );
+}
+
+#[test]
+fn sequence_numbers_are_read_from_the_log_not_generated_from_position() {
+    let b = bundle();
+    let seqs: Vec<u64> = b.timeline.events().iter().map(|e| e.seq).collect();
+    assert!(
+        seqs.windows(2).all(|w| w[0] < w[1]),
+        "not strictly increasing"
+    );
+
+    // This capture's sequence numbers happen to be dense — FleetForge restarted
+    // several times but kept counting, so `seq` and `index + 1` agree. That
+    // makes the two indistinguishable by value, so the test reads the raw log
+    // line instead: `seq` must be the number the recorder wrote, not one this
+    // crate invented while loading.
+    let raw = std::fs::read_to_string(bundle_path().join("35-fleetforge-events-complete.jsonl"))
+        .expect("the event log reads");
+    let from_log: Vec<u64> = raw
+        .lines()
+        .filter(|l| !l.trim().is_empty())
+        .map(|l| {
+            serde_json::from_str::<serde_json::Value>(l)
+                .expect("each line is JSON")
+                .get("seq")
+                .and_then(serde_json::Value::as_u64)
+                .expect("each line carries seq")
+        })
+        .collect();
+    assert_eq!(
+        seqs, from_log,
+        "sequence numbers diverge from the captured log"
+    );
+}
+
+#[test]
+fn the_timeline_contains_a_real_gap_in_time_that_is_not_smoothed_over() {
+    let b = bundle();
+    // Nothing was recorded for a stretch in the middle of the incident. A
+    // replay that interpolated would hide that; this asserts the gap survives.
+    let longest = b
+        .timeline
+        .events()
+        .windows(2)
+        .map(|w| (w[1].at - w[0].at).num_seconds())
+        .max()
+        .expect("events exist");
+    assert!(
+        longest > 60,
+        "expected a quiet stretch of more than a minute, longest was {longest}s"
+    );
+}
+
+#[test]
+fn the_brupop_start_predates_the_recording_and_is_read_from_evidence() {
+    let b = bundle();
+    let brupop = b
+        .context
+        .brupop_first_seen_at
+        .expect("the bundle can date Brupop's start");
+    assert!(
+        brupop < b.context.captured_from,
+        "Brupop started at {brupop}, recording at {} — the whole 'did not predict' \
+         claim rests on this ordering",
+        b.context.captured_from
+    );
+}
+
+/* ---------------------------------------------------------------------------
+ * State reconstruction at the timestamps that matter.
+ * ------------------------------------------------------------------------- */
+
+/// The position of a named chapter, so these tests describe moments rather than
+/// magic indices that shift whenever chapter derivation changes.
+fn at_chapter(b: &ReplayBundle, id: &str) -> ff_replay::ReplayState {
+    let chapter = b
+        .chapters
+        .iter()
+        .find(|c| c.id == id)
+        .unwrap_or_else(|| panic!("no chapter {id}"));
+    b.timeline.state_at(chapter.position)
+}
+
+#[test]
+fn at_the_blocker_two_nodes_are_cordoned_and_a_pod_is_pending() {
+    let b = bundle();
+    let s = at_chapter(&b, "blocker-detected");
+    assert_eq!(s.cordoned_nodes, 2);
+    assert_eq!(s.pending_pods, 1);
+    let preflight = s.last_preflight.expect("a preflight has run by now");
+    assert_eq!(preflight.status, "blocked");
+    assert!(preflight.findings.iter().any(|f| f == "FF-PDB-001"));
+}
+
+#[test]
+fn after_the_first_uncordon_one_node_remains_cordoned() {
+    let b = bundle();
+    let s = at_chapter(&b, "first-uncordon");
+    assert_eq!(s.cordoned_nodes, 1, "one uncordon clears exactly one node");
+}
+
+#[test]
+fn after_the_second_uncordon_nothing_is_cordoned() {
+    let b = bundle();
+    let s = at_chapter(&b, "second-uncordon");
+    assert_eq!(s.cordoned_nodes, 0);
+}
+
+#[test]
+fn by_the_end_every_node_reports_the_final_release() {
+    let b = bundle();
+    let s = b.timeline.state_at(b.timeline.len() - 1);
+    assert_eq!(s.nodes.len(), 3);
+    for node in &s.nodes {
+        assert_eq!(
+            node.bottlerocket_version.as_deref(),
+            Some("1.64.0"),
+            "{} did not reach the final release",
+            node.name
+        );
+    }
+}
+
+#[test]
+fn state_never_reports_more_nodes_than_the_capture_contains() {
+    let b = bundle();
+    // A fold that accumulated a node per event rather than per name would grow
+    // without bound, and nothing else would notice.
+    for position in [0, 1, 40, 731, 2932, 4669, b.timeline.len() - 1] {
+        let s = b.timeline.state_at(position);
+        assert!(
+            s.nodes.len() <= 3,
+            "{position} produced {} nodes",
+            s.nodes.len()
+        );
+    }
+}
+
+/* ---------------------------------------------------------------------------
+ * The investigation chain.
+ * ------------------------------------------------------------------------- */
+
+#[test]
+fn every_chain_fact_is_observed_or_derived_and_every_arrow_is_human_rca() {
+    let b = bundle();
+    assert_eq!(b.chain.links.len(), 5);
+    assert_eq!(b.chain.edges.len(), 4);
+
+    for link in &b.chain.links {
+        assert!(
+            link.basis.is_evidence(),
+            "chain fact {} is not evidence: {:?}",
+            link.id,
+            link.basis
+        );
+    }
+    for edge in &b.chain.edges {
+        assert_eq!(
+            edge.basis,
+            ff_replay::ClaimBasis::HumanRca,
+            "arrow {} → {} claims more than a human drew",
+            edge.from,
+            edge.to
+        );
+    }
+}
+
+#[test]
+fn the_chain_edges_form_one_unbroken_path_through_the_links() {
+    let b = bundle();
+    let ids: Vec<&str> = b.chain.links.iter().map(|l| l.id.as_str()).collect();
+    for (i, edge) in b.chain.edges.iter().enumerate() {
+        assert_eq!(edge.from, ids[i]);
+        assert_eq!(edge.to, ids[i + 1]);
+    }
+}
+
+#[test]
+fn chain_values_come_from_the_bundle_rather_than_from_constants() {
+    let b = bundle();
+    let by_id = |id: &str| {
+        b.chain
+            .links
+            .iter()
+            .find(|l| l.id == id)
+            .unwrap_or_else(|| panic!("no link {id}"))
+    };
+    // Each of these is the arithmetic the incident actually produced. If the
+    // strings were written by hand they would survive a change to the parser;
+    // these assertions are here to make sure they would not.
+    assert!(by_id("cordons").value.contains("2 of 3"));
+    assert!(by_id("pending").value.contains("1 pod"));
+    assert!(by_id("current-healthy").value.contains("= 2 of 3"));
+    assert_eq!(by_id("disruptions-allowed").value, "disruptionsAllowed = 0");
+    assert_eq!(
+        by_id("disruptions-allowed").basis,
+        ff_replay::ClaimBasis::MathematicallyDerived
+    );
+
+    for link in &b.chain.links {
+        assert!(
+            b.artifacts.contains(&link.artifact),
+            "{} cites {}, which is not in the bundle",
+            link.id,
+            link.artifact
+        );
+    }
+}
+
+#[test]
+fn the_chain_says_out_loud_that_fleetforge_did_not_draw_it() {
+    let b = bundle();
+    let text = b.chain.attribution.to_lowercase();
+    assert!(text.contains("did not produce the chain"));
+    assert!(text.contains("no analyzer"));
+}

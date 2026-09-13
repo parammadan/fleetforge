@@ -83,6 +83,30 @@ export interface Chapter {
   basis: ClaimBasis;
 }
 
+export interface ChainLink {
+  id: string;
+  label: string;
+  value: string;
+  detail: string;
+  basis: ClaimBasis;
+  artifact: string;
+  field_path: string;
+  at: string | null;
+}
+
+export interface ChainEdge {
+  from: string;
+  to: string;
+  because: string;
+  basis: ClaimBasis;
+}
+
+export interface InvestigationChain {
+  links: ChainLink[];
+  edges: ChainEdge[];
+  attribution: string;
+}
+
 export interface Claim {
   id: string;
   statement: string;

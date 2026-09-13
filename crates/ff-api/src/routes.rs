@@ -39,6 +39,7 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/api/v1/replay/chapters", get(replay_chapters))
         .route("/api/v1/replay/state", get(replay_state))
         .route("/api/v1/replay/claims", get(replay_claims))
+        .route("/api/v1/replay/chain", get(replay_chain))
         .route("/api/v1/replay/finding", get(replay_finding))
         .route("/api/v1/replay/predictions", get(replay_predictions))
         .route("/api/v1/replay/traffic", get(replay_traffic))
@@ -470,6 +471,13 @@ async fn replay_chapters(State(state): State<Arc<AppState>>) -> axum::response::
         return replay_envelope(&state, ());
     };
     replay_envelope(&state, &b.chapters)
+}
+
+async fn replay_chain(State(state): State<Arc<AppState>>) -> axum::response::Response {
+    let Some(b) = state.replay() else {
+        return replay_envelope(&state, ());
+    };
+    replay_envelope(&state, &b.chain)
 }
 
 async fn replay_claims(State(state): State<Arc<AppState>>) -> axum::response::Response {

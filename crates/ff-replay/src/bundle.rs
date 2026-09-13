@@ -132,6 +132,8 @@ pub struct ReplayBundle {
     pub traffic: TrafficValidation,
     /// Derived chapter marks for the timeline.
     pub chapters: Vec<crate::chapters::Chapter>,
+    /// The investigation chain, facts and arrows classified separately.
+    pub chain: crate::chain::InvestigationChain,
 }
 
 /// The post-recovery traffic sampler result.
@@ -189,6 +191,7 @@ impl ReplayBundle {
         let claims = build_claims(&timeline, &pdb, &traffic);
         let caveats = build_caveats(&timeline);
         let chapters = crate::chapters::derive(&timeline, context.brupop_first_seen_at);
+        let chain = crate::chain::derive(&timeline, &pdb, root)?;
 
         Ok(Self {
             schema_version: REPLAY_SCHEMA_VERSION,
@@ -202,6 +205,7 @@ impl ReplayBundle {
             predictions,
             traffic,
             chapters,
+            chain,
         })
     }
 }

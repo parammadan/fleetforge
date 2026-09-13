@@ -9,7 +9,11 @@
 // screen full of node names, pod counts and live-looking state is exactly the
 // thing someone screenshots, and the screenshot has to carry the label too.
 
+import { useCallback, useEffect, useRef, useState } from "react";
+
 import { ModeBadge } from "./components";
+import { Term } from "./glossary";
+import { InvestigationChainPanel } from "./InvestigationChain";
 import {
   EvidenceExplorer,
   ExecutiveSummary,
@@ -41,6 +45,25 @@ function Loaded({
   const playback = usePlayback(bundle.timeline, baseUrl);
   const { context } = bundle;
 
+  // The evidence drawer is owned here so that a claim in the summary, a link in
+  // the investigation chain, and the evidence table itself all open the same
+  // one — and so that opening it scrolls the reader to it rather than changing
+  // something off screen.
+  const [openArtifact, setOpenArtifact] = useState<string | null>(null);
+  const evidenceRef = useRef<HTMLDivElement>(null);
+  const pendingScroll = useRef(false);
+
+  const openEvidence = useCallback((name: string | null) => {
+    setOpenArtifact(name);
+    pendingScroll.current = name !== null;
+  }, []);
+
+  useEffect(() => {
+    if (!pendingScroll.current || !openArtifact) return;
+    pendingScroll.current = false;
+    evidenceRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [openArtifact]);
+
   return (
     <>
       <header className="chrome">
@@ -61,12 +84,25 @@ function Loaded({
         <span>
           Recorded {context.context.captured_from.slice(0, 10)} from a cluster that has since
           been destroyed. Nothing on this screen is live, nothing is simulated, and no value
-          has been edited to improve the story. {context.events.toLocaleString()} events,{" "}
-          {bundle.artifacts.length} artifacts.
+          has been edited to improve the story.
         </span>
       </div>
 
-      <PositionStrip state={playback.state} />
+      <ProvenanceStrip
+        context={context}
+        bottlerocket={context.context.bottlerocket_versions}
+        artifacts={bundle.artifacts.length}
+        state={playback.state}
+        stale={playback.stale}
+        step={playback.step}
+        steps={bundle.timeline.length}
+      />
+
+      <PositionStrip
+        stale={playback.stale}
+        state={playback.state}
+        firstObservationAt={bundle.timeline.find((e) => e.kind === "node_changed")?.at}
+      />
 
       {playback.error && (
         <div className="banner banner-danger">
@@ -88,7 +124,13 @@ function Loaded({
               claims={bundle.claims}
               traffic={bundle.traffic}
               nodeCount={context.context.nodes.length}
+              pdb={bundle.pdb}
+              onOpenEvidence={openEvidence}
             />
+          </div>
+
+          <div className="span-full">
+            <InvestigationChainPanel chain={bundle.chain} onOpenEvidence={openEvidence} />
           </div>
 
           <div className="span-full">
@@ -101,7 +143,7 @@ function Loaded({
           </div>
 
           <div className="span-full">
-            <FleetTopology state={playback.state} />
+            <FleetTopology state={playback.state} onOpenEvidence={openEvidence} />
           </div>
 
           <div className="span-full">
@@ -115,16 +157,97 @@ function Loaded({
             <PredictedVsActual rows={bundle.predictions} />
           </div>
 
-          <div className="span-full">
-            <EvidenceExplorer artifacts={bundle.artifacts} />
+          <div className="span-full" ref={evidenceRef}>
+            <EvidenceExplorer
+              artifacts={bundle.artifacts}
+              open={openArtifact}
+              onOpen={openEvidence}
+            />
           </div>
 
           <div className="span-full">
-            <Limitations caveats={context.caveats} claims={bundle.claims} />
+            <Limitations
+              caveats={context.caveats}
+              claims={bundle.claims}
+              capturedFrom={context.context.captured_from}
+              brupopFirstSeenAt={context.context.brupop_first_seen_at}
+            />
           </div>
         </div>
       </main>
     </>
+  );
+}
+
+/**
+ * Provenance, always on screen.
+ *
+ * Capture window, cluster identity, Kubernetes and Bottlerocket versions, where
+ * the playhead is, and the hash of the snapshot the current state derives from.
+ * A screenshot of this interface should be enough to tell someone exactly which
+ * recording, and which moment in it, they are looking at.
+ */
+function ProvenanceStrip({
+  context,
+  bottlerocket,
+  artifacts,
+  state,
+  stale,
+  step,
+  steps,
+}: {
+  context: { context: { cluster_id: string; kubernetes_version: string | null; captured_from: string; captured_to: string }; events: number };
+  bottlerocket: string[];
+  artifacts: number;
+  state: { snapshot_id: string | null; at: string } | null;
+  stale: boolean;
+  step: number;
+  steps: number;
+}) {
+  const c = context.context;
+  return (
+    <dl className="provenance">
+      <div>
+        <dt>Capture</dt>
+        <dd className="mono">
+          {c.captured_from.slice(0, 10)} {c.captured_from.slice(11, 19)}–
+          {c.captured_to.slice(11, 19)} UTC
+        </dd>
+      </div>
+      <div>
+        <dt>Cluster</dt>
+        <dd className="mono" title={c.cluster_id}>
+          {c.cluster_id.slice(0, 8)}… · destroyed
+        </dd>
+      </div>
+      <div>
+        <dt>Kubernetes</dt>
+        <dd className="mono">{c.kubernetes_version ?? "unknown"}</dd>
+      </div>
+      <div>
+        <dt>Bottlerocket</dt>
+        <dd className="mono">{bottlerocket.join(" → ") || "unknown"}</dd>
+      </div>
+      <div>
+        <dt>Position</dt>
+        <dd className="mono">
+          {stale ? "…" : state ? state.at.slice(11, 19) : "—"} · step {step + 1}/{steps} of{" "}
+          {context.events.toLocaleString()} events
+        </dd>
+      </div>
+      <div>
+        <dt>
+          <Term k="snapshot">Snapshot</Term>
+        </dt>
+        <dd className="mono" title={state?.snapshot_id ?? undefined}>
+          {state?.snapshot_id ? `${state.snapshot_id.slice(0, 12)}…` : "none yet"}
+        </dd>
+      </div>
+      <div>
+        <dt>Evidence</dt>
+        <dd className="mono">{artifacts} artifacts</dd>
+      </div>
+    </dl>
   );
 }
 
