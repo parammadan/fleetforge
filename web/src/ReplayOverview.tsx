@@ -94,8 +94,8 @@ export function ReplayOverview({
             title="The update began"
             detail={
               <>
-                <Term k="brupop" /> <Term k="cordon">cordoned</Term> two of three nodes to
-                update them — marking them unavailable for new work.
+                During the <Term k="brupop" /> update, two of three nodes were{" "}
+                <Term k="cordon">cordoned</Term> — marked unavailable for new work.
               </>
             }
           />
@@ -158,7 +158,7 @@ export function ReplayOverview({
               </span>
             </div>
             <p className="sum-note">
-              <code>{pdb.finding_id}</code> · read from the live cluster, not assumed
+              <code>{pdb.finding_id}</code> · observed from the real cluster during capture
             </p>
           </figure>
 

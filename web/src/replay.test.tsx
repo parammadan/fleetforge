@@ -205,6 +205,25 @@ describe("the landing view", () => {
     }
   });
 
+  it("never calls the captured cluster live", () => {
+    summary();
+    const text = document.body.textContent ?? "";
+    // The page's own banner says nothing here is live. "read from the live
+    // cluster" contradicted it on the same screen.
+    expect(text).not.toMatch(/live cluster/i);
+    expect(text).toMatch(/observed from the real cluster during capture/);
+  });
+
+  it("states the cordons as observed, not as something it watched Brupop do", () => {
+    summary();
+    const step = document.querySelectorAll(".story-step")[0];
+    // Passive on purpose. The nodes were already cordoned in the first state
+    // FleetForge ever saw, so it did not witness Brupop applying them — and
+    // the active voice asserts a causal link the evidence does not carry.
+    expect(step?.textContent).toMatch(/During the Brupop update, two of three nodes were/);
+    expect(step?.textContent).not.toMatch(/Brupop cordoned/);
+  });
+
   it("explains what FleetForge is in one sentence, without jargon", () => {
     summary();
     const what = document.querySelector(".overview-what");
