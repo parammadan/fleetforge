@@ -66,16 +66,26 @@ function Loaded({
 
   return (
     <>
-      <header className="chrome">
-        <span className="brand">
+      {/* One banner landmark around all the persistent chrome.
+          Previously the mode banner, provenance and position strips sat between
+          <header> and <main>, belonging to no landmark at all — so a screen
+          reader navigating by region skipped straight past the one thing this
+          interface must not let anyone miss. */}
+      <header className="site-header" role="banner">
+        <div className="chrome">
+        {/* The page's level-one heading. It was a <span>, which left the
+            document with no h1 at all — a screen-reader user jumping by heading
+            landed in the middle of the executive summary with no idea what the
+            page was. */}
+        <h1 className="brand">
           FleetForge <span>· incident replay</span>
-        </span>
+        </h1>
         <ModeBadge mode={bundle.mode} label={bundle.modeLabel} />
         <span className="chrome-spacer" />
         <span className="meta">
           {context.context.cluster_kind} · {context.context.kubernetes_version ?? "version unknown"}
         </span>
-      </header>
+      </div>
 
       {/* Persistent, undismissable, and first in the DOM after the header so a
           screen reader reaches it before any cluster data. */}
@@ -102,7 +112,8 @@ function Loaded({
         stale={playback.stale}
         state={playback.state}
         firstObservationAt={bundle.timeline.find((e) => e.kind === "node_changed")?.at}
-      />
+        />
+      </header>
 
       {playback.error && (
         <div className="banner banner-danger">

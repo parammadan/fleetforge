@@ -327,10 +327,16 @@ test("focus is visible on every interactive control that matters", async ({ page
     page.locator(".scrub input"),
   ]) {
     await target.focus();
-    const outline = await target.evaluate(
-      (el) => getComputedStyle(el, ":focus-visible").outlineStyle,
-    );
-    expect(outline).not.toBe("none");
+    // Plain computed style of the focused element. The second argument to
+    // getComputedStyle takes a pseudo-element, not a pseudo-class, so
+    // `getComputedStyle(el, ":focus-visible")` returns an empty declaration and
+    // any assertion against it passes vacuously.
+    const ring = await target.evaluate((el) => {
+      const s = getComputedStyle(el);
+      return { visible: el.matches(":focus-visible"), style: s.outlineStyle };
+    });
+    expect(ring.visible).toBe(true);
+    expect(ring.style).not.toBe("none");
   }
 });
 

@@ -58,7 +58,13 @@ export function Panel({
         <h2>{title}</h2>
         {subtitle && <span className="count">{subtitle}</span>}
       </header>
-      <div className="panel-body">{children}</div>
+      {/* Focusable because it scrolls horizontally: node tables carry
+          resourceVersions and quantities that exceed a narrow column, and a
+          scrollable region with no keyboard access is a region a keyboard user
+          cannot read the right-hand side of. */}
+      <div className="panel-body" tabIndex={0}>
+        {children}
+      </div>
     </section>
   );
 }
@@ -719,7 +725,9 @@ export function EvidenceExplorer({
           {content && (
             <details open>
               <summary>Raw {content.kind ?? "file"}</summary>
-              <pre className="artifact">{content.content}</pre>
+              <pre className="artifact" tabIndex={0} aria-label={`Raw contents of ${open}`}>
+                {content.content}
+              </pre>
             </details>
           )}
         </div>

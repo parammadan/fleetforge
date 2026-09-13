@@ -9,7 +9,7 @@ use axum::extract::State;
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use axum::response::sse::{Event as SseEvent, KeepAlive, Sse};
-use axum::routing::get;
+use axum::routing::{any, get};
 use axum::{Json, Router};
 use chrono::Utc;
 use ff_core::{ClusterSnapshot, KindCoverage};
@@ -47,6 +47,11 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/api/v1/replay/artifacts/{name}", get(replay_artifact))
         .route("/api/v1/stream", get(stream))
         .route("/api/v1/preflight", axum::routing::post(preflight))
+        // Matched before the interface's catch-all. Without it, an unknown API
+        // path falls through to the single-page fallback and a client asking
+        // for /api/v1/nope gets 200 text/html — which looks like success and
+        // parses as neither JSON nor an error.
+        .route("/api/{*rest}", any(unknown_api))
         .with_state(state)
 }
 
@@ -375,6 +380,19 @@ async fn preflight(
         result,
     ))
     .into_response()
+}
+
+/// Anything under `/api/` that no route matched.
+async fn unknown_api(uri: axum::http::Uri) -> axum::response::Response {
+    (
+        StatusCode::NOT_FOUND,
+        Json(ApiError {
+            code: "no_such_endpoint",
+            message: format!("no API endpoint at {}", uri.path()),
+            retriable: false,
+        }),
+    )
+        .into_response()
 }
 
 /// Replay endpoints.

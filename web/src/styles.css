@@ -13,6 +13,10 @@
   --text: #e6edf3;
   --text-dim: #9198a1;
   --accent: #58a6ff;
+  /* Accent used for small bold text on a raised surface. `--accent` measures
+   * 4.45:1 there in the light theme — a hair under AA, and the element that
+   * fails is the DERIVED classification tag, which is load-bearing. */
+  --accent-strong: #58a6ff;
 
   --live: #3fb950;
   --fixture: #d29922;
@@ -22,6 +26,11 @@
   --ok: #3fb950;
   --warn: #d29922;
   --danger: #f85149;
+  /* Danger text sitting *on* a danger-tinted background. `--danger` itself
+   * measures 5.0:1 there in dark and 4.4:1 in light — the light case fails AA,
+   * and the failure is exactly on the under-predicted rows, which are the ones
+   * that most need to be read. */
+  --danger-text: #ff7b72;
 
   --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, monospace;
 }
@@ -35,6 +44,7 @@
     --text: #1f2328;
     --text-dim: #59636e;
     --accent: #0969da;
+    --accent-strong: #0757b0;
     --live: #1a7f37;
     --fixture: #9a6700;
     --whatif: #8250df;
@@ -42,6 +52,7 @@
     --ok: #1a7f37;
     --warn: #9a6700;
     --danger: #cf222e;
+    --danger-text: #b3121d;
   }
 }
 
@@ -78,6 +89,10 @@ body {
  * The data mode lives here, in the top bar, on every screen. It has no
  * dismiss control by design (ADR-0003).
  */
+/* The sticky stack lives inside one <header role="banner">; the children keep
+ * their own sticky offsets. */
+.site-header { display: contents; }
+
 .chrome {
   position: sticky;
   top: 0;
@@ -91,7 +106,7 @@ body {
   border-bottom: 1px solid var(--border);
 }
 
-.brand { font-weight: 700; letter-spacing: -0.02em; }
+.brand { font-weight: 700; letter-spacing: -0.02em; margin: 0; font-size: 14px; }
 .brand span { color: var(--text-dim); font-weight: 400; }
 
 .mode-badge {
@@ -257,7 +272,7 @@ code, .mono { font-family: var(--mono); font-size: 12px; }
 .verdict-safe { border-color: var(--ok); color: var(--text); background: color-mix(in srgb, var(--ok) 12%, transparent); }
 .verdict-safe strong { color: var(--ok); }
 .verdict-blocked { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 12%, transparent); }
-.verdict-blocked strong { color: var(--danger); }
+.verdict-blocked strong { color: var(--danger-text); }
 
 .summary th { width: 220px; }
 .section-heading { font-size: 13px; margin: 18px 0 6px; }
@@ -354,7 +369,7 @@ code, .mono { font-family: var(--mono); font-size: 12px; }
   cursor: help;
 }
 .basis-observed_by_fleet_forge { color: var(--ok); border-color: var(--ok); }
-.basis-mathematically_derived { color: var(--accent); border-color: var(--accent); }
+.basis-mathematically_derived { color: var(--accent-strong); border-color: var(--accent-strong); }
 /* The three non-evidence bases are filled, not outlined. A filled tag stops the
  * eye; an outlined one blends into the sentence. */
 .basis-human_rca {
@@ -391,7 +406,7 @@ code, .mono { font-family: var(--mono); font-size: 12px; }
 .tile-unknown { border-color: var(--text-dim); border-style: dashed; }
 .tile-unknown .tile-value { color: var(--text-dim); font-family: var(--mono); }
 .tile-bad { border-color: var(--danger); }
-.tile-bad .tile-value { color: var(--danger); }
+.tile-bad .tile-value { color: var(--danger-text); }
 
 .callout {
   border-left: 3px solid var(--accent);
@@ -513,9 +528,17 @@ code, .mono { font-family: var(--mono); font-size: 12px; }
 .log-row button:hover { background: var(--surface-raised); }
 .log-active { background: color-mix(in srgb, var(--accent) 18%, transparent); }
 .log-active button { font-weight: 600; }
-/* Events after the playhead are dimmed, not hidden: hiding them would make the
- * end of the log indistinguishable from the end of the capture. */
-.log-future { opacity: 0.45; }
+/* Events after the playhead are marked, not hidden — hiding them would make the
+ * end of the log indistinguishable from the end of the capture.
+ *
+ * They were dimmed with `opacity: 0.45`, which took the timestamps to 1.97:1
+ * against the background. No opacity value clears 4.5:1 and still reads as
+ * "not yet", so the signal is a dashed rule and a recessed background instead:
+ * shape and position rather than fade, at full text contrast.
+ */
+.log-future { background: color-mix(in srgb, var(--border) 22%, transparent); }
+.log-future button { border-left: 3px dashed var(--border); padding-left: 7px; }
+.log-row:not(.log-future) button { border-left: 3px solid transparent; padding-left: 7px; }
 .log-time { flex: none; color: var(--text-dim); }
 .log-kind { flex: none; }
 .log-summary { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -559,6 +582,7 @@ code, .mono { font-family: var(--mono); font-size: 12px; }
 .pred-under_predicted td, .pred-missed td {
   background: color-mix(in srgb, var(--danger) 12%, transparent);
 }
+.pred-under_predicted .pill-danger, .pred-missed .pill-danger { color: var(--danger-text); }
 
 /* --- Evidence ------------------------------------------------------------ */
 .link-button {

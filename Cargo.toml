@@ -44,7 +44,7 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 axum = "0.8"
 async-stream = "0.3"
-tower-http = { version = "0.6", features = ["cors", "trace", "timeout"] }
+tower-http = { version = "0.6", features = ["cors", "trace", "timeout", "fs", "set-header"] }
 tower = { version = "0.5", features = ["util"] }
 http-body-util = "0.1"
 ff-collect = { path = "crates/ff-collect", version = "0.1.0" }

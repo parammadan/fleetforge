@@ -21,22 +21,49 @@ nodes, updated by a real Brupop deployment. The update deadlocked. The whole thi
 **5,068 events and 37 artifacts over 63 minutes** — and that recording is in this repository at
 [`evidence/eks-recovery/`](evidence/eks-recovery/). The cluster has since been destroyed.
 
-You can replay it. No AWS account, no cluster, no credentials.
+You can replay it. No AWS account, no cluster, no credentials — one command:
 
 ```sh
-cargo build --release -p ff-api
-./target/release/fleetforge --replay evidence/eks-recovery --bind 127.0.0.1:8080
-
-# in a second terminal
-cd web && npm ci && npm run dev
+make demo
 ```
 
-Open **http://127.0.0.1:5173**.
+It builds the interface if it is stale, starts the Rust backend, serves the production UI from
+the same process on one loopback port, waits for readiness, confirms the mode is `REPLAY`, and
+prints a single URL:
 
-![The executive summary of the replayed incident](docs/screenshots/01-initial.png)
+```
+  FleetForge replay  →  http://127.0.0.1:8080
+```
 
-Ready in ~100 ms, 25 MiB resident. Scrub the timeline, jump between chapters, open any artifact,
+Ctrl-C stops everything. One terminal, one process, no development server.
+
+![The replay control room opening](docs/walkthrough/replay-opening.gif)
+
+*The full 47-second walkthrough: [`docs/walkthrough/fleetforge-replay-walkthrough.mp4`](docs/walkthrough/fleetforge-replay-walkthrough.mp4)
+— recorded by browser automation against the real bundle, no narration, no staging.*
+
+Ready in ~110 ms, 25 MiB resident. Scrub the timeline, jump between chapters, open any artifact,
 and check the arithmetic behind every number.
+
+<details>
+<summary>Running it another way</summary>
+
+```sh
+FLEETFORGE_PORT=8081 make demo      # if 8080 is taken
+FLEETFORGE_PROFILE=debug make demo  # skip the optimised build
+
+# Or by hand, if you want the two pieces separately:
+cargo build --release -p ff-api
+./target/release/fleetforge --replay evidence/eks-recovery --ui web/dist --bind 127.0.0.1:8080
+
+# Frontend development, with hot reload, against the same backend:
+cd web && npm ci && npm run dev     # http://127.0.0.1:5173
+```
+
+`make demo` refuses to bind anything but loopback unless you set
+`FLEETFORGE_ALLOW_NON_LOOPBACK=yes`. FleetForge has no authentication of its own, so anything it
+can reach, anyone who can reach it can read.
+</details>
 
 ### What actually happened
 
@@ -75,6 +102,7 @@ Every statement carries one of five classifications — `OBSERVED`, `DERIVED`, `
 | The wire format | [`docs/REPLAY-SCHEMA.md`](docs/REPLAY-SCHEMA.md) |
 | The one unproven claim | [`docs/NETWORKING-VALIDATION-PLAN.md`](docs/NETWORKING-VALIDATION-PLAN.md) |
 | What has and has not been done | [`STATUS.md`](STATUS.md) |
+| Whether this repo can be public | [`docs/PUBLIC-RELEASE-AUDIT.md`](docs/PUBLIC-RELEASE-AUDIT.md) — **not yet; four edits away** |
 
 ## Status
 

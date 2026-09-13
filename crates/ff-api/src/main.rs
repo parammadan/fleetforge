@@ -23,6 +23,7 @@ struct Args {
     run_description: String,
     fixtures: Option<PathBuf>,
     replay: Option<PathBuf>,
+    ui: Option<PathBuf>,
     kubeconfig: Option<PathBuf>,
     context: Option<String>,
     bind: SocketAddr,
@@ -35,6 +36,7 @@ fn parse_args() -> Result<Args, String> {
         run_description: "unnamed run".to_owned(),
         fixtures: None,
         replay: None,
+        ui: None,
         kubeconfig: None,
         context: None,
         // Loopback, deliberately. FleetForge has no authentication yet, so it
@@ -51,6 +53,7 @@ fn parse_args() -> Result<Args, String> {
             }
             "--fixtures" => args.fixtures = it.next().map(PathBuf::from),
             "--replay" => args.replay = it.next().map(PathBuf::from),
+            "--ui" => args.ui = it.next().map(PathBuf::from),
             "--kubeconfig" => args.kubeconfig = it.next().map(PathBuf::from),
             "--context" => args.context = it.next(),
             "--bind" => {
@@ -66,6 +69,7 @@ fn parse_args() -> Result<Args, String> {
                        fleetforge [--kubeconfig PATH] [--context NAME] [--bind ADDR]\n  \
                        fleetforge --fixtures DIR\n  \
                        fleetforge --replay DIR      replay a captured evidence bundle\n  \
+                       fleetforge --ui DIR          also serve a built interface at /\n  \
                        fleetforge --once            print one snapshot summary and exit\n\n\
                      RECORDING:\n  \
                        --record PATH                append events to a JSONL log\n  \
@@ -178,7 +182,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         return print_once(&state).await;
     }
 
-    let app = routes::router(Arc::clone(&state))
+    // Validated before binding: a process that starts happily and then serves
+    // 404s to the room is worse than one that refuses to start and says why.
+    let ui = match &args.ui {
+        Some(dir) => Some(ff_api::ui::validate(dir)?),
+        None => None,
+    };
+
+    let mut app = routes::router(Arc::clone(&state));
+    app = match &ui {
+        Some(dir) => {
+            tracing::info!(path = %dir.display(), "serving the built interface at /");
+            ff_api::ui::mount(app, dir)
+        }
+        None => app.fallback(ff_api::ui::no_ui),
+    };
+
+    let app = app
         .layer(TraceLayer::new_for_http())
         .layer(TimeoutLayer::with_status_code(
             axum::http::StatusCode::GATEWAY_TIMEOUT,
@@ -189,7 +209,30 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // data; it must be revisited before any mutating endpoint exists.
         .layer(CorsLayer::permissive());
 
-    let listener = tokio::net::TcpListener::bind(args.bind).await?;
+    let listener = match tokio::net::TcpListener::bind(args.bind).await {
+        Ok(l) => l,
+        // The commonest failure by far, and the default message ("Address
+        // already in use") does not say which address or what to do about it.
+        Err(e) if e.kind() == std::io::ErrorKind::AddrInUse => {
+            return Err(format!(
+                "port {} is already in use.\n\
+                 Something else is listening on {}. Stop it, or choose another port with \
+                 --bind 127.0.0.1:<port>.\n\
+                 To find it:  lsof -nP -iTCP:{} -sTCP:LISTEN",
+                args.bind.port(),
+                args.bind,
+                args.bind.port(),
+            )
+            .into());
+        }
+        Err(e) => return Err(e.into()),
+    };
+
+    if ui.is_some() {
+        // The one line a presenter needs. Deliberately not behind the tracing
+        // filter, which an operator may have turned down.
+        println!("\n  FleetForge replay  →  http://{}\n", args.bind);
+    }
     tracing::info!(address = %args.bind, "listening");
 
     axum::serve(listener, app)

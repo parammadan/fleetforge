@@ -8,7 +8,7 @@ import { defineConfig, devices } from "@playwright/test";
 // `webServer`, and the mode assertions are the point of both suites.
 export default defineConfig({
   testDir: "./e2e",
-  testMatch: "replay.spec.ts",
+  testMatch: /(replay|a11y)\.spec\.ts/,
   fullyParallel: false,
   workers: 1,
   reporter: process.env.CI ? "list" : [["list"], ["html", { open: "never" }]],
@@ -20,7 +20,14 @@ export default defineConfig({
     screenshot: "only-on-failure",
   },
 
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  // Three engines, because the interface is a leadership artefact that will be
+  // opened on whatever the reader happens to use. Firefox and WebKit are where
+  // CSS that only Chromium tolerates shows up.
+  projects: [
+    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+    { name: "webkit", use: { ...devices["Desktop Safari"] } },
+  ],
 
   webServer: [
     {

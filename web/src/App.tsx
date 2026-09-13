@@ -73,8 +73,14 @@ export default function App() {
     <>
       {/* Outside the branch on purpose. A keyboard user who lands while the
           mode is still being decided needs somewhere to tab to, and the skip
-          link is the first stop on every screen this app has. */}
-      <a className="skip-link" href="#content">
+          link is the first stop on every screen this app has.
+
+          `tabIndex={0}` is not redundant: Safari and other WebKit browsers do
+          not put plain links in the tab order unless the user has turned on
+          Full Keyboard Access, so without it the skip link is unreachable by
+          keyboard on macOS Safari — which is exactly the browser a reviewer
+          opening this from a Mac will use. Found by the WebKit run. */}
+      <a className="skip-link" href="#content" tabIndex={0}>
         Skip to content
       </a>
       <Routed route={route} />

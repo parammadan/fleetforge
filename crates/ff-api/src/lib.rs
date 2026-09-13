@@ -11,6 +11,7 @@
 pub mod recorder;
 pub mod routes;
 pub mod state;
+pub mod ui;
 
 use ff_core::Mode;
 use serde::Serialize;
