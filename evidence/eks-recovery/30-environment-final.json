@@ -1,0 +1,88 @@
+{
+  "cluster_id": "1c2cdb4c-c1b2-4cd5-bb54-1132876ab118",
+  "mode": "live",
+  "mode_label": "LIVE",
+  "server_version": "v1.36.4-eks-4cc7921",
+  "client_target_version": "v1.36",
+  "version": "0.1.0",
+  "started_at": "2026-09-13T14:46:38.803585Z",
+  "snapshot_id": "632cbde631dad88af678ecec06e7d1c3c04f7d69c3da220c5f1fa2cbe7aec49f",
+  "coverage": [
+    {
+      "kind": "BottlerocketShadow",
+      "status": {
+        "state": "in_sync",
+        "synced_at": "2026-09-13T14:53:38.411046Z"
+      },
+      "observed_count": 3
+    },
+    {
+      "kind": "DaemonSet",
+      "status": {
+        "state": "in_sync",
+        "synced_at": "2026-09-13T14:53:38.411046Z"
+      },
+      "observed_count": 4
+    },
+    {
+      "kind": "Deployment",
+      "status": {
+        "state": "in_sync",
+        "synced_at": "2026-09-13T14:53:38.411046Z"
+      },
+      "observed_count": 22
+    },
+    {
+      "kind": "Event",
+      "status": {
+        "state": "in_sync",
+        "synced_at": "2026-09-13T14:53:38.411046Z"
+      },
+      "observed_count": 776
+    },
+    {
+      "kind": "Node",
+      "status": {
+        "state": "in_sync",
+        "synced_at": "2026-09-13T14:53:38.411046Z"
+      },
+      "observed_count": 10
+    },
+    {
+      "kind": "Pod",
+      "status": {
+        "state": "in_sync",
+        "synced_at": "2026-09-13T14:53:38.411046Z"
+      },
+      "observed_count": 45
+    },
+    {
+      "kind": "PodDisruptionBudget",
+      "status": {
+        "state": "in_sync",
+        "synced_at": "2026-09-13T14:53:38.411046Z"
+      },
+      "observed_count": 3
+    },
+    {
+      "kind": "ReplicaSet",
+      "status": {
+        "state": "in_sync",
+        "synced_at": "2026-09-13T14:53:38.411046Z"
+      },
+      "observed_count": 25
+    },
+    {
+      "kind": "StatefulSet",
+      "status": {
+        "state": "in_sync",
+        "synced_at": "2026-09-13T14:53:38.411046Z"
+      },
+      "observed_count": 0
+    }
+  ],
+  "authoritative": true,
+  "api_server_reachable": true,
+  "connection_state": "ok",
+  "last_contact_at": "2026-09-13T14:53:38.411046Z"
+}

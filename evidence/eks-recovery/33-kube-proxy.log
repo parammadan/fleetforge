@@ -1,0 +1,180 @@
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:13:39.634137       1 shared_informer.go:388] "Caches are synced" controller="service config"
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:13:39.634137       1 proxier.go:644] "Not syncing iptables until Services and Endpoints have been received from master" ipFamily="IPv4"
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:13:39.634192       1 proxier.go:644] "Not syncing iptables until Services and Endpoints have been received from master" ipFamily="IPv6"
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:13:39.634353       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=true
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:13:39.700779       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=19 numFilterChains=6 numFilterRules=4 numNATChains=35 numNATRules=74
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:13:39.741895       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="107.687163ms"
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:13:39.741935       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv6" fullSync=true
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:13:39.801783       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv6" numServices=0 numEndpoints=0 numFilterChains=5 numFilterRules=3 numNATChains=4 numNATRules=5
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:13:39.836424       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv6" elapsed="94.481327ms"
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:15:20.196185       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:15:20.201999       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=19 numFilterChains=6 numFilterRules=4 numNATChains=6 numNATRules=20
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:15:20.256658       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="60.492211ms"
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:15:21.257036       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:15:21.267311       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=15 numFilterChains=6 numFilterRules=7 numNATChains=14 numNATRules=27
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:15:21.297410       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="40.504565ms"
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:15:22.297768       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:15:22.302796       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=18 numFilterChains=6 numFilterRules=5 numNATChains=11 numNATRules=28
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:15:22.347335       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="49.668534ms"
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:15:23.432445       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:15:23.439308       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=19 numFilterChains=6 numFilterRules=4 numNATChains=6 numNATRules=20
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:15:23.496840       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="64.425243ms"
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:15:25.226192       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:15:25.231381       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=19 numFilterChains=6 numFilterRules=4 numNATChains=13 numNATRules=29
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:15:25.291437       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="65.309896ms"
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:15:26.291705       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:15:26.296695       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=22 numFilterChains=6 numFilterRules=4 numNATChains=10 numNATRules=26
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:15:26.371197       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="79.613337ms"
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:15:27.371567       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:15:27.377597       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=22 numFilterChains=6 numFilterRules=4 numNATChains=13 numNATRules=35
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:15:27.451565       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="80.126521ms"
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:15:30.402294       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:15:30.407444       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=19 numFilterChains=6 numFilterRules=4 numNATChains=13 numNATRules=35
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:15:30.480255       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="78.02417ms"
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:15:31.732241       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:15:31.737547       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=19 numFilterChains=6 numFilterRules=4 numNATChains=8 numNATRules=26
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:15:31.796649       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="64.449145ms"
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:35:12.193819       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:35:12.199377       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=20 numFilterChains=6 numFilterRules=4 numNATChains=8 numNATRules=26
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:35:12.246819       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="53.039131ms"
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:35:13.247238       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:35:13.252799       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=20 numFilterChains=6 numFilterRules=4 numNATChains=8 numNATRules=24
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:35:13.336729       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="89.563742ms"
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:35:14.337655       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:35:14.343225       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=19 numFilterChains=6 numFilterRules=4 numNATChains=7 numNATRules=23
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:35:14.456735       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="119.170785ms"
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:50:58.862066       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:50:58.868090       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=20 numFilterChains=6 numFilterRules=4 numNATChains=8 numNATRules=26
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:50:58.916682       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="54.658652ms"
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:51:07.411835       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:51:07.417068       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=21 numFilterChains=6 numFilterRules=4 numNATChains=9 numNATRules=29
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:51:07.476682       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="64.892632ms"
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:53:07.062849       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:53:07.068478       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=22 numFilterChains=6 numFilterRules=4 numNATChains=8 numNATRules=26
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:53:07.106863       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="44.053382ms"
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:57:27.951363       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:57:27.956657       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=21 numFilterChains=6 numFilterRules=4 numNATChains=9 numNATRules=27
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:57:28.006969       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="55.651123ms"
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:57:40.933264       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:57:40.938258       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=20 numFilterChains=6 numFilterRules=4 numNATChains=8 numNATRules=24
+[pod/kube-proxy-5jf5f/kube-proxy] I0913 14:57:40.986640       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="53.415912ms"
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:13:35.819845       1 proxier.go:644] "Not syncing iptables until Services and Endpoints have been received from master" ipFamily="IPv6"
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:13:35.819856       1 shared_informer.go:388] "Caches are synced" controller="service config"
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:13:35.819872       1 shared_informer.go:388] "Caches are synced" controller="serviceCIDR config"
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:13:35.820176       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=true
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:13:35.969435       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=19 numFilterChains=6 numFilterRules=4 numNATChains=35 numNATRules=74
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:13:36.022800       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="202.928485ms"
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:13:36.022831       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv6" fullSync=true
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:13:36.115904       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv6" numServices=0 numEndpoints=0 numFilterChains=5 numFilterRules=3 numNATChains=4 numNATRules=5
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:13:36.120031       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv6" elapsed="97.194422ms"
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:15:20.197073       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:15:20.202025       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=19 numFilterChains=6 numFilterRules=4 numNATChains=6 numNATRules=20
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:15:20.269789       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="72.734078ms"
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:15:21.270101       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:15:21.275068       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=15 numFilterChains=6 numFilterRules=7 numNATChains=14 numNATRules=27
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:15:21.370071       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="100.100284ms"
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:15:22.370368       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:15:22.375244       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=18 numFilterChains=6 numFilterRules=5 numNATChains=11 numNATRules=28
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:15:22.469881       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="99.658056ms"
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:15:23.470134       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:15:23.475244       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=19 numFilterChains=6 numFilterRules=4 numNATChains=6 numNATRules=20
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:15:23.539742       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="69.674062ms"
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:15:25.227020       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:15:25.231941       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=19 numFilterChains=6 numFilterRules=4 numNATChains=13 numNATRules=29
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:15:25.312517       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="85.563814ms"
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:15:26.313738       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:15:26.318519       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=22 numFilterChains=6 numFilterRules=4 numNATChains=10 numNATRules=26
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:15:26.382210       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="68.598002ms"
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:15:27.382536       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:15:27.387136       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=22 numFilterChains=6 numFilterRules=4 numNATChains=13 numNATRules=35
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:15:27.462228       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="79.815849ms"
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:15:30.402648       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:15:30.407464       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=19 numFilterChains=6 numFilterRules=4 numNATChains=13 numNATRules=35
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:15:30.492285       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="89.710335ms"
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:15:31.732782       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:15:31.737532       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=19 numFilterChains=6 numFilterRules=4 numNATChains=8 numNATRules=26
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:15:31.819846       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="87.10533ms"
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:35:12.194081       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:35:12.199165       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=20 numFilterChains=6 numFilterRules=4 numNATChains=8 numNATRules=26
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:35:12.249864       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="55.819496ms"
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:35:13.250546       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:35:13.257400       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=20 numFilterChains=6 numFilterRules=4 numNATChains=8 numNATRules=24
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:35:13.329875       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="79.482889ms"
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:35:14.330140       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:35:14.335102       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=19 numFilterChains=6 numFilterRules=4 numNATChains=7 numNATRules=23
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:35:14.379962       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="49.913854ms"
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:50:58.862282       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:50:58.867239       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=20 numFilterChains=6 numFilterRules=4 numNATChains=8 numNATRules=26
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:50:58.969899       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="107.654886ms"
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:51:07.412077       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:51:07.417106       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=21 numFilterChains=6 numFilterRules=4 numNATChains=9 numNATRules=29
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:51:07.529877       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="117.839619ms"
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:53:07.063111       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:53:07.068656       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=22 numFilterChains=6 numFilterRules=4 numNATChains=8 numNATRules=26
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:53:07.149913       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="86.840551ms"
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:57:27.951660       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:57:27.956635       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=21 numFilterChains=6 numFilterRules=4 numNATChains=9 numNATRules=27
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:57:28.019867       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="68.249456ms"
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:57:40.933331       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:57:40.938086       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=20 numFilterChains=6 numFilterRules=4 numNATChains=8 numNATRules=24
+[pod/kube-proxy-674q5/kube-proxy] I0913 14:57:41.019852       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="86.56145ms"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:09.899167       1 server.go:228] "Successfully retrieved NodeIPs" NodeIPs=["10.42.101.194"]
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:09.903498       1 sysinfo.go:243] Found node without cache information, nodeDir: /sys/devices/system/node/node0
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:09.903789       1 sysctls.go:147] "Setting nf_conntrack_max" nfConntrackMax=131072
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:09.903888       1 sysctls.go:191] "Set sysctl" entry="net/netfilter/nf_conntrack_max" value=131072
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:09.903981       1 sysctls.go:191] "Set sysctl" entry="net/netfilter/nf_conntrack_tcp_timeout_established" value=86400
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:09.904019       1 sysctls.go:191] "Set sysctl" entry="net/netfilter/nf_conntrack_tcp_timeout_close_wait" value=3600
+[pod/kube-proxy-vpkxb/kube-proxy] E0913 14:36:09.904044       1 server.go:265] "Kube-proxy configuration may be incomplete or incorrect" err="nodePortAddresses is unset; NodePort connections will be accepted on all local IPs. Consider using `--nodeport-addresses primary`"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.051095       1 server.go:274] "kube-proxy running in dual-stack mode" primary ipFamily="IPv4"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.051277       1 server_linux.go:312] "Detect-local-mode set to ClusterCIDR, but no cluster CIDR specified for primary IP family" ipFamily="IPv4" clusterCIDRs=null
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.051347       1 server_linux.go:137] "Using iptables Proxier"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.067999       1 proxier.go:241] "Setting route_localnet=1 to allow node-ports on localhost; to change this either disable iptables.localhostNodePorts (--iptables-localhost-nodeports) or set nodePortAddresses (--nodeport-addresses) to filter loopback addresses" ipFamily="IPv4"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.068208       1 utils.go:182] "Changed sysctl" name="net/ipv4/conf/all/route_localnet" before=0 after=1
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.068295       1 proxier.go:264] "Using iptables mark for masquerade" ipFamily="IPv4" mark="0x00004000"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.074473       1 proxier.go:308] "Iptables sync params" ipFamily="IPv4" minSyncPeriod="1s" syncPeriod="30s" maxSyncPeriod="1h0m0s"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.084227       1 proxier.go:318] "Iptables supports --random-fully" ipFamily="IPv4"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.085056       1 proxier.go:264] "Using iptables mark for masquerade" ipFamily="IPv6" mark="0x00004000"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.085574       1 proxier.go:308] "Iptables sync params" ipFamily="IPv6" minSyncPeriod="1s" syncPeriod="30s" maxSyncPeriod="1h0m0s"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.085701       1 proxier.go:318] "Iptables supports --random-fully" ipFamily="IPv6"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.086647       1 server.go:539] "Version info" version="v1.36.0-18+6b6362839590e6"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.087484       1 server.go:541] "Golang settings" GOGC="" GOMAXPROCS="" GOTRACEBACK=""
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.095556       1 config.go:403] "Starting serviceCIDR config controller"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.095579       1 shared_informer.go:381] "Waiting for caches to sync" controller="serviceCIDR config"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.095978       1 config.go:200] "Starting service config controller"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.095990       1 shared_informer.go:381] "Waiting for caches to sync" controller="service config"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.096005       1 config.go:106] "Starting endpoint slice config controller"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.096011       1 shared_informer.go:381] "Waiting for caches to sync" controller="endpoint slice config"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.096676       1 proxier.go:644] "Not syncing iptables until Services and Endpoints have been received from master" ipFamily="IPv6"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.096711       1 proxier.go:644] "Not syncing iptables until Services and Endpoints have been received from master" ipFamily="IPv4"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.096729       1 config.go:309] "Starting node config controller"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.096737       1 shared_informer.go:381] "Waiting for caches to sync" controller="node config"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.096741       1 shared_informer.go:388] "Caches are synced" controller="node config"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.109401       1 reflector.go:507] "Caches populated" type="*v1.EndpointSlice" reflector="k8s.io/client-go/informers/factory.go:177"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.113416       1 reflector.go:507] "Caches populated" type="*v1.ServiceCIDR" reflector="k8s.io/client-go/informers/factory.go:177"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.119231       1 reflector.go:507] "Caches populated" type="*v1.Service" reflector="k8s.io/client-go/informers/factory.go:177"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.196502       1 shared_informer.go:388] "Caches are synced" controller="serviceCIDR config"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.196598       1 shared_informer.go:388] "Caches are synced" controller="service config"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.196751       1 shared_informer.go:388] "Caches are synced" controller="endpoint slice config"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.196616       1 proxier.go:644] "Not syncing iptables until Services and Endpoints have been received from master" ipFamily="IPv4"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.197459       1 proxier.go:644] "Not syncing iptables until Services and Endpoints have been received from master" ipFamily="IPv6"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.197879       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=true
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.411112       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=19 numFilterChains=6 numFilterRules=4 numNATChains=35 numNATRules=74
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.652455       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="454.972888ms"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.652488       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv6" fullSync=true
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.754735       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv6" numServices=0 numEndpoints=0 numFilterChains=5 numFilterRules=3 numNATChains=4 numNATRules=5
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:36:10.767002       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv6" elapsed="114.509147ms"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:50:58.864877       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:50:58.870602       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=20 numFilterChains=6 numFilterRules=4 numNATChains=8 numNATRules=26
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:50:58.916170       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="51.335599ms"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:51:07.411190       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:51:07.416047       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=21 numFilterChains=6 numFilterRules=4 numNATChains=9 numNATRules=29
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:51:07.456085       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="44.944166ms"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:53:07.062820       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:53:07.068221       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=22 numFilterChains=6 numFilterRules=4 numNATChains=8 numNATRules=26
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:53:07.136049       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="73.269042ms"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:57:27.950368       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:57:27.955549       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=21 numFilterChains=6 numFilterRules=4 numNATChains=9 numNATRules=27
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:57:28.016251       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="65.921756ms"
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:57:40.932808       1 proxier.go:666] "Syncing iptables rules" ipFamily="IPv4" fullSync=false
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:57:40.937894       1 proxier.go:1387] "Reloading service iptables data" ipFamily="IPv4" numServices=12 numEndpoints=20 numFilterChains=6 numFilterRules=4 numNATChains=8 numNATRules=24
+[pod/kube-proxy-vpkxb/kube-proxy] I0913 14:57:40.986034       1 proxier.go:660] "SyncProxyRules complete" ipFamily="IPv4" elapsed="53.26398ms"

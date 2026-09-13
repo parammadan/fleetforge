@@ -1,0 +1,29 @@
+{
+    "apiVersion": "brupop.bottlerocket.aws/v2",
+    "kind": "BottlerocketShadow",
+    "metadata": {
+        "creationTimestamp": "2026-09-13T14:08:49Z",
+        "generation": 6,
+        "name": "brs-ip-10-42-101-194.us-east-2.compute.internal",
+        "namespace": "brupop-bottlerocket-aws",
+        "ownerReferences": [
+            {
+                "apiVersion": "v1",
+                "kind": "Node",
+                "name": "ip-10-42-101-194.us-east-2.compute.internal",
+                "uid": "d1b25c3e-51ef-47ee-be11-6b3168b5508c"
+            }
+        ],
+        "resourceVersion": "15988",
+        "uid": "19db8a68-f7e5-4d3e-8c45-0f2c1fbb34e6"
+    },
+    "spec": {
+        "state": "Idle"
+    },
+    "status": {
+        "crash_count": 0,
+        "current_state": "Idle",
+        "current_version": "1.64.0",
+        "target_version": "1.64.0"
+    }
+}

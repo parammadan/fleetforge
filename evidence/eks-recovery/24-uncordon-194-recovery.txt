@@ -1,0 +1,2 @@
+  14:53:08  ready=3/3 sched=3/3  pods: 3 1/1/Running  web-pdb[healthy=3 allowed=1] brupop=all-idle
+  -> all gates met

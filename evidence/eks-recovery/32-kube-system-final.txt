@@ -1,0 +1,12 @@
+NAME                           READY   STATUS    RESTARTS   AGE   IP              NODE                                          NOMINATED NODE   READINESS GATES
+aws-node-bf5zg                 2/2     Running   0          46m   10.42.101.90    ip-10-42-101-90.us-east-2.compute.internal    <none>           <none>
+aws-node-gps7g                 2/2     Running   0          24m   10.42.101.194   ip-10-42-101-194.us-east-2.compute.internal   <none>           <none>
+aws-node-tft54                 2/2     Running   0          47m   10.42.100.186   ip-10-42-100-186.us-east-2.compute.internal   <none>           <none>
+coredns-5f8c6645d8-g5nr5       1/1     Running   0          47m   10.42.100.33    ip-10-42-100-186.us-east-2.compute.internal   <none>           <none>
+coredns-5f8c6645d8-qdvn8       1/1     Running   0          44m   10.42.100.79    ip-10-42-100-186.us-east-2.compute.internal   <none>           <none>
+eks-pod-identity-agent-78bkr   1/1     Running   0          46m   10.42.100.186   ip-10-42-100-186.us-east-2.compute.internal   <none>           <none>
+eks-pod-identity-agent-mx9kj   1/1     Running   0          46m   10.42.101.90    ip-10-42-101-90.us-east-2.compute.internal    <none>           <none>
+eks-pod-identity-agent-s89ph   1/1     Running   0          24m   10.42.101.194   ip-10-42-101-194.us-east-2.compute.internal   <none>           <none>
+kube-proxy-5jf5f               1/1     Running   0          46m   10.42.100.186   ip-10-42-100-186.us-east-2.compute.internal   <none>           <none>
+kube-proxy-674q5               1/1     Running   0          46m   10.42.101.90    ip-10-42-101-90.us-east-2.compute.internal    <none>           <none>
+kube-proxy-vpkxb               1/1     Running   0          24m   10.42.101.194   ip-10-42-101-194.us-east-2.compute.internal   <none>           <none>

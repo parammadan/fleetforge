@@ -1,0 +1,21 @@
+Defaulted container "aws-node" out of: aws-node, aws-eks-nodeagent, aws-vpc-cni-init (init)
+Defaulted container "aws-node" out of: aws-node, aws-eks-nodeagent, aws-vpc-cni-init (init)
+Defaulted container "aws-node" out of: aws-node, aws-eks-nodeagent, aws-vpc-cni-init (init)
+[pod/aws-node-bf5zg/aws-node] Installed /host/opt/cni/bin/aws-cni
+[pod/aws-node-bf5zg/aws-node] time="2026-09-13T14:13:39Z" level=info msg="Starting IPAM daemon... "
+[pod/aws-node-bf5zg/aws-node] Installed /host/opt/cni/bin/egress-cni
+[pod/aws-node-bf5zg/aws-node] time="2026-09-13T14:13:39Z" level=info msg="Checking for IPAM connectivity... "
+[pod/aws-node-bf5zg/aws-node] time="2026-09-13T14:13:42Z" level=info msg="Copying config file... "
+[pod/aws-node-bf5zg/aws-node] time="2026-09-13T14:13:42Z" level=info msg="Successfully copied CNI plugin binary and config file."
+[pod/aws-node-gps7g/aws-node] Installed /host/opt/cni/bin/aws-cni
+[pod/aws-node-gps7g/aws-node] Installed /host/opt/cni/bin/egress-cni
+[pod/aws-node-gps7g/aws-node] time="2026-09-13T14:36:10Z" level=info msg="Starting IPAM daemon... "
+[pod/aws-node-gps7g/aws-node] time="2026-09-13T14:36:10Z" level=info msg="Checking for IPAM connectivity... "
+[pod/aws-node-gps7g/aws-node] time="2026-09-13T14:36:13Z" level=info msg="Copying config file... "
+[pod/aws-node-gps7g/aws-node] time="2026-09-13T14:36:13Z" level=info msg="Successfully copied CNI plugin binary and config file."
+[pod/aws-node-tft54/aws-node] Installed /host/opt/cni/bin/aws-cni
+[pod/aws-node-tft54/aws-node] Installed /host/opt/cni/bin/egress-cni
+[pod/aws-node-tft54/aws-node] time="2026-09-13T14:12:55Z" level=info msg="Starting IPAM daemon... "
+[pod/aws-node-tft54/aws-node] time="2026-09-13T14:12:55Z" level=info msg="Checking for IPAM connectivity... "
+[pod/aws-node-tft54/aws-node] time="2026-09-13T14:12:58Z" level=info msg="Copying config file... "
+[pod/aws-node-tft54/aws-node] time="2026-09-13T14:12:58Z" level=info msg="Successfully copied CNI plugin binary and config file."
