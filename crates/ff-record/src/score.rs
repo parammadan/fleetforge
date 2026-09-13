@@ -62,6 +62,13 @@ impl Comparison {
     }
 
     /// A one-line verdict, including when no verdict is possible.
+    ///
+    /// "Conservative" is reserved for over-prediction, and only over-prediction.
+    /// An earlier version returned it whenever no *workload* was missed — which
+    /// labelled a run that predicted 5 evictions and observed 8 as conservative,
+    /// when it had under-predicted by three. Over- and under-prediction are not
+    /// the same mistake: one wastes an operator's caution, the other spends it
+    /// somewhere it was needed.
     #[must_use]
     pub fn verdict(&self) -> &'static str {
         if !self.window_had_activity {
@@ -69,12 +76,14 @@ impl Comparison {
             // never tested is not a prediction that was correct.
             return "untested — no disruption occurred in this window";
         }
-        if self.workloads_exact() && self.eviction_delta() == 0 {
-            "exact"
-        } else if self.observed_but_not_predicted.is_empty() {
-            "conservative — predicted more disruption than occurred"
-        } else {
-            "missed — disruption occurred that was not predicted"
+        if !self.observed_but_not_predicted.is_empty() {
+            return "missed — a workload was disrupted that was not predicted";
+        }
+        match self.eviction_delta() {
+            0 if self.workloads_exact() => "exact",
+            0 => "conservative — predicted workloads that were not disrupted",
+            d if d > 0 => "under-predicted — more pods were evicted than predicted",
+            _ => "conservative — predicted more disruption than occurred",
         }
     }
 }
@@ -92,6 +101,9 @@ pub struct Accuracy {
     pub conservative: usize,
     /// Missed disruption that occurred. **The number that matters.**
     pub missed: usize,
+    /// Predicted fewer evictions than occurred. Distinct from `missed`: the
+    /// right workloads were named, but the scale was understated.
+    pub under_predicted: usize,
 }
 
 impl Accuracy {
@@ -112,9 +124,9 @@ impl Accuracy {
             );
         }
         format!(
-            "{} of {} tested prediction(s) exact, {} conservative, {} missed disruption that \
-             occurred.",
-            self.exact, self.tested, self.conservative, self.missed
+            "{} of {} tested prediction(s) exact, {} conservative (over-predicted), {} \
+             under-predicted, {} missed a disrupted workload entirely.",
+            self.exact, self.tested, self.conservative, self.under_predicted, self.missed
         )
     }
 }
@@ -229,10 +241,15 @@ pub fn score(entries: &[LogEntry]) -> (Vec<Comparison>, Accuracy) {
             continue;
         }
         accuracy.tested += 1;
-        match comparison.verdict() {
-            "exact" => accuracy.exact += 1,
-            "missed — disruption occurred that was not predicted" => accuracy.missed += 1,
-            _ => accuracy.conservative += 1,
+        let v = comparison.verdict();
+        if v.starts_with("exact") {
+            accuracy.exact += 1;
+        } else if v.starts_with("missed") {
+            accuracy.missed += 1;
+        } else if v.starts_with("under-predicted") {
+            accuracy.under_predicted += 1;
+        } else {
+            accuracy.conservative += 1;
         }
     }
 
@@ -343,6 +360,32 @@ mod tests {
         assert!(comparisons[0].verdict().starts_with("missed"));
         assert_eq!(accuracy.missed, 1);
         assert!(accuracy.summary().contains("1 missed"));
+    }
+
+    #[test]
+    fn under_prediction_is_not_called_conservative() {
+        // Observed on EKS: predicted 5 evictions, 8 occurred, and the verdict
+        // read "conservative". Under-predicting is the direction that costs an
+        // operator, and it must not share a label with over-predicting.
+        let entries = vec![
+            prediction_entry(1, 5, &["web"]),
+            removal(2, "n1", "web"),
+            removal(3, "n1", "web"),
+            removal(4, "n1", "web"),
+            removal(5, "n1", "web"),
+            removal(6, "n1", "web"),
+            removal(7, "n1", "web"),
+        ];
+        let (comparisons, accuracy) = score(&entries);
+        assert_eq!(comparisons[0].eviction_delta(), 1);
+        assert!(
+            comparisons[0].verdict().starts_with("under-predicted"),
+            "{}",
+            comparisons[0].verdict()
+        );
+        assert_eq!(accuracy.under_predicted, 1);
+        assert_eq!(accuracy.conservative, 0);
+        assert!(accuracy.summary().contains("under-predicted"));
     }
 
     #[test]

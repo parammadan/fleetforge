@@ -1,0 +1,27 @@
+NAMESPACE                 NAME                                            READY   STATUS    RESTARTS   AGE   IP              NODE                                          NOMINATED NODE   READINESS GATES
+brupop-bottlerocket-aws   brupop-agent-9j5vd                              1/1     Running   0          26m   10.42.101.185   ip-10-42-101-194.us-east-2.compute.internal   <none>           <none>
+brupop-bottlerocket-aws   brupop-agent-vlvhg                              1/1     Running   0          21m   10.42.101.81    ip-10-42-101-90.us-east-2.compute.internal    <none>           <none>
+brupop-bottlerocket-aws   brupop-agent-wswb7                              1/1     Running   0          23m   10.42.100.204   ip-10-42-100-186.us-east-2.compute.internal   <none>           <none>
+brupop-bottlerocket-aws   brupop-apiserver-75bd4784c4-5br6q               1/1     Running   0          22m   10.42.100.143   ip-10-42-100-186.us-east-2.compute.internal   <none>           <none>
+brupop-bottlerocket-aws   brupop-apiserver-75bd4784c4-5f2nm               1/1     Running   0          19m   10.42.100.113   ip-10-42-100-186.us-east-2.compute.internal   <none>           <none>
+brupop-bottlerocket-aws   brupop-apiserver-75bd4784c4-pj5s5               1/1     Running   0          22m   10.42.100.192   ip-10-42-100-186.us-east-2.compute.internal   <none>           <none>
+brupop-bottlerocket-aws   brupop-controller-deployment-584c75f8c8-cz67g   1/1     Running   0          19m   10.42.100.160   ip-10-42-100-186.us-east-2.compute.internal   <none>           <none>
+cert-manager              cert-manager-55f858c7fc-wfblf                   1/1     Running   0          19m   10.42.100.152   ip-10-42-100-186.us-east-2.compute.internal   <none>           <none>
+cert-manager              cert-manager-cainjector-7745d85c9c-lfp84        1/1     Running   0          19m   10.42.100.14    ip-10-42-100-186.us-east-2.compute.internal   <none>           <none>
+cert-manager              cert-manager-webhook-67fd9d5484-xlrjh           1/1     Running   0          22m   10.42.100.253   ip-10-42-100-186.us-east-2.compute.internal   <none>           <none>
+demo                      api-5457998f44-6ltp2                            1/1     Running   0          22m   10.42.100.93    ip-10-42-100-186.us-east-2.compute.internal   <none>           <none>
+demo                      traffic-59fb65595f-b968p                        1/1     Running   0          22m   10.42.100.45    ip-10-42-100-186.us-east-2.compute.internal   <none>           <none>
+demo                      web-8cb9878f-6j82j                              0/1     Pending   0          22m   <none>          <none>                                        <none>           <none>
+demo                      web-8cb9878f-n28s6                              1/1     Running   0          26m   10.42.101.159   ip-10-42-101-194.us-east-2.compute.internal   <none>           <none>
+demo                      web-8cb9878f-zh67z                              1/1     Running   0          24m   10.42.100.248   ip-10-42-100-186.us-east-2.compute.internal   <none>           <none>
+kube-system               aws-node-bf5zg                                  2/2     Running   0          21m   10.42.101.90    ip-10-42-101-90.us-east-2.compute.internal    <none>           <none>
+kube-system               aws-node-ck4l5                                  2/2     Running   0          21m   10.42.101.194   ip-10-42-101-194.us-east-2.compute.internal   <none>           <none>
+kube-system               aws-node-tft54                                  2/2     Running   0          22m   10.42.100.186   ip-10-42-100-186.us-east-2.compute.internal   <none>           <none>
+kube-system               coredns-5f8c6645d8-g5nr5                        1/1     Running   0          22m   10.42.100.33    ip-10-42-100-186.us-east-2.compute.internal   <none>           <none>
+kube-system               coredns-5f8c6645d8-qdvn8                        1/1     Running   0          19m   10.42.100.79    ip-10-42-100-186.us-east-2.compute.internal   <none>           <none>
+kube-system               eks-pod-identity-agent-5g57p                    1/1     Running   0          21m   10.42.101.194   ip-10-42-101-194.us-east-2.compute.internal   <none>           <none>
+kube-system               eks-pod-identity-agent-78bkr                    1/1     Running   0          20m   10.42.100.186   ip-10-42-100-186.us-east-2.compute.internal   <none>           <none>
+kube-system               eks-pod-identity-agent-mx9kj                    1/1     Running   0          21m   10.42.101.90    ip-10-42-101-90.us-east-2.compute.internal    <none>           <none>
+kube-system               kube-proxy-5jf5f                                1/1     Running   0          21m   10.42.100.186   ip-10-42-100-186.us-east-2.compute.internal   <none>           <none>
+kube-system               kube-proxy-674q5                                1/1     Running   0          21m   10.42.101.90    ip-10-42-101-90.us-east-2.compute.internal    <none>           <none>
+kube-system               kube-proxy-lmstm                                1/1     Running   0          21m   10.42.101.194   ip-10-42-101-194.us-east-2.compute.internal   <none>           <none>

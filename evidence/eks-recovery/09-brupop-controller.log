@@ -1,0 +1,9 @@
+  [2m2026-09-13T14:15:21.251925Z[0m [32m INFO[0m [1;32mactix_server::builder[0m[32m: [32mstarting 2 workers[0m
+    [2;3mat[0m /src/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.2.0/src/builder.rs:200
+
+  [2m2026-09-13T14:15:21.264464Z[0m [32m INFO[0m [1;32mcontroller::controller[0m[32m: [32mNothing to do: The bottlerocket-update-operator is not aware of any BottlerocketShadow objects. Is the bottlerocket-shadow CRD installed? Are nodes labelled so that the agent is deployed to them? See the project's README for more information.[0m
+    [2;3mat[0m controller/src/controller.rs:280
+
+  [2m2026-09-13T14:15:21.264670Z[0m [32m INFO[0m [1;32mactix_server::server[0m[32m: [32mActix runtime found; starting in Actix runtime[0m
+    [2;3mat[0m /src/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-server-2.2.0/src/server.rs:196
+

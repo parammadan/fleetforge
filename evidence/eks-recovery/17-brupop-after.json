@@ -1,0 +1,97 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "brupop.bottlerocket.aws/v2",
+            "kind": "BottlerocketShadow",
+            "metadata": {
+                "creationTimestamp": "2026-09-13T14:08:30Z",
+                "generation": 35,
+                "name": "brs-ip-10-42-100-186.us-east-2.compute.internal",
+                "namespace": "brupop-bottlerocket-aws",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "v1",
+                        "kind": "Node",
+                        "name": "ip-10-42-100-186.us-east-2.compute.internal",
+                        "uid": "2bc1ba2f-355e-446b-9f7a-35b2a0cb4832"
+                    }
+                ],
+                "resourceVersion": "11301",
+                "uid": "14eb9e5c-1f63-4820-99a5-5d6d8d40706f"
+            },
+            "spec": {
+                "state": "Idle"
+            },
+            "status": {
+                "crash_count": 1,
+                "current_state": "Idle",
+                "current_version": "1.64.0",
+                "state_transition_failure_timestamp": "2026-09-13T14:10:19.398041582+00:00",
+                "target_version": "1.64.0"
+            }
+        },
+        {
+            "apiVersion": "brupop.bottlerocket.aws/v2",
+            "kind": "BottlerocketShadow",
+            "metadata": {
+                "creationTimestamp": "2026-09-13T14:08:49Z",
+                "generation": 6,
+                "name": "brs-ip-10-42-101-194.us-east-2.compute.internal",
+                "namespace": "brupop-bottlerocket-aws",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "v1",
+                        "kind": "Node",
+                        "name": "ip-10-42-101-194.us-east-2.compute.internal",
+                        "uid": "d1b25c3e-51ef-47ee-be11-6b3168b5508c"
+                    }
+                ],
+                "resourceVersion": "15988",
+                "uid": "19db8a68-f7e5-4d3e-8c45-0f2c1fbb34e6"
+            },
+            "spec": {
+                "state": "Idle"
+            },
+            "status": {
+                "crash_count": 0,
+                "current_state": "Idle",
+                "current_version": "1.64.0",
+                "target_version": "1.64.0"
+            }
+        },
+        {
+            "apiVersion": "brupop.bottlerocket.aws/v2",
+            "kind": "BottlerocketShadow",
+            "metadata": {
+                "creationTimestamp": "2026-09-13T14:08:35Z",
+                "generation": 6,
+                "name": "brs-ip-10-42-101-90.us-east-2.compute.internal",
+                "namespace": "brupop-bottlerocket-aws",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "v1",
+                        "kind": "Node",
+                        "name": "ip-10-42-101-90.us-east-2.compute.internal",
+                        "uid": "19569318-b7fa-4296-adee-8493d3605263"
+                    }
+                ],
+                "resourceVersion": "11297",
+                "uid": "348f9485-0146-49b0-9427-a168476a490c"
+            },
+            "spec": {
+                "state": "Idle"
+            },
+            "status": {
+                "crash_count": 0,
+                "current_state": "Idle",
+                "current_version": "1.64.0",
+                "target_version": "1.64.0"
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}

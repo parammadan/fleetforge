@@ -1,0 +1,40 @@
+kube-system               20m         Normal    Started                   pod/eks-pod-identity-agent-78bkr                           Container started
+kube-system               20m         Normal    Created                   pod/eks-pod-identity-agent-78bkr                           Container created
+kube-system               20m         Normal    Pulled                    pod/eks-pod-identity-agent-78bkr                           Successfully pulled image "602401143452.dkr.ecr.us-east-2.amazonaws.com/eks/eks-pod-identity-agent:v0.2.2" in 77ms (77ms including waiting). Image size: 30189526 bytes.
+brupop-bottlerocket-aws   19m         Normal    SuccessfulCreate          replicaset/brupop-controller-deployment-584c75f8c8         Created pod: brupop-controller-deployment-584c75f8c8-cz67g
+brupop-bottlerocket-aws   19m         Normal    Killing                   pod/brupop-controller-deployment-584c75f8c8-9rjq6          Stopping container brupop
+cert-manager              19m         Normal    Scheduled                 pod/cert-manager-cainjector-7745d85c9c-lfp84               Successfully assigned cert-manager/cert-manager-cainjector-7745d85c9c-lfp84 to ip-10-42-100-186.us-east-2.compute.internal
+brupop-bottlerocket-aws   19m         Normal    Created                   pod/brupop-controller-deployment-584c75f8c8-cz67g          Container created
+brupop-bottlerocket-aws   19m         Normal    Pulled                    pod/brupop-controller-deployment-584c75f8c8-cz67g          Container image "public.ecr.aws/bottlerocket/bottlerocket-update-operator:v1.3.0" already present on machine and can be accessed by the pod
+brupop-bottlerocket-aws   19m         Normal    Killing                   pod/brupop-apiserver-75bd4784c4-9cc8s                      Stopping container brupop
+cert-manager              19m         Normal    SuccessfulCreate          replicaset/cert-manager-cainjector-7745d85c9c              Created pod: cert-manager-cainjector-7745d85c9c-lfp84
+brupop-bottlerocket-aws   19m         Normal    Scheduled                 pod/brupop-controller-deployment-584c75f8c8-cz67g          Successfully assigned brupop-bottlerocket-aws/brupop-controller-deployment-584c75f8c8-cz67g to ip-10-42-100-186.us-east-2.compute.internal
+brupop-bottlerocket-aws   19m         Normal    Scheduled                 pod/brupop-apiserver-75bd4784c4-5f2nm                      Successfully assigned brupop-bottlerocket-aws/brupop-apiserver-75bd4784c4-5f2nm to ip-10-42-100-186.us-east-2.compute.internal
+cert-manager              19m         Normal    Killing                   pod/cert-manager-cainjector-7745d85c9c-cbt6n               Stopping container cert-manager-cainjector
+brupop-bottlerocket-aws   19m         Normal    SuccessfulCreate          replicaset/brupop-apiserver-75bd4784c4                     Created pod: brupop-apiserver-75bd4784c4-5f2nm
+cert-manager              19m         Normal    SuccessfulCreate          replicaset/cert-manager-55f858c7fc                         Created pod: cert-manager-55f858c7fc-wfblf
+cert-manager              19m         Normal    Killing                   pod/cert-manager-55f858c7fc-62gzj                          Stopping container cert-manager-controller
+cert-manager              19m         Normal    Scheduled                 pod/cert-manager-55f858c7fc-wfblf                          Successfully assigned cert-manager/cert-manager-55f858c7fc-wfblf to ip-10-42-100-186.us-east-2.compute.internal
+cert-manager              19m         Normal    Pulled                    pod/cert-manager-cainjector-7745d85c9c-lfp84               Container image "quay.io/jetstack/cert-manager-cainjector:v1.21.2" already present on machine and can be accessed by the pod
+cert-manager              19m         Normal    Started                   pod/cert-manager-cainjector-7745d85c9c-lfp84               Container started
+brupop-bottlerocket-aws   19m         Normal    Pulled                    pod/brupop-apiserver-75bd4784c4-5f2nm                      Container image "public.ecr.aws/bottlerocket/bottlerocket-update-operator:v1.3.0" already present on machine and can be accessed by the pod
+brupop-bottlerocket-aws   19m         Normal    Created                   pod/brupop-apiserver-75bd4784c4-5f2nm                      Container created
+brupop-bottlerocket-aws   19m         Normal    Started                   pod/brupop-controller-deployment-584c75f8c8-cz67g          Container started
+cert-manager              19m         Normal    Pulling                   pod/cert-manager-55f858c7fc-wfblf                          Pulling image "quay.io/jetstack/cert-manager-controller:v1.21.2"
+kube-system               19m         Normal    LeaderElection            lease/cert-manager-cainjector-leader-election              cert-manager-cainjector-7745d85c9c-lfp84_072d89a9-72e3-4c8d-bd7a-0d83a811b39d became leader
+cert-manager              19m         Normal    Created                   pod/cert-manager-cainjector-7745d85c9c-lfp84               Container created
+brupop-bottlerocket-aws   19m         Normal    Started                   pod/brupop-apiserver-75bd4784c4-5f2nm                      Container started
+brupop-bottlerocket-aws   19m         Normal    KeyPairVerified           issuer/brupop-root-certificate-issuer                      Signing CA verified
+kube-system               19m         Normal    LeaderElection            lease/cert-manager-controller                              cert-manager-55f858c7fc-wfblf-external-cert-manager-controller became leader
+cert-manager              19m         Normal    Started                   pod/cert-manager-55f858c7fc-wfblf                          Container started
+cert-manager              19m         Normal    Created                   pod/cert-manager-55f858c7fc-wfblf                          Container created
+cert-manager              19m         Normal    Pulled                    pod/cert-manager-55f858c7fc-wfblf                          Successfully pulled image "quay.io/jetstack/cert-manager-controller:v1.21.2" in 2.201s (2.201s including waiting). Image size: 22322766 bytes.
+kube-system               19m         Warning   Unhealthy                 pod/coredns-5f8c6645d8-qdvn8                               Readiness probe failed: Get "http://10.42.100.79:8181/ready": dial tcp 10.42.100.79:8181: connect: connection refused
+kube-system               19m         Normal    SuccessfulCreate          replicaset/coredns-5f8c6645d8                              Created pod: coredns-5f8c6645d8-qdvn8
+kube-system               19m         Normal    Scheduled                 pod/coredns-5f8c6645d8-qdvn8                               Successfully assigned kube-system/coredns-5f8c6645d8-qdvn8 to ip-10-42-100-186.us-east-2.compute.internal
+kube-system               19m         Normal    Pulled                    pod/coredns-5f8c6645d8-qdvn8                               Container image "602401143452.dkr.ecr.us-east-2.amazonaws.com/eks/coredns:v1.14.3-eksbuild.16" already present on machine and can be accessed by the pod
+kube-system               19m         Normal    Started                   pod/coredns-5f8c6645d8-qdvn8                               Container started
+kube-system               19m         Normal    Killing                   pod/coredns-5f8c6645d8-nchxv                               Stopping container coredns
+kube-system               19m         Normal    Created                   pod/coredns-5f8c6645d8-qdvn8                               Container created
+default                   19m         Normal    NodeNotSchedulable        node/ip-10-42-101-194.us-east-2.compute.internal           Node ip-10-42-101-194.us-east-2.compute.internal status is now: NodeNotSchedulable
+demo                      4m12s       Warning   FailedScheduling          pod/web-8cb9878f-6j82j                                     0/3 nodes are available: 1 node(s) didn't match pod topology spread constraints, 2 node(s) were unschedulable. no new claims to deallocate, preemption: 0/3 nodes are available: 1 No preemption victims found for incoming pod, 2 Preemption is not helpful for scheduling.

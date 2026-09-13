@@ -103,8 +103,15 @@ spec:
           command: ["/bin/sh", "-c"]
           args:
             - |
+              # -T 2 matters. Without a timeout wget blocks on a failed
+              # connection for minutes, so the sampler stalls exactly when
+              # something is wrong — producing a gap where the evidence should
+              # be, and an ERR count that measures wget's patience rather than
+              # the service's availability. Measured: 31 samples in 34 minutes
+              # instead of ~2000.
               while true; do
-                code=$(wget -q -O /dev/null -S http://web.demo.svc.cluster.local 2>&1 \
+                code=$(wget -q -T 2 -t 1 -O /dev/null -S \
+                  http://web.demo.svc.cluster.local 2>&1 \
                   | awk '/HTTP\//{print $2; exit}')
                 echo "$(date -u +%H:%M:%S) ${code:-ERR}"
                 sleep 1

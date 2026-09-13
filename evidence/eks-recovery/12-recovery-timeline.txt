@@ -1,0 +1,24 @@
+  14:35:14  web-pdb[healthy=3 allowed=1]  pods: 3 Running  brupop-194=StagedAndPerformedUpdate cordoned=1
+  14:35:36  web-pdb[healthy=2 allowed=0]  pods: 1 Pending 2 Running  brupop-194=RebootedIntoUpdate cordoned=1
+  14:35:59  web-pdb[healthy=2 allowed=0]  pods: 1 Pending 2 Running  brupop-194=MonitoringUpdate cordoned=1
+  14:36:22  web-pdb[healthy=2 allowed=0]  pods: 1 Pending 2 Running  brupop-194=MonitoringUpdate cordoned=1
+  14:36:44  web-pdb[healthy=2 allowed=0]  pods: 1 Pending 2 Running  brupop-194=Idle cordoned=1
+  14:37:07  web-pdb[healthy=2 allowed=0]  pods: 1 Pending 2 Running  brupop-194=Idle cordoned=1
+  14:37:29  web-pdb[healthy=2 allowed=0]  pods: 1 Pending 2 Running  brupop-194=Idle cordoned=1
+  14:37:52  web-pdb[healthy=2 allowed=0]  pods: 1 Pending 2 Running  brupop-194=Idle cordoned=1
+  14:38:14  web-pdb[healthy=2 allowed=0]  pods: 1 Pending 2 Running  brupop-194=Idle cordoned=1
+  14:38:37  web-pdb[healthy=2 allowed=0]  pods: 1 Pending 2 Running  brupop-194=Idle cordoned=1
+  14:38:59  web-pdb[healthy=2 allowed=0]  pods: 1 Pending 2 Running  brupop-194=Idle cordoned=1
+  14:39:22  web-pdb[healthy=2 allowed=0]  pods: 1 Pending 2 Running  brupop-194=Idle cordoned=1
+  14:39:52  web-pdb[healthy=2 allowed=0]  pods: 1 Pending 2 Running  brupop-194=Idle cordoned=1
+  14:40:16  web-pdb[healthy=2 allowed=0]  pods: 1 Pending 2 Running  brupop-194=Idle cordoned=1
+  14:40:40  web-pdb[healthy=2 allowed=0]  pods: 1 Pending 2 Running  brupop-194=Idle cordoned=1
+  14:41:03  web-pdb[healthy=2 allowed=0]  pods: 1 Pending 2 Running  brupop-194=Idle cordoned=1
+  14:41:26  web-pdb[healthy=2 allowed=0]  pods: 1 Pending 2 Running  brupop-194=Idle cordoned=1
+  14:41:49  web-pdb[healthy=2 allowed=0]  pods: 1 Pending 2 Running  brupop-194=Idle cordoned=1
+  14:42:12  web-pdb[healthy=2 allowed=0]  pods: 1 Pending 2 Running  brupop-194=Idle cordoned=1
+  14:42:34  web-pdb[healthy=2 allowed=0]  pods: 1 Pending 2 Running  brupop-194=Idle cordoned=1
+  14:42:56  web-pdb[healthy=2 allowed=0]  pods: 1 Pending 2 Running  brupop-194=Idle cordoned=1
+  14:43:19  web-pdb[healthy=2 allowed=0]  pods: 1 Pending 2 Running  brupop-194=Idle cordoned=1
+  14:43:42  web-pdb[healthy=2 allowed=0]  pods: 1 Pending 2 Running  brupop-194=Idle cordoned=1
+  14:44:05  web-pdb[healthy=2 allowed=0]  pods: 1 Pending 2 Running  brupop-194=Idle cordoned=1

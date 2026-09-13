@@ -1,0 +1,252 @@
+{
+  "mode": "live",
+  "mode_label": "LIVE",
+  "cluster_id": "1c2cdb4c-c1b2-4cd5-bb54-1132876ab118",
+  "observed_at": "2026-09-13T14:43:13.632372Z",
+  "authoritative": true,
+  "data": [
+    {
+      "provenance": {
+        "mode": "live",
+        "cluster_id": "1c2cdb4c-c1b2-4cd5-bb54-1132876ab118",
+        "namespace": null,
+        "uid": "2bc1ba2f-355e-446b-9f7a-35b2a0cb4832",
+        "resource_version": "17146",
+        "observed_at": "2026-09-13T14:43:13.632372Z",
+        "source": {
+          "type": "kube_watch",
+          "group": "",
+          "version": "v1",
+          "kind": "Node"
+        },
+        "collection": {
+          "state": "in_sync",
+          "synced_at": "2026-09-13T14:43:13.380113Z"
+        }
+      },
+      "name": "ip-10-42-100-186.us-east-2.compute.internal",
+      "labels": {
+        "beta.kubernetes.io/arch": "arm64",
+        "beta.kubernetes.io/instance-type": "t4g.medium",
+        "beta.kubernetes.io/os": "linux",
+        "bottlerocket.aws/updater-interface-version": "2.0.0",
+        "eks.amazonaws.com/capacityType": "ON_DEMAND",
+        "eks.amazonaws.com/nodegroup": "bottlerocket-36526b33785bf53d0db9aab8e8",
+        "eks.amazonaws.com/nodegroup-image": "ami-00cd926c871f79957",
+        "eks.amazonaws.com/sourceLaunchTemplateId": "lt-0aea83628a5803567",
+        "eks.amazonaws.com/sourceLaunchTemplateVersion": "1",
+        "failure-domain.beta.kubernetes.io/region": "us-east-2",
+        "failure-domain.beta.kubernetes.io/zone": "us-east-2a",
+        "k8s.io/cloud-provider-aws": "6338cc294d0fee662097cbea59611372",
+        "kubernetes.io/arch": "arm64",
+        "kubernetes.io/hostname": "ip-10-42-100-186.us-east-2.compute.internal",
+        "kubernetes.io/os": "linux",
+        "node.kubernetes.io/instance-type": "t4g.medium",
+        "topology.k8s.aws/zone-id": "use2-az1",
+        "topology.kubernetes.io/region": "us-east-2",
+        "topology.kubernetes.io/zone": "us-east-2a"
+      },
+      "taints": [],
+      "conditions": [
+        {
+          "condition_type": "MemoryPressure",
+          "status": "False",
+          "reason": "KubeletHasSufficientMemory",
+          "last_transition_at": "2026-09-13T13:37:49Z"
+        },
+        {
+          "condition_type": "DiskPressure",
+          "status": "False",
+          "reason": "KubeletHasNoDiskPressure",
+          "last_transition_at": "2026-09-13T13:37:49Z"
+        },
+        {
+          "condition_type": "PIDPressure",
+          "status": "False",
+          "reason": "KubeletHasSufficientPID",
+          "last_transition_at": "2026-09-13T13:37:49Z"
+        },
+        {
+          "condition_type": "Ready",
+          "status": "True",
+          "reason": "KubeletReady",
+          "last_transition_at": "2026-09-13T14:10:56Z"
+        }
+      ],
+      "capacity_cpu": 2000,
+      "capacity_memory": 4016279552,
+      "allocatable_cpu": 1930,
+      "allocatable_memory": 3447951360,
+      "availability_zone": "us-east-2a",
+      "instance_type": "t4g.medium",
+      "unschedulable": false,
+      "bottlerocket_version": "1.64.0",
+      "brupop_managed": true,
+      "kubelet_version": "v1.36.1-eks-a3a0722"
+    },
+    {
+      "provenance": {
+        "mode": "live",
+        "cluster_id": "1c2cdb4c-c1b2-4cd5-bb54-1132876ab118",
+        "namespace": null,
+        "uid": "d1b25c3e-51ef-47ee-be11-6b3168b5508c",
+        "resource_version": "17261",
+        "observed_at": "2026-09-13T14:43:13.632372Z",
+        "source": {
+          "type": "kube_watch",
+          "group": "",
+          "version": "v1",
+          "kind": "Node"
+        },
+        "collection": {
+          "state": "in_sync",
+          "synced_at": "2026-09-13T14:43:13.380113Z"
+        }
+      },
+      "name": "ip-10-42-101-194.us-east-2.compute.internal",
+      "labels": {
+        "beta.kubernetes.io/arch": "arm64",
+        "beta.kubernetes.io/instance-type": "t4g.medium",
+        "beta.kubernetes.io/os": "linux",
+        "bottlerocket.aws/updater-interface-version": "2.0.0",
+        "eks.amazonaws.com/capacityType": "ON_DEMAND",
+        "eks.amazonaws.com/nodegroup": "bottlerocket-36526b33785bf53d0db9aab8e8",
+        "eks.amazonaws.com/nodegroup-image": "ami-00cd926c871f79957",
+        "eks.amazonaws.com/sourceLaunchTemplateId": "lt-0aea83628a5803567",
+        "eks.amazonaws.com/sourceLaunchTemplateVersion": "1",
+        "failure-domain.beta.kubernetes.io/region": "us-east-2",
+        "failure-domain.beta.kubernetes.io/zone": "us-east-2b",
+        "k8s.io/cloud-provider-aws": "6338cc294d0fee662097cbea59611372",
+        "kubernetes.io/arch": "arm64",
+        "kubernetes.io/hostname": "ip-10-42-101-194.us-east-2.compute.internal",
+        "kubernetes.io/os": "linux",
+        "node.kubernetes.io/instance-type": "t4g.medium",
+        "topology.k8s.aws/zone-id": "use2-az2",
+        "topology.kubernetes.io/region": "us-east-2",
+        "topology.kubernetes.io/zone": "us-east-2b"
+      },
+      "taints": [
+        {
+          "key": "node.kubernetes.io/unschedulable",
+          "value": null,
+          "effect": "NoSchedule"
+        }
+      ],
+      "conditions": [
+        {
+          "condition_type": "MemoryPressure",
+          "status": "False",
+          "reason": "KubeletHasSufficientMemory",
+          "last_transition_at": "2026-09-13T13:39:03Z"
+        },
+        {
+          "condition_type": "DiskPressure",
+          "status": "False",
+          "reason": "KubeletHasNoDiskPressure",
+          "last_transition_at": "2026-09-13T13:39:03Z"
+        },
+        {
+          "condition_type": "PIDPressure",
+          "status": "False",
+          "reason": "KubeletHasSufficientPID",
+          "last_transition_at": "2026-09-13T13:39:03Z"
+        },
+        {
+          "condition_type": "Ready",
+          "status": "True",
+          "reason": "KubeletReady",
+          "last_transition_at": "2026-09-13T14:36:13Z"
+        }
+      ],
+      "capacity_cpu": 2000,
+      "capacity_memory": 4016279552,
+      "allocatable_cpu": 1930,
+      "allocatable_memory": 3447951360,
+      "availability_zone": "us-east-2b",
+      "instance_type": "t4g.medium",
+      "unschedulable": true,
+      "bottlerocket_version": "1.64.0",
+      "brupop_managed": true,
+      "kubelet_version": "v1.36.1-eks-a3a0722"
+    },
+    {
+      "provenance": {
+        "mode": "live",
+        "cluster_id": "1c2cdb4c-c1b2-4cd5-bb54-1132876ab118",
+        "namespace": null,
+        "uid": "19569318-b7fa-4296-adee-8493d3605263",
+        "resource_version": "16680",
+        "observed_at": "2026-09-13T14:43:13.632372Z",
+        "source": {
+          "type": "kube_watch",
+          "group": "",
+          "version": "v1",
+          "kind": "Node"
+        },
+        "collection": {
+          "state": "in_sync",
+          "synced_at": "2026-09-13T14:43:13.380113Z"
+        }
+      },
+      "name": "ip-10-42-101-90.us-east-2.compute.internal",
+      "labels": {
+        "beta.kubernetes.io/arch": "arm64",
+        "beta.kubernetes.io/instance-type": "t4g.medium",
+        "beta.kubernetes.io/os": "linux",
+        "bottlerocket.aws/updater-interface-version": "2.0.0",
+        "eks.amazonaws.com/capacityType": "ON_DEMAND",
+        "eks.amazonaws.com/nodegroup": "bottlerocket-36526b33785bf53d0db9aab8e8",
+        "eks.amazonaws.com/nodegroup-image": "ami-00cd926c871f79957",
+        "eks.amazonaws.com/sourceLaunchTemplateId": "lt-0aea83628a5803567",
+        "eks.amazonaws.com/sourceLaunchTemplateVersion": "1",
+        "failure-domain.beta.kubernetes.io/region": "us-east-2",
+        "failure-domain.beta.kubernetes.io/zone": "us-east-2b",
+        "k8s.io/cloud-provider-aws": "6338cc294d0fee662097cbea59611372",
+        "kubernetes.io/arch": "arm64",
+        "kubernetes.io/hostname": "ip-10-42-101-90.us-east-2.compute.internal",
+        "kubernetes.io/os": "linux",
+        "node.kubernetes.io/instance-type": "t4g.medium",
+        "topology.k8s.aws/zone-id": "use2-az2",
+        "topology.kubernetes.io/region": "us-east-2",
+        "topology.kubernetes.io/zone": "us-east-2b"
+      },
+      "taints": [],
+      "conditions": [
+        {
+          "condition_type": "MemoryPressure",
+          "status": "False",
+          "reason": "KubeletHasSufficientMemory",
+          "last_transition_at": "2026-09-13T13:37:49Z"
+        },
+        {
+          "condition_type": "DiskPressure",
+          "status": "False",
+          "reason": "KubeletHasNoDiskPressure",
+          "last_transition_at": "2026-09-13T13:37:49Z"
+        },
+        {
+          "condition_type": "PIDPressure",
+          "status": "False",
+          "reason": "KubeletHasSufficientPID",
+          "last_transition_at": "2026-09-13T13:37:49Z"
+        },
+        {
+          "condition_type": "Ready",
+          "status": "True",
+          "reason": "KubeletReady",
+          "last_transition_at": "2026-09-13T14:13:42Z"
+        }
+      ],
+      "capacity_cpu": 2000,
+      "capacity_memory": 4016279552,
+      "allocatable_cpu": 1930,
+      "allocatable_memory": 3447951360,
+      "availability_zone": "us-east-2b",
+      "instance_type": "t4g.medium",
+      "unschedulable": false,
+      "bottlerocket_version": "1.64.0",
+      "brupop_managed": true,
+      "kubelet_version": "v1.36.1-eks-a3a0722"
+    }
+  ]
+}
