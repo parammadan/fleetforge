@@ -54,7 +54,10 @@ impl ClaimBasis {
             Self::MathematicallyDerived => "DERIVED",
             Self::HumanRca => "HUMAN RCA",
             Self::UnverifiedHypothesis => "UNVERIFIED",
-            Self::Unavailable => "UNKNOWN",
+            // "NO EVIDENCE" rather than "UNKNOWN": the tag says why a thing
+            // cannot be known, and sits next to values that are themselves
+            // rendered UNKNOWN. Two UNKNOWNs in one tile read as a bug.
+            Self::Unavailable => "NO EVIDENCE",
         }
     }
 

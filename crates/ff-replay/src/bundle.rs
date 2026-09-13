@@ -98,6 +98,14 @@ pub struct PredictionRow {
     pub class: String,
     /// Workloads disrupted but not predicted.
     pub missed_workloads: Vec<String>,
+    /// Whether any eviction happened anywhere in the window this prediction
+    /// covered.
+    ///
+    /// This is the only thing separating two rows that otherwise read
+    /// identically — predicted 16, observed 0 — from being scored `untested`
+    /// and `conservative`. Without it on screen, the table looks inconsistent
+    /// and the honest distinction reads as a bug.
+    pub window_had_activity: bool,
 }
 
 /// A loaded, validated bundle.
@@ -550,6 +558,7 @@ fn parse_predictions(root: &Path) -> Result<Vec<PredictionRow>, ReplayError> {
                     .iter()
                     .map(ToString::to_string)
                     .collect(),
+                window_had_activity: c.window_had_activity,
             }
         })
         .collect())

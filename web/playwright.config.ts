@@ -8,6 +8,10 @@ import { defineConfig, devices } from "@playwright/test";
 // shapes are honest even though the values are frozen.
 export default defineConfig({
   testDir: "./e2e",
+  // The replay suite needs a backend started with `--replay` and lives in
+  // playwright.replay.config.ts. Running it here would point it at fixture data
+  // and fail for the right reason in the wrong place.
+  testIgnore: "replay.spec.ts",
   fullyParallel: false,
   workers: 1,
   reporter: process.env.CI ? "list" : [["list"], ["html", { open: "never" }]],
