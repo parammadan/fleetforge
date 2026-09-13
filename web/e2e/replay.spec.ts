@@ -164,6 +164,21 @@ test("the recorded 2.0.0 version is shown as recorded and flagged as suspect", a
   await expect(suspect).toHaveAttribute("title", /field-mapping bug/);
 });
 
+test("renders on a phone-width viewport without horizontal overflow", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  await expect(page.locator(".banner-replay")).toBeVisible();
+  // The banner wraps rather than truncating: "REPLAY — CAPTURED FROM REAL
+  // EKS/BOT…" has lost the half that says where the data came from.
+  await expect(page.locator(".banner-replay strong")).toHaveText(
+    "REPLAY — CAPTURED FROM REAL EKS/BOTTLEROCKET EXECUTION",
+  );
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow).toBeLessThanOrEqual(1);
+});
+
 test("a backend that is not replaying produces an explanation, not an empty screen", async ({
   page,
 }) => {

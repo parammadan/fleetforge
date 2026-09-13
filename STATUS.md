@@ -1,6 +1,6 @@
 # FleetForge — Status
 
-Last updated: 2026-09-12 · **M4 complete** · M5 prepared, blocked on AWS credentials · **UI verified in a browser**
+Last updated: 2026-09-13 · **M0–M5 complete** · **M6 complete: EKS incident replay, end to end**
 
 ## Completed
 
@@ -235,12 +235,67 @@ three screenshots, which exist so a human can look.
 
 CI now has an `e2e` job that builds the binary, installs Chromium, and uploads the report.
 
+### M6 — leadership-grade EKS incident replay ✅ 2026-09-13
+
+The EKS run of M5 produced a 63-minute capture that is now replayable end to end from a local
+checkout, with no AWS account and no cluster.
+
+**Backend — `ff-replay`, a third data source.** Not a flag on fixture mode: live, fixture and
+replay make different claims about reality (*this is happening* / *this happened* / *this never
+happened*), and sharing a code path is how one gets rendered as another. See
+[ADR-0025](docs/adr/0025-replay-state-is-computed-in-rust.md).
+
+| | |
+| --- | --- |
+| Bundle | `evidence/eks-recovery/` — 5,068 events, 37 artifacts, 14:15:47 → 15:19:00 |
+| Determinism | `ReplayTimeline::state_at` is a pure fold. No clock, no randomness, **no interpolation** — seventeen quiet minutes replay as seventeen quiet minutes |
+| Artifacts | Addressed by manifest name, never path. Traversal attempts return the same 404 as a missing file. Redacted before leaving the process |
+| Mode | Every replay response carries `Mode::Replay`; the browser refuses to render anything else; both are asserted |
+| Derived, not authored | Chapter marks are positions where a checkable condition first became true. Brupop's 14:08:15 start is read from Kubernetes events in the captured snapshot, not written down |
+
+**Interface — the control room at `http://127.0.0.1:5173`.** Executive summary, replay timeline
+with chapter rail and playback controls, fleet topology, FF-PDB-001 arithmetic, predicted-versus-
+actual, evidence explorer, limitations. The `REPLAY — CAPTURED FROM REAL EKS/BOTTLEROCKET
+EXECUTION` banner is sticky, has no dismiss control, and stays in the viewport at the bottom of
+the page — a screenshot of the fleet panel has to carry the label too.
+
+**Measured** on the M1 MacBook Air (8 GB), release build: **~100 ms** to ready, **25 MiB**
+resident idle, **29 MiB** after serving the full timeline and a complete 5,068-event fold. Any
+timeline position resolves in **under 1 ms**.
+
+| Suite | Result |
+| --- | --- |
+| `cargo test -p ff-replay` | ✅ **24 passed** (17 against the real bundle) |
+| `cargo test -p ff-api` | ✅ **13 passed**, of which 11 are the replay API — including determinism and traversal |
+| `npm test` | ✅ **33 passed** (17 new) |
+| `npm run test:e2e` (fixture) | ✅ **12 passed** |
+| `npm run test:e2e:replay` | ✅ **17 passed** in Chromium against the real bundle |
+| `cargo clippy --workspace --all-targets` | ✅ clean |
+
+**Four things the interface refuses to do**, each with a test:
+
+1. **Show 30.2% as availability.** That figure is a *failed post-recovery networking check*.
+   Availability during the incident is rendered `UNKNOWN`, because the sampler in use at the time
+   had no request timeout and its output was discarded.
+2. **Claim FleetForge predicted the deadlock.** It detected a PDB blocker that already existed.
+   Brupop began 7m32s before recording started, and the callout derives that gap from evidence.
+3. **Fold under-prediction into "conservative".** Predicting 5 evictions where 8 occurred gets its
+   own class, its own colour, and a count at the top of the panel.
+4. **Silently correct the `2.0.0` version bug.** Values FleetForge recorded from the wrong label
+   are shown as recorded, flagged with a tooltip, and disclosed in the limitations panel.
+
+**Demo script:** [docs/REPLAY-DEMO.md](docs/REPLAY-DEMO.md) — 5–7 minutes, with the questions you
+will get and the honest answers. Screenshots in `web/e2e/screenshots/replay/`.
+
 ## Not done — stated explicitly
 
 - **CI has never run.** There is no git remote. The workflow is written and enabled, so the
   cross-architecture snapshot-hash claim is verified on `aarch64` only.
 - **The interface has been verified in Chromium only.** No Firefox, no WebKit, no real mobile
   device. The narrow-viewport test resizes Chromium; it does not prove anything about iOS Safari.
+- **The replay is one capture.** One cluster, three nodes, 63 minutes. Determinism is proven over
+  a fixed bundle; that proves what was recorded, not that the recording was complete.
+- **No recorded demo video of the replay interface.** The screenshots are stills.
 - **No automated accessibility audit.** Focus order, header cells, and contrast were checked by
   hand and by targeted assertions, not by axe or similar.
 - **No scheduler predicate evaluation.** Capacity findings are `Heuristic` and say so in their own

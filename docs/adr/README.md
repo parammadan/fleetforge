@@ -45,3 +45,4 @@ would justify building the thing**, so "not yet" has a trigger rather than being
 | [0022](0022-version-skew-is-reported-not-assumed.md) | Client/server version skew is reported, not assumed | Accepted |
 | [0023](0023-watch-silence-is-ambiguous.md) | Watch silence is ambiguous; probe the connection independently | Accepted |
 | [0024](0024-absent-crd-is-authoritatively-empty.md) | An uninstalled resource type is authoritatively empty | Accepted |
+| [0025](0025-replay-state-is-computed-in-rust.md) | Replay state is computed in Rust, never in the browser | Accepted |

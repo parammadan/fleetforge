@@ -545,3 +545,19 @@ code, .mono { font-family: var(--mono); font-size: 12px; }
   background: var(--surface); border: 1px solid var(--border);
   border-radius: 4px; padding: 10px 12px; margin: 0;
 }
+
+/* At phone widths the banner's mono headline is wider than the viewport, and
+ * `.banner strong { flex: none }` stops it shrinking — so the whole document
+ * scrolled sideways. The label must stay legible, so it wraps rather than
+ * truncating: a banner that reads "REPLAY — CAPTURED FROM REAL EKS/BOT…" has
+ * lost the half that says where the data came from.
+ */
+@media (max-width: 640px) {
+  .banner { flex-direction: column; gap: 6px; }
+  .banner strong { flex: 0 1 auto; min-width: 0; overflow-wrap: anywhere; }
+  .banner-replay { position: static; }
+  .tiles { grid-template-columns: 1fr; }
+  .fleet { grid-template-columns: 1fr; }
+  .chapter-list { flex-direction: column; }
+  .chapter-button { width: 100%; }
+}
