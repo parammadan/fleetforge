@@ -1,0 +1,21 @@
+# Historical findings, each verified not to be a credential.
+#
+# The working tree is clean — both values were replaced. These fingerprints
+# refer to commits already pushed, and rewriting 25 commits of history over two
+# non-secrets would cost more than it buys.
+#
+# 1. docs/aws-account-changes.md — an AWS KMS *key ID*.
+#    Not a credential. Using a KMS key requires IAM permission; the ID alone
+#    grants nothing, and it appears in every CloudTrail entry that touches the
+#    key. It was still removed from the working tree, because it is an
+#    account-specific identifier that made the document wrong for anyone else.
+#
+# 2. scripts/expired-credential-test.sh — a deliberately invalid JWT.
+#    The test exists to prove that a rejected credential surfaces as
+#    Unauthorized rather than as an empty cluster (ADR-0019), so it needs a
+#    token the API server refuses. It was JWT-shaped, which made every scanner
+#    flag it; it is now plainly not a token and still gets the 401.
+#
+# Anything new must be fixed, not added here.
+19d0638bf683e72111fe273134b6a2f7b5fcf309:docs/aws-account-changes.md:generic-api-key:81
+bb18c92eedb1538585662f98b24fa338c5ffd13e:scripts/expired-credential-test.sh:jwt:44

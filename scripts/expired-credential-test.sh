@@ -39,9 +39,11 @@ trap cleanup EXIT
 SERVER=$(kubectl config view --raw -o jsonpath="{.clusters[?(@.name==\"${CTX}\")].cluster.server}")
 CA=$(kubectl config view --raw -o jsonpath="{.clusters[?(@.name==\"${CTX}\")].cluster.certificate-authority-data}")
 
-# A well-formed JWT the API server has never issued. Same shape a real expired
-# token has, same rejection: 401.
-INVALID_TOKEN="eyJhbGciOiJSUzI1NiIsImtpZCI6ImludmFsaWQifQ.eyJzdWIiOiJleHBpcmVkIiwiZXhwIjoxfQ.bm90LWEtcmVhbC1zaWduYXR1cmU"
+# A token the API server will reject. Deliberately NOT shaped like a real JWT:
+# an expired credential and a malformed one both come back 401, which is all
+# this test needs — and a JWT-shaped literal makes every secret scanner that
+# ever reads this repository report a finding it then has to be told to ignore.
+INVALID_TOKEN="not-a-real-token.$(date +%s).rejected-by-design"
 
 umask 077
 cat > "$BAD_KUBECONFIG" <<EOF

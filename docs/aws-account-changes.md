@@ -78,7 +78,7 @@ Do this after deleting the IdC instance, not before.
 | Identity store | `d-9a675c79ed` |
 | Portal | `https://d-9a675c79ed.awsapps.com/start` |
 | Primary region | `us-east-2` (single region — the auto-created us-west-2 replica was removed) |
-| Encryption | CUSTOMER_MANAGED_KEY, `mrk-c3b7a2bef7ae478eb6721340827c3707` in us-east-2 |
+| Encryption | CUSTOMER_MANAGED_KEY, a multi-Region key in us-east-2 (`mrk-…`; look it up with the command below) |
 | User | `param` / `a1eb75c0-b0b1-70f0-d0ac-8b72c4c7b7fd` / madan.pa@northeastern.edu |
 | Permission set | `FleetForgeAdmin` / `ps-b71fbf90878f8b19`, **PT2H**, AdministratorAccess |
 | Assignment | `SUCCEEDED` |
@@ -99,14 +99,21 @@ replica it created — that was scheduled separately, see below.
 
 ### KMS
 
+Find the key ID — it is account-specific, so it is not written down here:
+
+```bash
+aws sso-admin describe-instance --instance-arn <arn> --region us-east-2 \
+  --query 'EncryptionConfigurationDetails.KmsKeyArn'
+```
+
 | Region | Key | State |
 | --- | --- | --- |
-| us-east-2 | `mrk-c3b7a2bef7ae478eb6721340827c3707` (PRIMARY) | **Enabled — do not delete.** IdC encrypts live data with it |
+| us-east-2 | `mrk-…` (PRIMARY) | **Enabled — do not delete.** IdC encrypts live data with it |
 | us-west-2 | same key ID (REPLICA) | **PendingDeletion, 2026-09-19T20:23:39-04:00** |
 
 Multi-Region key replicas bill independently at ~$1/month each, so this was ~$2/month.
 The us-west-2 replica is still billed until the window elapses; cancel with
-`aws kms cancel-key-deletion --key-id <id> --region us-west-2`.
+`aws kms cancel-key-deletion --key-id <key-id> --region us-west-2`.
 
 **Cleanup order at teardown: delete IdC first, then its KMS key.** Deleting the key while IdC
 still uses it leaves an instance that can be neither used nor cleanly removed.

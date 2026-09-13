@@ -22,6 +22,15 @@ jobs:
       - uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # The history scan above covers tracked content. This covers the working
+      # tree, which is where a real credential would actually land — the live
+      # kubeconfigs are gitignored, and this proves that is still true.
+      - name: verify gitignored credentials stay untracked
+        run: |
+          for f in infra/local/.kubeconfig-x infra/eks/.kubeconfig-x                    terraform.tfvars x.tfplan x.tfstate kubeconfig .env; do
+            git check-ignore -q "$f" || { echo "NOT IGNORED: $f"; exit 1; }
+          done
+          echo "all credential paths ignored"
 
   rust:
     # Both architectures, because snapshot identity is a content hash that must

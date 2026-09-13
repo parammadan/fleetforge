@@ -16,6 +16,12 @@ allow = [
     "ISC",
     "Unicode-3.0",
     "Zlib",
+    # webpki-root-certs ships Mozilla's CA bundle under the Community Data
+    # License Agreement - Permissive 2.0. It licenses the certificate *data*,
+    # not code: no copyleft, no attribution requirement on downstream works,
+    # and redistribution is explicitly permitted. Compatible with shipping an
+    # Apache-2.0 binary (ADR-0010).
+    "CDLA-Permissive-2.0",
 ]
 confidence-threshold = 0.9
 
