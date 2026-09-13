@@ -13,9 +13,7 @@ use serde::Serialize;
 
 use crate::artifacts::ArtifactStore;
 use crate::error::ReplayError;
-use crate::schema::{
-    CaptureContext, Claim, ClaimBasis, DataCaveat, REPLAY_SCHEMA_VERSION,
-};
+use crate::schema::{CaptureContext, Claim, ClaimBasis, DataCaveat, REPLAY_SCHEMA_VERSION};
 use crate::state::{ReplayEvent, ReplayTimeline};
 
 /// Artifacts without which a bundle is not a bundle.
@@ -262,8 +260,7 @@ fn load_timeline(root: &Path) -> Result<ReplayTimeline, ReplayError> {
             index,
             seq,
             summary: summarise(&kind, &value),
-            significant: SIGNIFICANT_KINDS.contains(&kind.as_str())
-                || is_notable_k8s_event(&value),
+            significant: SIGNIFICANT_KINDS.contains(&kind.as_str()) || is_notable_k8s_event(&value),
             kind,
             at,
             raw: value,
@@ -299,8 +296,12 @@ fn summarise(kind: &str, v: &serde_json::Value) -> String {
         "snapshot_observed" => format!(
             "snapshot {} ({} nodes, {} pods)",
             &s("snapshot_id").chars().take(12).collect::<String>(),
-            v.get("nodes").and_then(serde_json::Value::as_u64).unwrap_or(0),
-            v.get("pods").and_then(serde_json::Value::as_u64).unwrap_or(0),
+            v.get("nodes")
+                .and_then(serde_json::Value::as_u64)
+                .unwrap_or(0),
+            v.get("pods")
+                .and_then(serde_json::Value::as_u64)
+                .unwrap_or(0),
         ),
         "preflight_run" => format!(
             "preflight on {} → {} ({} pods predicted evicted)",
@@ -311,13 +312,19 @@ fn summarise(kind: &str, v: &serde_json::Value) -> String {
                 .map(short)
                 .unwrap_or_default(),
             s("status").to_uppercase(),
-            v.get("pods_evicted").and_then(serde_json::Value::as_u64).unwrap_or(0),
+            v.get("pods_evicted")
+                .and_then(serde_json::Value::as_u64)
+                .unwrap_or(0),
         ),
         "node_changed" => format!(
             "node {} ready={} cordoned={} bottlerocket={}",
             short(s("name")),
-            v.get("ready").and_then(serde_json::Value::as_bool).unwrap_or(false),
-            v.get("unschedulable").and_then(serde_json::Value::as_bool).unwrap_or(false),
+            v.get("ready")
+                .and_then(serde_json::Value::as_bool)
+                .unwrap_or(false),
+            v.get("unschedulable")
+                .and_then(serde_json::Value::as_bool)
+                .unwrap_or(false),
             s("bottlerocket_version"),
         ),
         "brupop_state_changed" => format!(
@@ -370,8 +377,7 @@ fn parse_pdb_finding(root: &Path) -> Result<PdbArithmetic, ReplayError> {
         .find(|f| f.get("id").and_then(|i| i.as_str()) == Some("FF-PDB-001"))
         .ok_or_else(|| ReplayError::MalformedArtifact {
             artifact: name.to_owned(),
-            reason: "FF-PDB-001 not present — this bundle does not contain the blocker"
-                .to_owned(),
+            reason: "FF-PDB-001 not present — this bundle does not contain the blocker".to_owned(),
         })?;
 
     let calc = f
@@ -383,10 +389,26 @@ fn parse_pdb_finding(root: &Path) -> Result<PdbArithmetic, ReplayError> {
 
     Ok(PdbArithmetic {
         finding_id: "FF-PDB-001".to_owned(),
-        title: f.get("title").and_then(|x| x.as_str()).unwrap_or_default().to_owned(),
-        severity: f.get("severity").and_then(|x| x.as_str()).unwrap_or_default().to_owned(),
-        confidence: f.get("confidence").and_then(|x| x.as_str()).unwrap_or_default().to_owned(),
-        formula: calc.get("formula").and_then(|x| x.as_str()).unwrap_or_default().to_owned(),
+        title: f
+            .get("title")
+            .and_then(|x| x.as_str())
+            .unwrap_or_default()
+            .to_owned(),
+        severity: f
+            .get("severity")
+            .and_then(|x| x.as_str())
+            .unwrap_or_default()
+            .to_owned(),
+        confidence: f
+            .get("confidence")
+            .and_then(|x| x.as_str())
+            .unwrap_or_default()
+            .to_owned(),
+        formula: calc
+            .get("formula")
+            .and_then(|x| x.as_str())
+            .unwrap_or_default()
+            .to_owned(),
         inputs: calc
             .get("inputs")
             .and_then(|i| i.as_array())
@@ -402,8 +424,15 @@ fn parse_pdb_finding(root: &Path) -> Result<PdbArithmetic, ReplayError> {
                     .collect()
             })
             .unwrap_or_default(),
-        result: calc.get("result").and_then(|x| x.as_str()).unwrap_or_default().to_owned(),
-        unit: calc.get("unit").and_then(|x| x.as_str()).map(ToOwned::to_owned),
+        result: calc
+            .get("result")
+            .and_then(|x| x.as_str())
+            .unwrap_or_default()
+            .to_owned(),
+        unit: calc
+            .get("unit")
+            .and_then(|x| x.as_str())
+            .map(ToOwned::to_owned),
         evidence: f
             .get("evidence")
             .and_then(|e| e.as_array())
@@ -412,12 +441,27 @@ fn parse_pdb_finding(root: &Path) -> Result<PdbArithmetic, ReplayError> {
                     .map(|e| PdbEvidence {
                         resource: format!(
                             "{}/{}",
-                            e.pointer("/resource/kind").and_then(|x| x.as_str()).unwrap_or(""),
-                            e.pointer("/resource/name").and_then(|x| x.as_str()).unwrap_or(""),
+                            e.pointer("/resource/kind")
+                                .and_then(|x| x.as_str())
+                                .unwrap_or(""),
+                            e.pointer("/resource/name")
+                                .and_then(|x| x.as_str())
+                                .unwrap_or(""),
                         ),
-                        field_path: e.get("field_path").and_then(|x| x.as_str()).unwrap_or("").to_owned(),
-                        value: e.get("value").and_then(|x| x.as_str()).unwrap_or("").to_owned(),
-                        note: e.get("note").and_then(|x| x.as_str()).map(ToOwned::to_owned),
+                        field_path: e
+                            .get("field_path")
+                            .and_then(|x| x.as_str())
+                            .unwrap_or("")
+                            .to_owned(),
+                        value: e
+                            .get("value")
+                            .and_then(|x| x.as_str())
+                            .unwrap_or("")
+                            .to_owned(),
+                        note: e
+                            .get("note")
+                            .and_then(|x| x.as_str())
+                            .map(ToOwned::to_owned),
                     })
                     .collect()
             })
@@ -425,7 +469,11 @@ fn parse_pdb_finding(root: &Path) -> Result<PdbArithmetic, ReplayError> {
         limitations: f
             .get("limitations")
             .and_then(|l| l.as_array())
-            .map(|a| a.iter().filter_map(|x| x.as_str().map(ToOwned::to_owned)).collect())
+            .map(|a| {
+                a.iter()
+                    .filter_map(|x| x.as_str().map(ToOwned::to_owned))
+                    .collect()
+            })
             .unwrap_or_default(),
         affected: f
             .get("affected")
@@ -442,7 +490,11 @@ fn parse_pdb_finding(root: &Path) -> Result<PdbArithmetic, ReplayError> {
                     .collect()
             })
             .unwrap_or_default(),
-        snapshot_id: f.get("snapshot_id").and_then(|x| x.as_str()).unwrap_or_default().to_owned(),
+        snapshot_id: f
+            .get("snapshot_id")
+            .and_then(|x| x.as_str())
+            .unwrap_or_default()
+            .to_owned(),
     })
 }
 
@@ -567,7 +619,12 @@ fn build_context(timeline: &ReplayTimeline, root: &Path) -> Result<CaptureContex
     let mut nodes: Vec<String> = events
         .iter()
         .filter(|e| e.kind == "node_changed")
-        .filter_map(|e| e.raw.get("name").and_then(|v| v.as_str()).map(ToOwned::to_owned))
+        .filter_map(|e| {
+            e.raw
+                .get("name")
+                .and_then(|v| v.as_str())
+                .map(ToOwned::to_owned)
+        })
         .collect();
     nodes.sort();
     nodes.dedup();
@@ -591,7 +648,11 @@ fn build_context(timeline: &ReplayTimeline, root: &Path) -> Result<CaptureContex
     let kubernetes_version = std::fs::read_to_string(root.join("30-environment-final.json"))
         .ok()
         .and_then(|t| serde_json::from_str::<serde_json::Value>(&t).ok())
-        .and_then(|v| v.get("server_version").and_then(|x| x.as_str()).map(ToOwned::to_owned));
+        .and_then(|v| {
+            v.get("server_version")
+                .and_then(|x| x.as_str())
+                .map(ToOwned::to_owned)
+        });
 
     Ok(CaptureContext {
         cluster_id,
@@ -625,7 +686,10 @@ fn build_claims(
         .iter()
         .find(|e| {
             e.kind == "node_changed"
-                && e.raw.get("unschedulable").and_then(serde_json::Value::as_bool) == Some(true)
+                && e.raw
+                    .get("unschedulable")
+                    .and_then(serde_json::Value::as_bool)
+                    == Some(true)
         })
         .map(|e| e.at);
 
@@ -638,7 +702,10 @@ fn build_claims(
         .iter()
         .filter(|e| {
             e.kind == "node_changed"
-                && e.raw.get("unschedulable").and_then(serde_json::Value::as_bool) == Some(false)
+                && e.raw
+                    .get("unschedulable")
+                    .and_then(serde_json::Value::as_bool)
+                    == Some(false)
         })
         .collect();
 
@@ -664,7 +731,10 @@ fn build_claims(
                 pdb.title, pdb.formula, pdb.result
             ),
             basis: ClaimBasis::ObservedByFleetForge,
-            evidence: vec!["03-preflight-before.json".to_owned(), "04-pdb-before.json".to_owned()],
+            evidence: vec![
+                "03-preflight-before.json".to_owned(),
+                "04-pdb-before.json".to_owned(),
+            ],
             limitations: pdb.limitations.clone(),
             at: Some(pdb_observed_at(events)),
         },
@@ -733,7 +803,10 @@ fn build_claims(
                 final_versions.last().map_or("1.64.0", String::as_str)
             ),
             basis: ClaimBasis::ObservedByFleetForge,
-            evidence: vec!["25-nodes-final.json".to_owned(), "28-brupop-final.json".to_owned()],
+            evidence: vec![
+                "25-nodes-final.json".to_owned(),
+                "28-brupop-final.json".to_owned(),
+            ],
             limitations: vec![],
             at: events.last().map(|e| e.at),
         },
@@ -801,8 +874,7 @@ fn build_claims(
             basis: ClaimBasis::UnverifiedHypothesis,
             evidence: vec!["00-CONCLUSIONS.md".to_owned()],
             limitations: vec![
-                "The cluster was destroyed before a rebuild could confirm it."
-                    .to_owned(),
+                "The cluster was destroyed before a rebuild could confirm it.".to_owned(),
             ],
             at: None,
         },
@@ -813,10 +885,7 @@ fn pdb_observed_at(events: &[ReplayEvent]) -> DateTime<Utc> {
     events
         .iter()
         .find(|e| e.kind == "preflight_run")
-        .map_or_else(
-            || events.first().map_or_else(Utc::now, |e| e.at),
-            |e| e.at,
-        )
+        .map_or_else(|| events.first().map_or_else(Utc::now, |e| e.at), |e| e.at)
 }
 
 /// Problems with the evidence itself, as opposed to what it proves.

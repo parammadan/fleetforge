@@ -34,6 +34,15 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/api/v1/events", get(events))
         .route("/api/v1/brupop", get(brupop))
         .route("/api/v1/report", get(report))
+        .route("/api/v1/replay/context", get(replay_context))
+        .route("/api/v1/replay/timeline", get(replay_timeline))
+        .route("/api/v1/replay/state", get(replay_state))
+        .route("/api/v1/replay/claims", get(replay_claims))
+        .route("/api/v1/replay/finding", get(replay_finding))
+        .route("/api/v1/replay/predictions", get(replay_predictions))
+        .route("/api/v1/replay/traffic", get(replay_traffic))
+        .route("/api/v1/replay/artifacts", get(replay_artifacts))
+        .route("/api/v1/replay/artifacts/{name}", get(replay_artifact))
         .route("/api/v1/stream", get(stream))
         .route("/api/v1/preflight", axum::routing::post(preflight))
         .with_state(state)
@@ -49,7 +58,9 @@ async fn healthz() -> &'static str {
 /// process that would answer "no nodes" — technically true of its own state,
 /// and a lie about the cluster.
 async fn readyz(State(state): State<Arc<AppState>>) -> impl IntoResponse {
-    if state.snapshot().is_some() {
+    // Replay is ready as soon as the bundle has loaded; there is nothing to
+    // wait for.
+    if state.snapshot().is_some() || state.replay().is_some() {
         (StatusCode::OK, "ready")
     } else {
         (StatusCode::SERVICE_UNAVAILABLE, "syncing")
@@ -102,6 +113,7 @@ async fn environment(State(state): State<Arc<AppState>>) -> impl IntoResponse {
         server_version: match &state.source {
             DataSource::Live(c) => Some(c.server_version().to_owned()),
             DataSource::Fixture(_) => None,
+            DataSource::Replay(b) => b.context.kubernetes_version.clone(),
         },
         client_target_version: CLIENT_TARGET_VERSION,
         version: state.version,
@@ -125,15 +137,24 @@ where
     F: FnOnce(&ClusterSnapshot) -> T,
 {
     let Some(snapshot) = state.snapshot() else {
-        return (
-            StatusCode::SERVICE_UNAVAILABLE,
-            Json(ApiError {
+        // Replay has no single current snapshot, and saying "syncing" here would
+        // imply a live cluster this process is not connected to.
+        let error = if state.replay().is_some() {
+            ApiError {
+                code: "replay_has_no_current_snapshot",
+                message: "this process is replaying a capture; cluster state \
+                          depends on timeline position — use /api/v1/replay/state"
+                    .to_owned(),
+                retriable: false,
+            }
+        } else {
+            ApiError {
                 code: "syncing",
                 message: "the first cluster sync has not completed yet".to_owned(),
                 retriable: true,
-            }),
-        )
-            .into_response();
+            }
+        };
+        return (StatusCode::SERVICE_UNAVAILABLE, Json(error)).into_response();
     };
 
     let authoritative = state.authoritative().await;
@@ -273,15 +294,24 @@ async fn preflight(
     ExtractJson(body): ExtractJson<PreflightRequest>,
 ) -> axum::response::Response {
     let Some(snapshot) = state.snapshot() else {
-        return (
-            StatusCode::SERVICE_UNAVAILABLE,
-            Json(ApiError {
+        // Replay has no single current snapshot, and saying "syncing" here would
+        // imply a live cluster this process is not connected to.
+        let error = if state.replay().is_some() {
+            ApiError {
+                code: "replay_has_no_current_snapshot",
+                message: "this process is replaying a capture; cluster state \
+                          depends on timeline position — use /api/v1/replay/state"
+                    .to_owned(),
+                retriable: false,
+            }
+        } else {
+            ApiError {
                 code: "syncing",
                 message: "the first cluster sync has not completed yet".to_owned(),
                 retriable: true,
-            }),
-        )
-            .into_response();
+            }
+        };
+        return (StatusCode::SERVICE_UNAVAILABLE, Json(error)).into_response();
     };
 
     let stale_request = body
@@ -343,6 +373,170 @@ async fn preflight(
         result,
     ))
     .into_response()
+}
+
+/// Replay endpoints.
+///
+/// Every one wraps its payload in an [`Envelope`] carrying `Mode::Replay`.
+/// There is no code path by which replay data leaves this process labelled
+/// anything else, and a test asserts it.
+fn replay_envelope<T: Serialize>(state: &AppState, data: T) -> axum::response::Response {
+    let Some(bundle) = state.replay() else {
+        return (
+            StatusCode::NOT_FOUND,
+            Json(ApiError {
+                code: "not_replaying",
+                message: "this process was not started with --replay".to_owned(),
+                retriable: false,
+            }),
+        )
+            .into_response();
+    };
+    Json(Envelope::new(
+        ff_core::Mode::Replay,
+        bundle.context.cluster_id.clone(),
+        bundle.context.captured_to,
+        true,
+        data,
+    ))
+    .into_response()
+}
+
+#[derive(Serialize)]
+struct ReplayContext<'a> {
+    schema_version: u32,
+    context: &'a ff_replay::CaptureContext,
+    events: usize,
+    significant_events: usize,
+    caveats: &'a [ff_replay::DataCaveat],
+}
+
+async fn replay_context(State(state): State<Arc<AppState>>) -> axum::response::Response {
+    let Some(b) = state.replay() else {
+        return replay_envelope(&state, ());
+    };
+    let payload = ReplayContext {
+        schema_version: b.schema_version,
+        context: &b.context,
+        events: b.timeline.len(),
+        significant_events: b.timeline.significant().len(),
+        caveats: &b.caveats,
+    };
+    replay_envelope(&state, payload)
+}
+
+#[derive(Debug, Deserialize, Default)]
+struct TimelineQuery {
+    /// Only the events worth stopping on. Default true: the full log is 5,068
+    /// entries and a scrubber over all of them is unusable.
+    #[serde(default)]
+    all: bool,
+}
+
+async fn replay_timeline(
+    State(state): State<Arc<AppState>>,
+    axum::extract::Query(q): axum::extract::Query<TimelineQuery>,
+) -> axum::response::Response {
+    let Some(b) = state.replay() else {
+        return replay_envelope(&state, ());
+    };
+    if q.all {
+        replay_envelope(&state, b.timeline.events())
+    } else {
+        replay_envelope(&state, b.timeline.significant())
+    }
+}
+
+#[derive(Debug, Deserialize, Default)]
+struct PositionQuery {
+    position: Option<usize>,
+}
+
+async fn replay_state(
+    State(state): State<Arc<AppState>>,
+    axum::extract::Query(q): axum::extract::Query<PositionQuery>,
+) -> axum::response::Response {
+    let Some(b) = state.replay() else {
+        return replay_envelope(&state, ());
+    };
+    // Clamped inside state_at, so an out-of-range scrub cannot error.
+    let s = b.timeline.state_at(q.position.unwrap_or(0));
+    replay_envelope(&state, s)
+}
+
+async fn replay_claims(State(state): State<Arc<AppState>>) -> axum::response::Response {
+    let Some(b) = state.replay() else {
+        return replay_envelope(&state, ());
+    };
+    replay_envelope(&state, &b.claims)
+}
+
+async fn replay_finding(State(state): State<Arc<AppState>>) -> axum::response::Response {
+    let Some(b) = state.replay() else {
+        return replay_envelope(&state, ());
+    };
+    replay_envelope(&state, &b.pdb)
+}
+
+async fn replay_predictions(State(state): State<Arc<AppState>>) -> axum::response::Response {
+    let Some(b) = state.replay() else {
+        return replay_envelope(&state, ());
+    };
+    replay_envelope(&state, &b.predictions)
+}
+
+async fn replay_traffic(State(state): State<Arc<AppState>>) -> axum::response::Response {
+    let Some(b) = state.replay() else {
+        return replay_envelope(&state, ());
+    };
+    replay_envelope(&state, &b.traffic)
+}
+
+async fn replay_artifacts(State(state): State<Arc<AppState>>) -> axum::response::Response {
+    let Some(b) = state.replay() else {
+        return replay_envelope(&state, ());
+    };
+    replay_envelope(&state, b.artifacts.list())
+}
+
+/// Read one artifact by name.
+///
+/// The name is a manifest key, never a path fragment. Anything not in the
+/// manifest returns 404 — including every traversal attempt, which is
+/// deliberately indistinguishable from a missing file so the endpoint cannot be
+/// used to probe the filesystem.
+async fn replay_artifact(
+    State(state): State<Arc<AppState>>,
+    axum::extract::Path(name): axum::extract::Path<String>,
+) -> axum::response::Response {
+    let Some(b) = state.replay() else {
+        return replay_envelope(&state, ());
+    };
+    const LIMIT: usize = 256 * 1024;
+    match b.artifacts.read(&name, LIMIT) {
+        Ok(content) => {
+            let meta = b.artifacts.get(&name);
+            replay_envelope(
+                &state,
+                serde_json::json!({
+                    "name": name,
+                    "sha256": meta.map(|m| m.sha256.clone()),
+                    "kind": meta.map(|m| m.kind),
+                    "bytes": meta.map(|m| m.bytes),
+                    "content": content,
+                }),
+            )
+        }
+        Err(_) => (
+            StatusCode::NOT_FOUND,
+            Json(ApiError {
+                code: "no_such_artifact",
+                message: "no such artifact".to_owned(),
+                retriable: false,
+            }),
+        )
+            .into_response(),
+    }
 }
 
 /// The live stream.

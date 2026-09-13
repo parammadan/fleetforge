@@ -180,13 +180,16 @@ impl ReplayTimeline {
                     let Some(name) = r.get("name").and_then(|v| v.as_str()) else {
                         continue;
                     };
-                    let entry = nodes.entry(name.to_owned()).or_insert_with(|| {
-                        NodeReplayState {
+                    let entry = nodes
+                        .entry(name.to_owned())
+                        .or_insert_with(|| NodeReplayState {
                             name: name.to_owned(),
                             ..Default::default()
-                        }
-                    });
-                    entry.ready = r.get("ready").and_then(serde_json::Value::as_bool).unwrap_or(entry.ready);
+                        });
+                    entry.ready = r
+                        .get("ready")
+                        .and_then(serde_json::Value::as_bool)
+                        .unwrap_or(entry.ready);
                     entry.unschedulable = r
                         .get("unschedulable")
                         .and_then(serde_json::Value::as_bool)
@@ -203,10 +206,12 @@ impl ReplayTimeline {
                     };
                     // Brupop names each shadow `brs-<node>`.
                     let node = shadow.strip_prefix("brs-").unwrap_or(shadow).to_owned();
-                    let entry = nodes.entry(node.clone()).or_insert_with(|| NodeReplayState {
-                        name: node,
-                        ..Default::default()
-                    });
+                    let entry = nodes
+                        .entry(node.clone())
+                        .or_insert_with(|| NodeReplayState {
+                            name: node,
+                            ..Default::default()
+                        });
                     if let Some(s) = r.get("state").and_then(|v| v.as_str()) {
                         entry.brupop_state = Some(s.to_owned());
                     }
@@ -227,7 +232,10 @@ impl ReplayTimeline {
                         PodReplayState {
                             namespace: ns.to_owned(),
                             name: name.to_owned(),
-                            node: r.get("node").and_then(|v| v.as_str()).map(ToOwned::to_owned),
+                            node: r
+                                .get("node")
+                                .and_then(|v| v.as_str())
+                                .map(ToOwned::to_owned),
                             phase: r
                                 .get("phase")
                                 .and_then(|v| v.as_str())

@@ -76,19 +76,30 @@ fn overshooting_the_end_clamps_instead_of_failing() {
 fn the_pdb_arithmetic_is_parsed_from_evidence_not_hard_coded() {
     let b = bundle();
     assert_eq!(b.pdb.finding_id, "FF-PDB-001");
-    assert!(b.pdb.formula.contains("currentHealthy"), "{}", b.pdb.formula);
+    assert!(
+        b.pdb.formula.contains("currentHealthy"),
+        "{}",
+        b.pdb.formula
+    );
     assert_eq!(b.pdb.result, "0");
     let inputs: Vec<&str> = b.pdb.inputs.iter().map(|(k, _)| k.as_str()).collect();
     assert!(inputs.contains(&"currentHealthy"), "{inputs:?}");
     assert!(inputs.contains(&"desiredHealthy"), "{inputs:?}");
-    assert!(!b.pdb.limitations.is_empty(), "a finding must state limitations");
+    assert!(
+        !b.pdb.limitations.is_empty(),
+        "a finding must state limitations"
+    );
     assert!(!b.pdb.evidence.is_empty());
 }
 
 #[test]
 fn availability_during_the_incident_is_classified_unavailable() {
     let b = bundle();
-    let c = b.claims.iter().find(|c| c.id == "availability-unknown").unwrap();
+    let c = b
+        .claims
+        .iter()
+        .find(|c| c.id == "availability-unknown")
+        .unwrap();
     assert_eq!(c.basis, ClaimBasis::Unavailable);
     assert!(c.statement.contains("UNKNOWN"));
 }
@@ -98,7 +109,11 @@ fn the_causal_chain_is_human_rca_not_fleetforge_inference() {
     let b = bundle();
     let c = b.claims.iter().find(|c| c.id == "causal-chain").unwrap();
     assert_eq!(c.basis, ClaimBasis::HumanRca);
-    assert!(c.limitations.iter().any(|l| l.contains("does not implement")));
+    assert!(
+        c.limitations
+            .iter()
+            .any(|l| l.contains("does not implement"))
+    );
 }
 
 #[test]
@@ -136,7 +151,11 @@ fn the_traffic_rerun_is_recorded_as_a_failed_validation() {
     let b = bundle();
     assert!(!b.traffic.passed);
     assert!(b.traffic.requests > 100);
-    assert!(b.traffic.interpretation.contains("not a measurement of availability"));
+    assert!(
+        b.traffic
+            .interpretation
+            .contains("not a measurement of availability")
+    );
     let pct: f64 = b.traffic.success_pct.parse().unwrap();
     assert!((25.0..35.0).contains(&pct), "got {pct}");
 }
@@ -144,8 +163,15 @@ fn the_traffic_rerun_is_recorded_as_a_failed_validation() {
 #[test]
 fn under_prediction_is_classified_separately_from_conservative() {
     let b = bundle();
-    let under: Vec<_> = b.predictions.iter().filter(|p| p.class == "under_predicted").collect();
-    assert!(!under.is_empty(), "the run contains a predicted-5/observed-8 case");
+    let under: Vec<_> = b
+        .predictions
+        .iter()
+        .filter(|p| p.class == "under_predicted")
+        .collect();
+    assert!(
+        !under.is_empty(),
+        "the run contains a predicted-5/observed-8 case"
+    );
     for p in under {
         assert!(p.delta > 0);
         assert!(p.verdict.starts_with("under-predicted"), "{}", p.verdict);
@@ -155,11 +181,18 @@ fn under_prediction_is_classified_separately_from_conservative() {
 #[test]
 fn the_version_field_bug_is_disclosed_not_silently_corrected() {
     let b = bundle();
-    let caveat = b.caveats.iter().find(|c| c.id == "version-field-bug").unwrap();
+    let caveat = b
+        .caveats
+        .iter()
+        .find(|c| c.id == "version-field-bug")
+        .unwrap();
     assert!(caveat.statement.contains("2.0.0"));
     let early = b.timeline.state_at(30);
     assert!(
-        early.nodes.iter().any(|n| n.bottlerocket_version.as_deref() == Some("2.0.0")),
+        early
+            .nodes
+            .iter()
+            .any(|n| n.bottlerocket_version.as_deref() == Some("2.0.0")),
         "the recorded value must survive into replay"
     );
 }
@@ -168,7 +201,12 @@ fn the_version_field_bug_is_disclosed_not_silently_corrected() {
 fn the_banner_context_excludes_the_bogus_version() {
     let b = bundle();
     assert!(!b.context.bottlerocket_versions.iter().any(|v| v == "2.0.0"));
-    assert!(b.context.bottlerocket_versions.iter().any(|v| v == "1.64.0"));
+    assert!(
+        b.context
+            .bottlerocket_versions
+            .iter()
+            .any(|v| v == "1.64.0")
+    );
 }
 
 #[test]

@@ -121,7 +121,10 @@ impl ArtifactStore {
     pub fn read(&self, name: &str, limit_bytes: usize) -> Result<String, ReplayError> {
         // The only way to a path is through the manifest. A name containing
         // `..`, `/`, or a drive letter simply is not a key.
-        let entry = self.manifest.get(name).ok_or(ReplayError::UnknownArtifact)?;
+        let entry = self
+            .manifest
+            .get(name)
+            .ok_or(ReplayError::UnknownArtifact)?;
         let path = self.root.join(&entry.name);
 
         // Belt and braces: even having come from the manifest, the resolved
@@ -130,7 +133,9 @@ impl ArtifactStore {
             path: self.root.display().to_string(),
             reason: e.to_string(),
         })?;
-        let canonical = path.canonicalize().map_err(|_| ReplayError::UnknownArtifact)?;
+        let canonical = path
+            .canonicalize()
+            .map_err(|_| ReplayError::UnknownArtifact)?;
         if !canonical.starts_with(&canonical_root) {
             return Err(ReplayError::UnknownArtifact);
         }
@@ -179,14 +184,9 @@ pub fn redact(text: &str) -> String {
                     let trimmed = rest.trim_start();
                     // Only redact something that looks like a real value.
                     if trimmed.len() > 8 {
-                        let end = rest
-                            .find(|c| c == ',' || c == '\n')
-                            .unwrap_or(rest.len());
-                        redacted = format!(
-                            "{}[REDACTED]{}",
-                            &redacted[..value_start],
-                            &rest[end..]
-                        );
+                        let end = rest.find(|c| c == ',' || c == '\n').unwrap_or(rest.len());
+                        redacted =
+                            format!("{}[REDACTED]{}", &redacted[..value_start], &rest[end..]);
                     }
                 }
             }
@@ -233,13 +233,17 @@ fn describe(name: &str) -> String {
         "15-preflight-after.json" => "Preflight result after the first uncordon",
         "21-evidence-report.md" => "Generated evidence report, including prediction scoring",
         "22-node-194-before-uncordon.json" => "Node 101-194 immediately before the second uncordon",
-        "23-brupop-194-before-uncordon.json" => "Brupop shadow for 101-194 before the second uncordon",
+        "23-brupop-194-before-uncordon.json" => {
+            "Brupop shadow for 101-194 before the second uncordon"
+        }
         "24-uncordon-194-recovery.txt" => "Observed recovery after the second uncordon",
         "25-nodes-final.json" => "Kubernetes node objects at the end",
         "27-pdb-final.json" => "PodDisruptionBudget state at the end",
         "28-brupop-final.json" => "Brupop state at the end",
         "29-snapshot-final.json" => "FleetForge snapshot at the end",
-        "31-traffic-post-recovery.txt" => "Post-recovery traffic sampler output (failed validation)",
+        "31-traffic-post-recovery.txt" => {
+            "Post-recovery traffic sampler output (failed validation)"
+        }
         "33-kube-proxy.log" => "kube-proxy logs",
         "34-aws-node.log" => "VPC CNI (aws-node) logs",
         "35-fleetforge-events-complete.jsonl" => "Complete FleetForge event log — the replay spine",

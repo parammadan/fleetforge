@@ -6,6 +6,7 @@ use chrono::{DateTime, Utc};
 use ff_collect::{Collector, SnapshotStore};
 use ff_core::{ClusterSnapshot, KindCoverage, Mode};
 use ff_record::EventLog;
+use ff_replay::ReplayBundle;
 
 /// Where this process gets its data.
 ///
@@ -16,6 +17,12 @@ pub enum DataSource {
     Live(Arc<Collector>),
     /// Serving a recorded snapshot from disk.
     Fixture(Arc<ClusterSnapshot>),
+    /// Replaying a captured incident bundle.
+    ///
+    /// A third variant rather than a flag on `Fixture`: replay and fixture make
+    /// different claims — "this happened" versus "this never happened" — and a
+    /// shared code path is how one gets rendered as the other.
+    Replay(Arc<ReplayBundle>),
 }
 
 /// Shared application state.
@@ -31,12 +38,24 @@ pub struct AppState {
 }
 
 impl AppState {
+    /// The replay bundle, when this process is serving one.
+    #[must_use]
+    pub fn replay(&self) -> Option<&Arc<ReplayBundle>> {
+        match &self.source {
+            DataSource::Replay(b) => Some(b),
+            _ => None,
+        }
+    }
+}
+
+impl AppState {
     /// The mode everything this process serves is in.
     #[must_use]
     pub const fn mode(&self) -> Mode {
         match self.source {
             DataSource::Live(_) => Mode::Live,
             DataSource::Fixture(_) => Mode::Fixture,
+            DataSource::Replay(_) => Mode::Replay,
         }
     }
 
@@ -46,6 +65,7 @@ impl AppState {
         match &self.source {
             DataSource::Live(c) => c.cluster_id().to_owned(),
             DataSource::Fixture(s) => s.cluster_id().to_owned(),
+            DataSource::Replay(b) => b.context.cluster_id.clone(),
         }
     }
 
@@ -58,6 +78,10 @@ impl AppState {
         match &self.source {
             DataSource::Live(c) => c.store().current(),
             DataSource::Fixture(s) => Some(Arc::clone(s)),
+            // Replay serves its own typed endpoints; there is no single
+            // "current" ClusterSnapshot, because the whole point is that the
+            // state depends on where you are in the timeline.
+            DataSource::Replay(_) => None,
         }
     }
 
@@ -66,7 +90,7 @@ impl AppState {
     pub fn store(&self) -> Option<Arc<SnapshotStore>> {
         match &self.source {
             DataSource::Live(c) => Some(c.store()),
-            DataSource::Fixture(_) => None,
+            DataSource::Fixture(_) | DataSource::Replay(_) => None,
         }
     }
 
@@ -75,6 +99,7 @@ impl AppState {
         match &self.source {
             DataSource::Live(c) => c.coverage().await,
             DataSource::Fixture(s) => s.coverage().to_vec(),
+            DataSource::Replay(_) => Vec::new(),
         }
     }
 
@@ -87,7 +112,7 @@ impl AppState {
     pub fn api_server_reachable(&self) -> bool {
         match &self.source {
             DataSource::Live(c) => c.connection().is_reachable(),
-            DataSource::Fixture(_) => true,
+            DataSource::Fixture(_) | DataSource::Replay(_) => true,
         }
     }
 
@@ -100,7 +125,7 @@ impl AppState {
     pub fn connection_state(&self) -> &'static str {
         match &self.source {
             DataSource::Live(c) => c.connection().state().label(),
-            DataSource::Fixture(_) => "not applicable",
+            DataSource::Fixture(_) | DataSource::Replay(_) => "not applicable",
         }
     }
 
@@ -109,7 +134,7 @@ impl AppState {
     pub fn connection_usable(&self) -> bool {
         match &self.source {
             DataSource::Live(c) => c.connection().is_usable(),
-            DataSource::Fixture(_) => true,
+            DataSource::Fixture(_) | DataSource::Replay(_) => true,
         }
     }
 
@@ -117,7 +142,7 @@ impl AppState {
     pub async fn last_contact(&self) -> Option<DateTime<Utc>> {
         match &self.source {
             DataSource::Live(c) => c.connection().last_contact().await,
-            DataSource::Fixture(_) => None,
+            DataSource::Fixture(_) | DataSource::Replay(_) => None,
         }
     }
 

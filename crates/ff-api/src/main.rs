@@ -22,6 +22,7 @@ struct Args {
     record: Option<PathBuf>,
     run_description: String,
     fixtures: Option<PathBuf>,
+    replay: Option<PathBuf>,
     kubeconfig: Option<PathBuf>,
     context: Option<String>,
     bind: SocketAddr,
@@ -33,6 +34,7 @@ fn parse_args() -> Result<Args, String> {
         record: None,
         run_description: "unnamed run".to_owned(),
         fixtures: None,
+        replay: None,
         kubeconfig: None,
         context: None,
         // Loopback, deliberately. FleetForge has no authentication yet, so it
@@ -48,6 +50,7 @@ fn parse_args() -> Result<Args, String> {
                 args.run_description = it.next().unwrap_or_else(|| "unnamed run".to_owned());
             }
             "--fixtures" => args.fixtures = it.next().map(PathBuf::from),
+            "--replay" => args.replay = it.next().map(PathBuf::from),
             "--kubeconfig" => args.kubeconfig = it.next().map(PathBuf::from),
             "--context" => args.context = it.next(),
             "--bind" => {
@@ -62,6 +65,7 @@ fn parse_args() -> Result<Args, String> {
                      USAGE:\n  \
                        fleetforge [--kubeconfig PATH] [--context NAME] [--bind ADDR]\n  \
                        fleetforge --fixtures DIR\n  \
+                       fleetforge --replay DIR      replay a captured evidence bundle\n  \
                        fleetforge --once            print one snapshot summary and exit\n\n\
                      RECORDING:\n  \
                        --record PATH                append events to a JSONL log\n  \
@@ -90,7 +94,25 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let args = parse_args()?;
 
-    let state = if let Some(dir) = &args.fixtures {
+    let state = if let Some(dir) = &args.replay {
+        let bundle = ff_replay::ReplayBundle::load(dir)?;
+        tracing::warn!(
+            mode = "REPLAY",
+            cluster_id = %bundle.context.cluster_id,
+            events = bundle.timeline.len(),
+            from = %bundle.context.captured_from,
+            to = %bundle.context.captured_to,
+            "replaying a captured incident; this is NOT a live cluster"
+        );
+        Arc::new(AppState {
+            source: DataSource::Replay(Arc::new(bundle)),
+            started_at: Utc::now(),
+            version: VERSION,
+            // Replay is read-only over an existing log. Recording a replay of a
+            // recording would produce an event log that looks live but is not.
+            log: None,
+        })
+    } else if let Some(dir) = &args.fixtures {
         let snapshot = FixtureSource::new(dir).load()?;
         tracing::warn!(
             mode = "FIXTURE",

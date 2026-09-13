@@ -33,14 +33,12 @@ pub mod error;
 pub mod schema;
 pub mod state;
 
-pub use artifacts::{redact, ArtifactStore};
+pub use artifacts::{ArtifactStore, redact};
 pub use bundle::ReplayBundle;
 pub use error::ReplayError;
 pub use schema::{
-    ArtifactKind, ArtifactRef, CaptureContext, Claim, ClaimBasis, DataCaveat,
-    REPLAY_SCHEMA_VERSION,
+    ArtifactKind, ArtifactRef, CaptureContext, Claim, ClaimBasis, DataCaveat, REPLAY_SCHEMA_VERSION,
 };
 pub use state::{
-    NodeReplayState, PodReplayState, PreflightReplayState, ReplayEvent, ReplayState,
-    ReplayTimeline,
+    NodeReplayState, PodReplayState, PreflightReplayState, ReplayEvent, ReplayState, ReplayTimeline,
 };

@@ -23,6 +23,7 @@ ff-core.workspace = true
 ff-collect.workspace = true
 ff-preflight.workspace = true
 ff-record.workspace = true
+ff-replay.workspace = true
 axum.workspace = true
 async-stream.workspace = true
 chrono.workspace = true
@@ -34,6 +35,10 @@ tokio.workspace = true
 tower-http.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
+
+[dev-dependencies]
+tower.workspace = true
+http-body-util.workspace = true
 
 [lints]
 workspace = true
