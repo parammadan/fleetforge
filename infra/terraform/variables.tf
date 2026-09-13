@@ -120,9 +120,17 @@ variable "allowed_public_cidr" {
   description = <<-EOT
     CIDR permitted to reach the EKS public API endpoint.
 
-    Defaults to nothing. Set it to your own address (`curl ifconfig.me`/32) —
-    0.0.0.0/0 exposes the control plane endpoint to the internet, and an
+    Defaults to nothing. Set it to your own address (`curl -s https://checkip.amazonaws.com`)
+    — 0.0.0.0/0 exposes the control plane endpoint to the internet, and an
     ephemeral demo cluster is not a reason to do that.
+
+    **This goes stale.** A laptop that moves network, or a DHCP lease that
+    renews, and kubectl starts timing out against an endpoint that is working
+    perfectly well. Re-check it before every session:
+
+      aws eks describe-cluster --name fleetforge-demo \
+        --query 'cluster.resourcesVpcConfig.publicAccessCidrs'
+      curl -s https://checkip.amazonaws.com
   EOT
   type        = string
   default     = null

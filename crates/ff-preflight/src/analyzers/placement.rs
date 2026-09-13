@@ -99,12 +99,14 @@ fn tolerates_node(pod: &PodFact, node: &NodeFact) -> bool {
 }
 
 /// Nodes that remain in service and can accept new pods.
-fn candidates<'a>(ctx: &AnalysisContext<'a>) -> Vec<&'a NodeFact> {
-    ctx.remaining
-        .iter()
-        .filter(|n| !n.unschedulable && n.is_ready())
-        .copied()
-        .collect()
+///
+/// Returns `None` when there are none. Every analyzer here treats that as
+/// "stand down": with zero candidates each would fire for every pod, and
+/// FF-NODES-001 already states the fact once. Measured on a real cluster mid
+/// Brupop update, that was the difference between 34 findings and 13.
+fn candidates<'a>(ctx: &AnalysisContext<'a>) -> Option<Vec<&'a NodeFact>> {
+    let c = ctx.candidate_nodes();
+    if c.is_empty() { None } else { Some(c) }
 }
 
 /// Detects pods pinned by a node selector to nodes that will not remain.
@@ -127,7 +129,9 @@ impl Analyzer for NodeSelectorAnalyzer {
         let now = chrono::Utc::now();
         let cluster = ctx.snapshot.cluster_id();
         let snapshot_id = ctx.snapshot.snapshot_id();
-        let remaining = candidates(ctx);
+        let Some(remaining) = candidates(ctx) else {
+            return Ok(Vec::new()); // FF-NODES-001 covers this
+        };
         let mut findings = Vec::new();
 
         for pod in ctx.rescheduling_pods() {
@@ -222,7 +226,9 @@ impl Analyzer for TolerationAnalyzer {
         let now = chrono::Utc::now();
         let cluster = ctx.snapshot.cluster_id();
         let snapshot_id = ctx.snapshot.snapshot_id();
-        let remaining = candidates(ctx);
+        let Some(remaining) = candidates(ctx) else {
+            return Ok(Vec::new()); // FF-NODES-001 covers this
+        };
         let mut findings = Vec::new();
 
         for pod in ctx.rescheduling_pods() {
@@ -339,7 +345,9 @@ impl Analyzer for NodeAffinityAnalyzer {
         let now = chrono::Utc::now();
         let cluster = ctx.snapshot.cluster_id();
         let snapshot_id = ctx.snapshot.snapshot_id();
-        let remaining = candidates(ctx);
+        let Some(remaining) = candidates(ctx) else {
+            return Ok(Vec::new()); // FF-NODES-001 covers this
+        };
         let mut findings = Vec::new();
 
         for pod in ctx.rescheduling_pods() {

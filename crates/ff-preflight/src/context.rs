@@ -191,6 +191,20 @@ impl<'a> AnalysisContext<'a> {
             .find(|w| w.namespace == pod.namespace && w.selector.matches(&pod.labels))
     }
 
+    /// Nodes that would remain in service and can accept new pods.
+    ///
+    /// Cordoned and not-Ready nodes are excluded: they keep their existing pods
+    /// but accept no new ones, so counting them would overstate where evicted
+    /// pods could land.
+    #[must_use]
+    pub fn candidate_nodes(&self) -> Vec<&'a NodeFact> {
+        self.remaining
+            .iter()
+            .filter(|n| !n.unschedulable && n.is_ready())
+            .copied()
+            .collect()
+    }
+
     /// PodDisruptionBudgets covering a pod.
     #[must_use]
     pub fn pdbs_for(&self, pod: &PodFact) -> Vec<&'a PdbFact> {

@@ -150,6 +150,21 @@ module "eks" {
   # deploy/helm (ADR-0008, ADR-0012).
   enable_cluster_creator_admin_permissions = true
 
+  # EKS installs NO addons by default, and module v21 does not add any either.
+  # Without vpc-cni there is no CNI, so every node registers and then sits at
+  # NotReady with "cni plugin not initialized" — and the managed node group
+  # never reaches ACTIVE, because it waits for nodes that will never be ready.
+  #
+  # This cost about 30 minutes on the first apply. The plan gives no hint: it
+  # shows a perfectly valid cluster and node group, and the failure only appears
+  # as a node group stuck in CREATING with an empty kube-system.
+  addons = {
+    vpc-cni                = { before_compute = true }
+    kube-proxy             = {}
+    coredns                = {}
+    eks-pod-identity-agent = {}
+  }
+
   eks_managed_node_groups = {
     bottlerocket = {
       # ARM64 Bottlerocket. This is the whole point of the environment: Brupop

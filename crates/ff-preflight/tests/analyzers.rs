@@ -854,6 +854,121 @@ fn flags_taking_every_replica_at_once() {
     assert!(result.is_blocked());
 }
 
+// --- No candidate nodes ---------------------------------------------------
+
+#[test]
+fn no_schedulable_nodes_produces_one_finding_not_one_per_pod() {
+    // Found on a real EKS cluster mid Brupop update: two of three nodes were
+    // cordoned, so selecting the third left nowhere to reschedule. Every
+    // per-pod placement analyzer fired for every pod — 12 toleration findings,
+    // 6 affinity, 3 selector — all restating the same single fact. 34 findings
+    // where 14 were useful.
+    let snap = snapshot(
+        vec![
+            node("n1").build(),
+            node("n2").cordoned().build(),
+            node("n3").cordoned().build(),
+        ],
+        vec![
+            pod("demo", "web-1", "n1")
+                .labelled(&[("app", "web")])
+                .owned_by("ReplicaSet", "web-abc")
+                .build(),
+            pod("demo", "web-2", "n1")
+                .labelled(&[("app", "web")])
+                .owned_by("ReplicaSet", "web-abc")
+                .build(),
+            pod("demo", "web-3", "n1")
+                .labelled(&[("app", "web")])
+                .owned_by("ReplicaSet", "web-abc")
+                .build(),
+        ],
+        vec![workload(
+            WorkloadKind::Deployment,
+            "demo",
+            "web",
+            3,
+            &[("app", "web")],
+        )],
+        vec![],
+        full_coverage(),
+    );
+    let result = run(&snap, &["n1"], 1);
+
+    assert!(result.is_blocked());
+    let f = finding(&result, "FF-NODES-001");
+    assert_eq!(f.severity, Severity::Blocker);
+    assert!(f.explanation.contains("cordoned"));
+    // It names the in-flight-maintenance case, which is the common cause.
+    assert!(f.explanation.contains("Brupop") || f.explanation.contains("maintenance"));
+
+    // The per-pod placement checks must stand down rather than pile on.
+    for id in ["FF-TOLERATION-001", "FF-SELECTOR-001", "FF-AFFINITY-001"] {
+        assert!(
+            !has(&result, id),
+            "{id} should stand down when FF-NODES-001 fires"
+        );
+    }
+}
+
+#[test]
+fn placement_checks_still_fire_when_some_nodes_remain() {
+    // The converse: with a usable node present, per-pod detail is what helps.
+    let snap = snapshot(
+        vec![
+            node("n1").labelled(&[("disk", "ssd")]).build(),
+            node("n2").labelled(&[("disk", "hdd")]).build(),
+        ],
+        vec![
+            pod("demo", "db-1", "n1")
+                .labelled(&[("app", "db")])
+                .owned_by("ReplicaSet", "db-abc")
+                .selecting(&[("disk", "ssd")])
+                .build(),
+        ],
+        vec![workload(
+            WorkloadKind::Deployment,
+            "demo",
+            "db",
+            2,
+            &[("app", "db")],
+        )],
+        vec![],
+        full_coverage(),
+    );
+    let result = run(&snap, &["n1"], 1);
+    assert!(!has(&result, "FF-NODES-001"), "a candidate node exists");
+    assert!(
+        has(&result, "FF-SELECTOR-001"),
+        "per-pod detail is still useful"
+    );
+}
+
+#[test]
+fn no_candidates_but_nothing_to_reschedule_is_not_a_blocker() {
+    // Only DaemonSet pods on the node: they leave with it and return with it,
+    // so "nowhere to put them" is not a problem that exists.
+    let snap = snapshot(
+        vec![node("n1").build(), node("n2").cordoned().build()],
+        vec![
+            pod("demo", "agent-1", "n1")
+                .labelled(&[("app", "agent")])
+                .owned_by("DaemonSet", "agent")
+                .build(),
+        ],
+        vec![workload(
+            WorkloadKind::DaemonSet,
+            "demo",
+            "agent",
+            2,
+            &[("app", "agent")],
+        )],
+        vec![],
+        full_coverage(),
+    );
+    assert!(!has(&run(&snap, &["n1"], 1), "FF-NODES-001"));
+}
+
 // --- Concurrency -------------------------------------------------------------
 
 #[test]

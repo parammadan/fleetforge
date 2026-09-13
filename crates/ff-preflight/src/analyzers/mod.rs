@@ -5,6 +5,7 @@
 //! growing safely.
 
 pub mod capacity;
+pub mod nodes;
 pub mod pdb;
 pub mod placement;
 pub mod storage;
@@ -20,6 +21,8 @@ use crate::analyzer::Analyzer;
 #[must_use]
 pub fn all() -> Vec<Box<dyn Analyzer>> {
     vec![
+        // Runs first: when it fires, the per-pod placement checks stand down.
+        Box::new(nodes::NoCandidateNodesAnalyzer),
         Box::new(pdb::PdbAnalyzer),
         Box::new(workload::SingletonAnalyzer),
         Box::new(workload::UnmanagedPodAnalyzer),
