@@ -184,7 +184,7 @@ pub fn redact(text: &str) -> String {
                     let trimmed = rest.trim_start();
                     // Only redact something that looks like a real value.
                     if trimmed.len() > 8 {
-                        let end = rest.find(|c| c == ',' || c == '\n').unwrap_or(rest.len());
+                        let end = rest.find([',', '\n']).unwrap_or(rest.len());
                         redacted =
                             format!("{}[REDACTED]{}", &redacted[..value_start], &rest[end..]);
                     }

@@ -295,7 +295,7 @@ fn summarise(kind: &str, v: &serde_json::Value) -> String {
         "run_ended" => format!("recording ended — {}", s("reason")),
         "snapshot_observed" => format!(
             "snapshot {} ({} nodes, {} pods)",
-            &s("snapshot_id").chars().take(12).collect::<String>(),
+            s("snapshot_id").chars().take(12).collect::<String>(),
             v.get("nodes")
                 .and_then(serde_json::Value::as_u64)
                 .unwrap_or(0),
@@ -586,12 +586,15 @@ fn parse_traffic(root: &Path) -> Result<TrafficValidation, ReplayError> {
         });
     }
 
-    let pct = f64::from(successes) * 100.0 / f64::from(requests);
+    // Integer arithmetic: `clippy::float_arithmetic` is denied workspace-wide,
+    // because a rate that renders differently on two machines is a rate nobody
+    // can audit. Tenths of a percent, rounded half-up.
+    let tenths = (u64::from(successes) * 1000 + u64::from(requests) / 2) / u64::from(requests);
     Ok(TrafficValidation {
         requests,
         successes,
         failures,
-        success_pct: format!("{pct:.1}"),
+        success_pct: format!("{}.{}", tenths / 10, tenths % 10),
         window: format!("{first} → {last}"),
         passed: false,
         interpretation: "Post-recovery networking validation. This run FAILED. It is not a \
