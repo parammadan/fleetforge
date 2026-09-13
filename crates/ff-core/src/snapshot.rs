@@ -151,7 +151,18 @@ pub struct NodeFact {
     /// Whether the node is cordoned.
     pub unschedulable: bool,
     /// Bottlerocket OS version, when the node reports one.
+    ///
+    /// Read from the kubelet's OS image string, which is the only place the
+    /// running release appears. **Not** from
+    /// `bottlerocket.aws/updater-interface-version`, which is Brupop's
+    /// interface version — a different number entirely, and one that made
+    /// every node in a live cluster report "2.0.0".
     pub bottlerocket_version: Option<String>,
+    /// Whether the node carries the label Brupop requires to manage it.
+    ///
+    /// A Bottlerocket node without it is one Brupop will silently never touch,
+    /// because the agent DaemonSet's node affinity will not schedule there.
+    pub brupop_managed: bool,
     /// Kubelet version.
     pub kubelet_version: Option<String>,
 }

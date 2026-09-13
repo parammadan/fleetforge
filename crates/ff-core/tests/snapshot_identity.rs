@@ -49,6 +49,7 @@ fn node(name: &str, cpu: i64, observed: i64, mode_live: bool) -> NodeFact {
         instance_type: Some("m6g.large".into()),
         unschedulable: false,
         bottlerocket_version: Some("1.19.0".into()),
+        brupop_managed: false,
         kubelet_version: Some("v1.30.0".into()),
     }
 }

@@ -63,6 +63,7 @@ pub fn node(name: &str) -> NodeBuilder {
         instance_type: None,
         unschedulable: false,
         bottlerocket_version: None,
+        brupop_managed: false,
         kubelet_version: Some("v1.37.0".into()),
     })
 }

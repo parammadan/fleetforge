@@ -127,6 +127,13 @@ pub fn normalize(node: &Node, ctx: &NormalizeContext) -> NodeFact {
             .as_ref()
             .and_then(|s| s.unschedulable)
             .unwrap_or(false),
+        // Whether Brupop will manage this node at all. Surfacing it means the
+        // label that caused the version confusion now has a correct, visible
+        // job — and an operator can see at a glance that a node Brupop is
+        // ignoring is one Brupop will never update.
+        brupop_managed: labels
+            .get(BRUPOP_INTERFACE_LABEL)
+            .is_some_and(|v| v == "2.0.0"),
         // The OS image string is the only place the running release appears.
         // Brupop's BottlerocketShadow also reports it, but that is a separate
         // fact from a separate source and is collected separately.
