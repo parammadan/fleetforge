@@ -105,6 +105,13 @@ pub struct CaptureContext {
     pub captured_to: DateTime<Utc>,
     /// Node names in the captured fleet.
     pub nodes: Vec<String>,
+    /// The earliest Brupop activity visible anywhere in the bundle.
+    ///
+    /// Derived from Kubernetes events in the pre-recovery snapshot, not from a
+    /// constant. It is the single most important number in the replay: it
+    /// predates [`captured_from`](Self::captured_from), which is what makes
+    /// "FleetForge did not predict this" a fact rather than modesty.
+    pub brupop_first_seen_at: Option<DateTime<Utc>>,
 }
 
 /// A file in the bundle that a claim can point at.

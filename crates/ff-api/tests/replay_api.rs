@@ -64,6 +64,7 @@ const ENDPOINTS: &[&str] = &[
     "/api/v1/replay/timeline?all=true",
     "/api/v1/replay/state?position=0",
     "/api/v1/replay/state?position=500",
+    "/api/v1/replay/chapters",
     "/api/v1/replay/claims",
     "/api/v1/replay/finding",
     "/api/v1/replay/predictions",
@@ -157,6 +158,48 @@ async fn the_timeline_is_ordered_and_the_significant_view_is_a_subset() {
         let i = usize::try_from(e["index"].as_u64().unwrap()).unwrap();
         assert_eq!(all[i]["seq"], e["seq"]);
     }
+}
+
+#[tokio::test]
+async fn every_chapter_points_at_a_real_event() {
+    let (_, chapters) = get("/api/v1/replay/chapters").await;
+    let (_, timeline) = get("/api/v1/replay/timeline?all=true").await;
+    let chapters = chapters["data"].as_array().unwrap();
+    let events = timeline["data"].as_array().unwrap();
+    assert!(
+        chapters.len() >= 6,
+        "the capture supports at least six chapters"
+    );
+
+    let mut last = 0_u64;
+    for c in chapters {
+        let pos = c["position"].as_u64().unwrap();
+        assert!(pos < events.len() as u64, "chapter points past the end");
+        // A chapter's timestamp must be the timestamp of the event it names,
+        // or the rail and the scrubber disagree about where a moment is.
+        assert_eq!(
+            c["at"],
+            events[usize::try_from(pos).unwrap()]["at"],
+            "{}",
+            c["id"]
+        );
+        assert!(pos >= last, "chapters must be in timeline order");
+        last = pos;
+    }
+}
+
+#[tokio::test]
+async fn the_causal_chain_chapter_is_labelled_human_rca() {
+    let (_, body) = get("/api/v1/replay/chapters").await;
+    let chapter = body["data"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|c| c["id"] == "deadlock-visible")
+        .expect("the deadlock chapter exists");
+    // FleetForge observed the symptoms. A person worked out the loop. The
+    // chapter must not claim otherwise.
+    assert_eq!(chapter["basis"], "human_rca");
 }
 
 #[tokio::test]

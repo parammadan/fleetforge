@@ -36,6 +36,7 @@ pub fn router(state: Arc<AppState>) -> Router {
         .route("/api/v1/report", get(report))
         .route("/api/v1/replay/context", get(replay_context))
         .route("/api/v1/replay/timeline", get(replay_timeline))
+        .route("/api/v1/replay/chapters", get(replay_chapters))
         .route("/api/v1/replay/state", get(replay_state))
         .route("/api/v1/replay/claims", get(replay_claims))
         .route("/api/v1/replay/finding", get(replay_finding))
@@ -462,6 +463,13 @@ async fn replay_state(
     // Clamped inside state_at, so an out-of-range scrub cannot error.
     let s = b.timeline.state_at(q.position.unwrap_or(0));
     replay_envelope(&state, s)
+}
+
+async fn replay_chapters(State(state): State<Arc<AppState>>) -> axum::response::Response {
+    let Some(b) = state.replay() else {
+        return replay_envelope(&state, ());
+    };
+    replay_envelope(&state, &b.chapters)
 }
 
 async fn replay_claims(State(state): State<Arc<AppState>>) -> axum::response::Response {

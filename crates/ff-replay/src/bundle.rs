@@ -122,6 +122,8 @@ pub struct ReplayBundle {
     pub predictions: Vec<PredictionRow>,
     /// Post-recovery traffic validation, parsed.
     pub traffic: TrafficValidation,
+    /// Derived chapter marks for the timeline.
+    pub chapters: Vec<crate::chapters::Chapter>,
 }
 
 /// The post-recovery traffic sampler result.
@@ -178,6 +180,7 @@ impl ReplayBundle {
         let context = build_context(&timeline, root)?;
         let claims = build_claims(&timeline, &pdb, &traffic);
         let caveats = build_caveats(&timeline);
+        let chapters = crate::chapters::derive(&timeline, context.brupop_first_seen_at);
 
         Ok(Self {
             schema_version: REPLAY_SCHEMA_VERSION,
@@ -190,6 +193,7 @@ impl ReplayBundle {
             pdb,
             predictions,
             traffic,
+            chapters,
         })
     }
 }
@@ -658,6 +662,7 @@ fn build_context(timeline: &ReplayTimeline, root: &Path) -> Result<CaptureContex
         });
 
     Ok(CaptureContext {
+        brupop_first_seen_at: parse_brupop_start(root),
         cluster_id,
         cluster_kind: "Amazon EKS with Bottlerocket managed node group (destroyed)".to_owned(),
         kubernetes_version,
@@ -667,6 +672,33 @@ fn build_context(timeline: &ReplayTimeline, root: &Path) -> Result<CaptureContex
         captured_to: last.at,
         nodes,
     })
+}
+
+/// The earliest Brupop activity recorded anywhere in the bundle.
+///
+/// Read from the Kubernetes events captured in the pre-recovery snapshot: the
+/// oldest `first_seen_at` belonging to the Brupop namespace. Those events were
+/// already in the API server's history when FleetForge connected, which is
+/// precisely why they can testify about a period FleetForge did not watch.
+///
+/// `None` if the snapshot is missing or holds no Brupop events. A missing value
+/// is rendered as unknown; it is never filled in with a plausible time.
+fn parse_brupop_start(root: &Path) -> Option<DateTime<Utc>> {
+    const NAMESPACE: &str = "brupop-bottlerocket-aws";
+    let text = std::fs::read_to_string(root.join("01-snapshot-before.json")).ok()?;
+    let value: serde_json::Value = serde_json::from_str(&text).ok()?;
+    value
+        .pointer("/data/events")?
+        .as_array()?
+        .iter()
+        .filter(|e| {
+            e.pointer("/involved_object/namespace")
+                .and_then(|v| v.as_str())
+                == Some(NAMESPACE)
+        })
+        .filter_map(|e| e.get("first_seen_at").and_then(|v| v.as_str()))
+        .filter_map(|s| s.parse::<DateTime<Utc>>().ok())
+        .min()
 }
 
 /// Build the classified claims.
