@@ -544,6 +544,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "ff-replay"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "ff-core",
+ "ff-record",
+ "hex",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tempfile",
+ "thiserror",
+ "tracing",
+]
+
+[[package]]
 name = "find-msvc-tools"
 version = "0.1.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
