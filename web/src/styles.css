@@ -750,3 +750,239 @@ code, .mono { font-family: var(--mono); font-size: 12px; }
   max-width: 100%;
 }
 .strip-empty { color: var(--text-dim); font-style: normal; }
+
+/* --- The landing view ----------------------------------------------------
+ *
+ * One screen, one story. Sized so the headline, the four steps, the
+ * arithmetic, the outcome and the disclaimer all sit above the fold on a
+ * 1440×900 laptop — below that it scrolls rather than shrinking the type,
+ * because unreadable text on one screen is worse than readable text on two.
+ */
+.overview {
+  border-bottom: 1px solid var(--border);
+  background:
+    radial-gradient(1200px 400px at 50% -180px,
+      color-mix(in srgb, var(--accent) 7%, transparent), transparent);
+}
+.overview-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 28px 24px 34px;
+}
+
+.overview-kicker {
+  margin: 0 0 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.overview-headline {
+  margin: 0 0 10px;
+  font-size: clamp(22px, 2.6vw, 31px);
+  line-height: 1.22;
+  letter-spacing: -0.02em;
+  /* Wide enough to hold at two lines on a laptop. A headline that reflows to
+   * four lines has stopped being a headline. */
+  max-width: 42ch;
+}
+.overview-what {
+  margin: 0 0 22px;
+  font-size: 15px;
+  color: var(--text-dim);
+  max-width: 76ch;
+}
+.overview-what strong { color: var(--text); }
+
+/* --- The four steps ------------------------------------------------------ */
+.story {
+  list-style: none;
+  margin: 0 0 22px;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(4, 1fr);
+}
+.story-step {
+  position: relative;
+  padding: 14px 14px 14px 16px;
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+/* Colour marks the turn of the story; the number and the words carry it on
+ * their own for anyone who cannot see the colour. */
+.story-bad { border-top-color: var(--danger); }
+.story-good { border-top-color: var(--ok); }
+.story-n {
+  display: grid;
+  place-items: center;
+  width: 22px; height: 22px;
+  margin-bottom: 8px;
+  border-radius: 50%;
+  background: var(--surface-raised);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+}
+.story-step h3 { margin: 0 0 6px; font-size: 14px; line-height: 1.3; }
+.story-step p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--text-dim); }
+.story-step code { color: var(--text); }
+
+/* Arrows between the steps, drawn in the gaps rather than added as elements. */
+.story-step:not(:last-child)::after {
+  content: "→";
+  position: absolute;
+  right: -11px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-dim);
+  font-size: 14px;
+  z-index: 1;
+}
+
+/* --- Arithmetic and outcome ---------------------------------------------- */
+.overview-result {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  margin-bottom: 18px;
+}
+.sum, .outcome {
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+.sum figcaption, .outcome figcaption {
+  font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text-dim); margin-bottom: 10px;
+}
+.sum-row { display: flex; align-items: flex-end; gap: 18px; flex-wrap: wrap; }
+.sum-term { display: flex; flex-direction: column; align-items: center; }
+.sum-term b { font-size: 30px; line-height: 1; font-family: var(--mono); }
+.sum-term small { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+.sum-op { font-size: 22px; color: var(--text-dim); padding-bottom: 16px; }
+.sum-zero b { color: var(--danger-text); }
+.sum-zero small { color: var(--danger-text); }
+.sum-note { margin: 10px 0 0; font-size: 12px; color: var(--text-dim); }
+
+.outcome-value { display: block; font-size: 30px; line-height: 1; font-family: var(--mono); }
+.outcome p { margin: 6px 0 0; font-size: 13px; }
+.outcome-note { color: var(--text-dim); font-size: 12px !important; }
+
+/* --- Disclaimer ---------------------------------------------------------- */
+.overview-disclaimer {
+  display: flex; gap: 12px; align-items: baseline;
+  margin: 0 0 18px;
+  padding: 11px 14px;
+  border: 1px solid var(--replay);
+  border-left: 4px solid var(--replay);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--replay) 10%, transparent);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.disclaimer-tag {
+  flex: none;
+  font-family: var(--mono); font-weight: 700; font-size: 11px;
+  letter-spacing: 0.08em;
+  padding: 2px 8px; border-radius: 3px;
+  background: var(--replay); color: var(--bg);
+}
+
+/* --- Call to action ------------------------------------------------------ */
+.cta {
+  font: inherit; font-size: 15px; font-weight: 600;
+  padding: 11px 22px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+.cta:hover { filter: brightness(1.08); }
+.cta-note { margin: 8px 0 0; font-size: 12px; color: var(--text-dim); }
+
+/* --- Detail tabs --------------------------------------------------------- */
+/* `scrollIntoView` does not know about sticky headers, so without this the
+ * "Explore the incident" jump lands with the tab row sliced in half behind the
+ * chrome. The value is the sticky stack: header + banner + position strip. */
+.details { max-width: 1400px; margin: 0 auto; padding: 0 16px 24px; }
+.tabs {
+  display: flex; gap: 4px; flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+  padding-top: 20px;
+}
+.tab {
+  display: flex; flex-direction: column; gap: 2px;
+  font: inherit; text-align: left;
+  padding: 9px 14px;
+  border: 1px solid transparent; border-bottom: 0;
+  border-radius: 6px 6px 0 0;
+  background: none; color: var(--text-dim);
+  cursor: pointer;
+  margin-bottom: -1px;
+}
+.tab:hover { color: var(--text); background: var(--surface); }
+.tab-active {
+  color: var(--text);
+  background: var(--surface);
+  border-color: var(--border);
+  border-bottom: 1px solid var(--surface);
+}
+.tab-label { font-size: 14px; font-weight: 600; }
+.tab-hint { font-size: 11px; color: var(--text-dim); }
+.tabpanel { display: grid; gap: 16px; }
+.tabpanel:focus { outline: none; }
+
+.value-bad { color: var(--danger-text); }
+.chrome-meta { max-width: 46ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* --- Narrower screens ---------------------------------------------------- */
+@media (max-width: 1100px) {
+  .story { grid-template-columns: repeat(2, 1fr); }
+  .story-step:nth-child(2)::after { content: none; }
+  .overview-result { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .story { grid-template-columns: 1fr; }
+  .story-step::after { content: none !important; }
+  .overview-headline { font-size: 22px; max-width: none; }
+  .overview-inner { padding: 20px 16px 26px; }
+  .tabs { gap: 2px; }
+  .tab { padding: 8px 10px; }
+  .tab-hint { display: none; }
+  .cta { width: 100%; }
+}
+
+/* Short viewports.
+ *
+ * The whole point of the landing view is that the story fits on one screen, and
+ * 1280×720 is a real laptop. Rather than let it spill — which would defeat the
+ * design — everything tightens: less padding, smaller headline, denser cards.
+ * Type never drops below 12px, because a story nobody can read has not fitted
+ * on the screen either.
+ */
+@media (max-height: 820px) {
+  .overview-inner { padding: 16px 24px 20px; }
+  .overview-kicker { margin-bottom: 6px; }
+  .overview-headline { font-size: clamp(19px, 2vw, 24px); margin-bottom: 6px; }
+  .overview-what { margin-bottom: 14px; font-size: 14px; }
+  .story { gap: 10px; margin-bottom: 14px; }
+  .story-step { padding: 10px 12px; }
+  .story-n { width: 19px; height: 19px; margin-bottom: 5px; font-size: 10px; }
+  .story-step h3 { font-size: 13px; margin-bottom: 4px; }
+  .story-step p { font-size: 12px; line-height: 1.45; }
+  .overview-result { margin-bottom: 12px; gap: 10px; }
+  .sum, .outcome { padding: 10px 14px; }
+  .sum figcaption, .outcome figcaption { margin-bottom: 6px; }
+  .sum-term b, .outcome-value { font-size: 24px; }
+  .sum-op { font-size: 18px; padding-bottom: 13px; }
+  .sum-note { margin-top: 7px; }
+  .overview-disclaimer { margin-bottom: 12px; padding: 9px 12px; font-size: 12.5px; }
+  .cta { padding: 9px 18px; font-size: 14px; }
+}

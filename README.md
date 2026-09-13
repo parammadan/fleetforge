@@ -37,13 +37,13 @@ prints a single URL:
 
 Ctrl-C stops everything. One terminal, one process, no development server.
 
-![The replay control room opening](docs/walkthrough/replay-opening.gif)
+![The replay landing view: the incident in four steps](docs/walkthrough/replay-opening.gif)
 
-*The full 47-second walkthrough: [`docs/walkthrough/fleetforge-replay-walkthrough.mp4`](docs/walkthrough/fleetforge-replay-walkthrough.mp4)
+*The full 52-second walkthrough: [`docs/walkthrough/fleetforge-replay-walkthrough.mp4`](docs/walkthrough/fleetforge-replay-walkthrough.mp4)
 — recorded by browser automation against the real bundle, no narration, no staging.*
 
-Ready in ~110 ms, 25 MiB resident. Scrub the timeline, jump between chapters, open any artifact,
-and check the arithmetic behind every number.
+Ready in ~110 ms, 25 MiB resident. The first screen is the whole story; **Explore the incident**
+opens the timeline, the investigation, the arithmetic, the evidence and the limits behind it.
 
 <details>
 <summary>Running it another way</summary>

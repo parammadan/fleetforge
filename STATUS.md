@@ -1,6 +1,6 @@
 # FleetForge — Status
 
-Last updated: 2026-09-13 · **M0–M7 complete** · **`make demo` is the whole demonstration**
+Last updated: 2026-09-13 · **M0–M8 complete** · **`make demo` · the story first, the proof underneath**
 
 ## Completed
 
@@ -353,6 +353,46 @@ but for a personal email address and a complete inventory of the AWS account's i
 configuration. Four edits and one file moved out of the tree fixes the current tree; history is a
 separate decision. Nothing was published and no visibility was changed.
 
+### M8 — the story first ✅ 2026-09-13
+
+Visual review failed from a reader's point of view: the interface was correct and too dense to
+understand. The landing page opened with 37 artifacts, 5,068 events and nine classified claims
+competing for the same attention, and a reader could not find the incident in it.
+
+**The landing view is now one screen and one story.** A headline, a one-sentence description of
+what FleetForge is, four steps, the arithmetic, the outcome, the REPLAY and "did not predict"
+disclaimer, and one call to action. It fits above the fold at 1280×720, 1440×900 and 1680×1050 —
+asserted, not assumed.
+
+**Everything else moved behind five tabs**, organised by the question a reader arrives with
+rather than by which crate produced it: *Timeline* (minute by minute), *Investigation* (why it
+happened), *The finding* (arithmetic and scoring), *Evidence* (artifacts and hashes), *Limits*
+(what this cannot tell you). Nothing was deleted — the 37-artifact table, the SHA-256 hashes, the
+5,068 events, the predicted-versus-actual table, the CNI hypothesis, the data caveats and the
+glossary are all still there, one click away.
+
+Every truth constraint held: `REPLAY` is on the landing view *and* in the persistent banner,
+availability still reads `UNKNOWN`, 30.2% appears only in the Limits tab labelled as a failed
+post-recovery networking check, `HUMAN RCA` and `UNVERIFIED` are unchanged, and no captured
+evidence was touched.
+
+| Suite | Result |
+| --- | --- |
+| `npm test` | ✅ **51 of 51** |
+| `npm run test:e2e:replay` | ✅ **153 of 153** = 51 tests × Chromium, Firefox, WebKit |
+| `npm run test:e2e` | ✅ **12 of 12** |
+| `cargo test --workspace` · `make check` | ✅ **208 of 208** · exit 0 |
+
+New assertions worth naming: the landing view must hold the four questions above the fold; it
+must contain none of `5,068`, `37 artifacts`, `sha256`, `509`, `CNI` or `resourceVersion`; it
+must offer exactly one button; the tab list must follow the ARIA tabs pattern; and every tab must
+pass axe independently.
+
+One more vacuous assertion was found and fixed. `focus is visible` was calling `.focus()` after a
+mouse click, and browsers deliberately do not mark that as `:focus-visible` — a mouse user has
+not asked for a ring. The tests now press a key first, so they ask the question a keyboard user
+would.
+
 ## Not done — stated explicitly
 
 - **CI has never run.** There is no git remote. The workflow is written and enabled, so the
@@ -363,6 +403,8 @@ separate decision. Nothing was published and no visibility was changed.
   a fixed bundle; that proves what was recorded, not that the recording was complete.
 - **The walkthrough recording is Chromium only**, and it is a recording of the interface rather
   than of a person using it — no cursor, no narration.
+- **The ten-second comprehension claim has not been tested on a real reader.** It is asserted
+  structurally — the four answers are present and above the fold — which is not the same thing.
 - **Two moderate npm advisories remain**, both dev-only (vitest's bundled Vite). The critical and
   high ones were removed by moving to vitest 3.
 - **The public-release audit has not been acted on.** It is a report, not a change.

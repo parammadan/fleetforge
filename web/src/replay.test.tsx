@@ -8,31 +8,20 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import {
-  ExecutiveSummary,
   FleetTopology,
   Limitations,
   PredictedVsActual,
   PreflightFinding,
 } from "./ReplayPanels";
+import { ReplayOverview } from "./ReplayOverview";
 import { BASIS_LABEL, isEvidence } from "./replayTypes";
 import type {
+  CaptureContext,
   Claim,
   PdbArithmetic,
   PredictionRow,
   ReplayState,
-  TrafficValidation,
 } from "./replayTypes";
-
-const traffic: TrafficValidation = {
-  requests: 139,
-  successes: 42,
-  failures: 97,
-  success_pct: "30.2",
-  window: "14:53:24 → 14:58:58",
-  passed: false,
-  interpretation:
-    "Post-recovery networking validation. This run FAILED. It is not a measurement of availability during the incident.",
-};
 
 const pdbFixture: PdbArithmetic = {
   finding_id: "FF-PDB-001",
@@ -94,97 +83,144 @@ const claims: Claim[] = [
   },
 ];
 
-function summary() {
+const context: CaptureContext = {
+  cluster_id: "1c2cdb4c-c1b2-4cd5-bb54-1132876ab118",
+  cluster_kind: "Amazon EKS with Bottlerocket managed node group (destroyed)",
+  kubernetes_version: "v1.36.4-eks-4cc7921",
+  client_target_version: "v1.36",
+  bottlerocket_versions: ["1.62.1", "1.64.0"],
+  captured_from: "2026-09-13T14:15:47.607196Z",
+  captured_to: "2026-09-13T15:19:00.342810Z",
+  nodes: ["a", "b", "c"],
+  brupop_first_seen_at: "2026-09-13T14:08:15Z",
+};
+
+const finalState: ReplayState = {
+  position: 5067,
+  at: "2026-09-13T15:19:00Z",
+  nodes: ["a", "b", "c"].map((name) => ({
+    name,
+    ready: true,
+    unschedulable: false,
+    bottlerocket_version: "1.64.0",
+    brupop_state: "Idle",
+    brupop_version: "1.64.0",
+    pods: [],
+    last_change: null,
+  })),
+  pods: [],
+  last_preflight: null,
+  snapshot_id: "abc",
+  events_applied: 5068,
+  pending_pods: 0,
+  cordoned_nodes: 0,
+};
+
+function summary(overrides: Partial<CaptureContext> = {}) {
   return render(
-    <ExecutiveSummary
-      capturedFrom="2026-09-13T14:15:47Z"
-      capturedTo="2026-09-13T15:19:00Z"
-      brupopFirstSeenAt="2026-09-13T14:08:15Z"
-      claims={claims}
-      traffic={traffic}
-      nodeCount={3}
+    <ReplayOverview
+      context={{ ...context, ...overrides }}
       pdb={pdbFixture}
+      finalState={finalState}
+      nodeCount={3}
+      onExplore={() => {}}
     />,
   );
 }
 
-describe("executive summary", () => {
-  it("reports availability as UNKNOWN rather than borrowing the traffic number", () => {
+describe("the landing view", () => {
+  it("tells the whole story in four steps, in order", () => {
     summary();
-    const tile = screen
-      .getByText("Customer availability", { selector: ".tile-label" })
-      .closest(".tile");
-    expect(tile).toBeTruthy();
-    // The spec's exact words, not a paraphrase — "UNKNOWN" alone invites a
-    // reader to assume it means "unknown to this tool".
-    expect(within(tile as HTMLElement).getByText("UNKNOWN DURING INCIDENT")).toBeTruthy();
-    // The 30.2% figure must not appear anywhere inside the availability tile.
-    expect(within(tile as HTMLElement).queryByText(/30\.2/)).toBeNull();
+    const steps = document.querySelectorAll(".story-step h3");
+    expect(steps).toHaveLength(4);
+    expect(steps[0]?.textContent).toMatch(/update began/i);
+    expect(steps[1]?.textContent).toMatch(/nowhere to go/i);
+    expect(steps[2]?.textContent).toMatch(/refused the next eviction/i);
+    expect(steps[3]?.textContent).toMatch(/human cleared it/i);
   });
 
-  it("labels the 30.2% figure as a FAILED post-recovery check, never as uptime", () => {
+  it("shows the blocker as 2 \u2212 2 = 0, not as a verdict", () => {
     summary();
-    const tile = screen
-      .getByText("Post-recovery networking check", { selector: ".tile-label" })
-      .closest(".tile");
-    expect(
-      within(tile as HTMLElement).getByText(/FAILED/, { selector: ".tile-value" }),
-    ).toBeTruthy();
-    expect(tile?.className).toContain("tile-bad");
-    // "uptime" and "availability" must never be attached to this number.
-    expect(within(tile as HTMLElement).queryByText(/uptime/i)).toBeNull();
-    expect(screen.queryByText(/availability of 30/i)).toBeNull();
+    const sum = document.querySelector(".sum") as HTMLElement;
+    expect(sum.textContent).toMatch(/healthy/);
+    expect(sum.textContent).toMatch(/required/);
+    expect(sum.textContent).toMatch(/evictions allowed/);
+    expect(within(sum).getByText("0")).toBeTruthy();
+    expect(sum.textContent).toContain("FF-PDB-001");
   });
 
-  it("says FleetForge did not predict the deadlock, with the timing that proves it", () => {
+  it("reports the outcome as nodes updated, taken from the final state", () => {
     summary();
-    const callout = screen.getByText(/did not predict this/i).closest(".callout");
-    expect(callout).toBeTruthy();
-    // Brupop 14:08:15, recording 14:15:47 — the gap is the whole argument.
-    expect(callout?.textContent).toContain("14:08:15");
-    expect(callout?.textContent).toContain("14:15:47");
-    expect(callout?.textContent).toMatch(/already cordoned in the first state/i);
+    expect(screen.getByText("3/3")).toBeTruthy();
+    expect(screen.getByText(/nodes updated to Bottlerocket 1\.64\.0/)).toBeTruthy();
   });
 
-  it("omits the prediction callout when the bundle cannot date Brupop's start", () => {
-    render(
-      <ExecutiveSummary
-        capturedFrom="2026-09-13T14:15:47Z"
-        capturedTo="2026-09-13T15:19:00Z"
-        brupopFirstSeenAt={null}
-        claims={claims}
-        traffic={traffic}
-        nodeCount={3}
-        pdb={pdbFixture}
-      />,
-    );
-    // No derived time means no claim about who was first. Silence, not a guess.
-    expect(screen.queryByText(/did not predict this/i)).toBeNull();
+  it("says availability is UNKNOWN and never borrows the traffic number", () => {
+    summary();
+    const outcome = document.querySelector(".outcome") as HTMLElement;
+    expect(within(outcome).getByText("UNKNOWN")).toBeTruthy();
+    // 30.2% is a failed post-recovery networking check. On the landing view it
+    // would be read as customer impact, so it does not appear here at all.
+    expect(document.body.textContent).not.toMatch(/30\.2/);
+    expect(document.body.textContent).not.toMatch(/uptime/i);
   });
 
-  it("tags every claim with its basis, and marks the three non-evidence kinds", () => {
+  it("says FleetForge did not predict this, with the gap that proves it", () => {
     summary();
-    // Three tiles and one claim carry OBSERVED; the other three bases are
-    // unique. What matters is that all four kinds are present and labelled.
-    expect(screen.getAllByTestId("basis-observed_by_fleet_forge").length).toBeGreaterThan(0);
-    expect(screen.getAllByTestId("basis-human_rca")).toHaveLength(1);
-    expect(screen.getAllByTestId("basis-unavailable").length).toBeGreaterThan(0);
-    expect(screen.getAllByTestId("basis-unverified_hypothesis")).toHaveLength(1);
-    // Every claim is tagged — none renders as a bare assertion.
-    expect(document.querySelectorAll(".claim").length).toBe(
-      document.querySelectorAll(".claim .basis").length,
-    );
-    expect(isEvidence("human_rca")).toBe(false);
-    expect(isEvidence("unverified_hypothesis")).toBe(false);
-    expect(isEvidence("unavailable")).toBe(false);
-    expect(BASIS_LABEL.human_rca).toBe("HUMAN RCA");
+    const d = document.querySelector(".overview-disclaimer");
+    expect(d?.textContent).toMatch(/did not predict this incident/i);
+    expect(d?.textContent).toContain("7m 32s");
+    expect(d?.textContent).toMatch(/already cordoned before recording started/i);
+    expect(d?.textContent).toMatch(/detected and explained the blocker/i);
   });
 
-  it("does not attribute the causal chain to FleetForge", () => {
+  it("keeps the REPLAY label on the landing view itself", () => {
     summary();
-    const chain = screen.getByText(/prevented the third web replica/i).closest(".claim");
-    expect(within(chain as HTMLElement).getByTestId("basis-human_rca")).toBeTruthy();
-    expect(chain?.className).toContain("claim-soft");
+    expect(screen.getByText("REPLAY", { selector: ".disclaimer-tag" })).toBeTruthy();
+  });
+
+  it("omits the duration when the bundle cannot date Brupop's start", () => {
+    summary({ brupop_first_seen_at: null });
+    const d = document.querySelector(".overview-disclaimer");
+    // The claim still holds — it rests on the cordons being present in the
+    // first observed state — but a duration is never invented to support it.
+    expect(d?.textContent).toMatch(/did not predict this incident/i);
+    expect(d?.textContent).not.toMatch(/\dm \ds/);
+  });
+
+  it("offers exactly one call to action", () => {
+    summary();
+    const buttons = document.querySelectorAll("button");
+    expect(buttons).toHaveLength(1);
+    expect(buttons[0]?.textContent).toMatch(/Explore the incident/);
+  });
+
+  it("keeps the dense technical detail off the landing view", () => {
+    summary();
+    const text = document.body.textContent ?? "";
+    // Each of these belongs behind a tab. Finding one here means the landing
+    // view has started accumulating again.
+    for (const buried of [/5,068/, /37 artifacts/, /sha256/i, /509 /, /\bCNI\b/, /resourceVersion/]) {
+      expect(text).not.toMatch(buried);
+    }
+  });
+
+  it("explains what FleetForge is in one sentence, without jargon", () => {
+    summary();
+    const what = document.querySelector(".overview-what");
+    expect(what?.textContent).toMatch(/explains why maintenance is blocked/i);
+    expect(what?.textContent).toMatch(/does not drain, update or reboot/i);
+  });
+
+  it("defines every Kubernetes term it uses", () => {
+    summary();
+    const terms = [...document.querySelectorAll("abbr.term")].map((t) => t.textContent);
+    expect(terms).toContain("cordoned");
+    expect(terms).toContain("Pending");
+    expect(terms).toContain("PodDisruptionBudget");
+    for (const abbr of document.querySelectorAll("abbr.term")) {
+      expect(abbr.getAttribute("title")?.length ?? 0).toBeGreaterThan(60);
+    }
   });
 });
 
@@ -438,6 +474,25 @@ describe("investigation chain", () => {
     expect(document.querySelectorAll(".chain-box .basis").length).toBe(boxes.length);
   });
 
+  it("classifies exactly two of the five bases as evidence", () => {
+    // The whole interface hangs off this split: green/blue is something you can
+    // check, everything else is not. If a basis ever migrates across this line
+    // the styling and the meaning part company silently.
+    expect(isEvidence("observed_by_fleet_forge")).toBe(true);
+    expect(isEvidence("mathematically_derived")).toBe(true);
+    expect(isEvidence("human_rca")).toBe(false);
+    expect(isEvidence("unverified_hypothesis")).toBe(false);
+    expect(isEvidence("unavailable")).toBe(false);
+
+    expect(BASIS_LABEL.observed_by_fleet_forge).toBe("OBSERVED");
+    expect(BASIS_LABEL.mathematically_derived).toBe("DERIVED");
+    expect(BASIS_LABEL.human_rca).toBe("HUMAN RCA");
+    expect(BASIS_LABEL.unverified_hypothesis).toBe("UNVERIFIED");
+    // Not "UNKNOWN": it sits beside values that are themselves rendered
+    // UNKNOWN, and two UNKNOWNs in one tile read as a bug.
+    expect(BASIS_LABEL.unavailable).toBe("NO EVIDENCE");
+  });
+
   it("states that FleetForge did not draw the chain", () => {
     render(<InvestigationChainPanel chain={chain} onOpenEvidence={() => {}} />);
     expect(screen.getByText(/did not produce the chain/)).toBeTruthy();
@@ -537,8 +592,7 @@ describe("the gap between Brupop starting and recording starting", () => {
     // Two panels disagreeing by one second is a screen a careful reader is
     // right to distrust on both counts.
     summary();
-    const callout = screen.getByText(/did not predict this/i).closest(".callout");
-    expect(callout?.textContent).toContain("7m 32s");
+    expect(document.querySelector(".overview-disclaimer")?.textContent).toContain("7m 32s");
 
     render(
       <Limitations

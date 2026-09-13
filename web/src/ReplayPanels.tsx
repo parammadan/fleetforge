@@ -14,7 +14,6 @@ import type {
   PdbArithmetic,
   PredictionRow,
   ReplayState,
-  TrafficValidation,
 } from "./replayTypes";
 import { BASIS_LABEL, BASIS_MEANING, isEvidence } from "./replayTypes";
 import { Term } from "./glossary";
@@ -75,148 +74,16 @@ function timeOf(iso: string): string {
 
 /* ---------------------------------------------------------- executive summary */
 
-export interface SummaryProps {
-  capturedFrom: string;
-  capturedTo: string;
-  brupopFirstSeenAt: string | null;
-  claims: Claim[];
-  traffic: TrafficValidation;
-  nodeCount: number;
-  pdb: PdbArithmetic;
-  onOpenEvidence?: (artifact: string) => void;
-}
-
-/**
- * What a leader needs in thirty seconds.
+/* ---------------------------------------------------------------------------
+ * The executive summary panel that used to live here has been replaced by
+ * `ReplayOverview`, which is the landing view.
  *
- * The hardest thing on this screen is the availability tile. It is the number
- * every executive reaches for, and this incident does not have it: the sampler
- * running at the time had no request timeout, so its output measured how long
- * `wget` was willing to wait. The tile says UNKNOWN and explains why. It would
- * be trivial to put 30.2% there instead — that figure is a *failed
- * post-recovery networking check*, and showing it as uptime would be the single
- * most misleading thing this interface could do.
- */
-export function ExecutiveSummary({
-  capturedFrom,
-  capturedTo,
-  brupopFirstSeenAt,
-  claims,
-  traffic,
-  nodeCount,
-  pdb,
-  onOpenEvidence,
-}: SummaryProps) {
-  const minutes = Math.round(
-    (Date.parse(capturedTo) - Date.parse(capturedFrom)) / 60_000,
-  );
-  // Exact, and truncated rather than rounded — `chrono::Duration::num_seconds`
-  // in the Rust chapter narration truncates, and a screen showing "7m 32s" in
-  // one panel and "7m 33s" in another is a screen a careful reader is right to
-  // distrust on both counts.
-  const blindSeconds = brupopFirstSeenAt
-    ? Math.floor((Date.parse(capturedFrom) - Date.parse(brupopFirstSeenAt)) / 1000)
-    : null;
-  const blindMinutes =
-    blindSeconds === null
-      ? null
-      : `${Math.floor(blindSeconds / 60)}m ${blindSeconds % 60}s`;
-  const evidenceClaims = claims.filter((c) => isEvidence(c.basis)).length;
-
-  return (
-    <Panel
-      id="summary"
-      title="Executive summary"
-      subtitle={`${timeOf(capturedFrom)} → ${timeOf(capturedTo)} · ${minutes} min captured`}
-    >
-      <p className="headline">
-        A routine <Term k="bottlerocket" /> update stalled. <Term k="brupop" /> cordoned two of
-        three nodes, a <Term k="pdb">PodDisruptionBudget</Term> then refused every{" "}
-        <Term k="eviction" />, and the update could not proceed. Two manual uncordons cleared
-        it and all three nodes finished on Bottlerocket 1.64.0.
-      </p>
-
-      <div className="tiles">
-        <div className="tile tile-unknown">
-          <span className="tile-label">Customer availability</span>
-          <strong className="tile-value">UNKNOWN DURING INCIDENT</strong>
-          <span className="tile-note">
-            The traffic sampler running at the time had no request timeout, so its output
-            measured the client's patience rather than the service — 31 samples in 34 minutes
-            instead of ~2,000. Its data was discarded. No availability figure exists for this
-            window, in either direction.
-          </span>
-          <BasisTag basis="unavailable" />
-        </div>
-
-        <div className="tile tile-bad">
-          <span className="tile-label">What was blocked</span>
-          <strong className="tile-value">{pdb.finding_id}</strong>
-          <span className="tile-note">
-            {pdb.title}. {pdb.formula} = {pdb.result}, so the platform refused every voluntary
-            pod removal. Affected: {pdb.affected.join(", ")}.
-          </span>
-          <BasisTag basis="mathematically_derived" />
-        </div>
-
-        <div className="tile">
-          <span className="tile-label">Nodes updated</span>
-          <strong className="tile-value">
-            {nodeCount} / {nodeCount}
-          </strong>
-          <span className="tile-note">
-            All nodes reached Bottlerocket 1.64.0. The update Brupop set out to perform
-            completed.
-          </span>
-          <BasisTag basis="observed_by_fleet_forge" />
-        </div>
-
-        <div className="tile">
-          <span className="tile-label">Recovery</span>
-          <strong className="tile-value">2 manual uncordons</strong>
-          <span className="tile-note">
-            Both performed by a human with kubectl, at 14:35:11 and 14:53:06. Each restored
-            scheduling progress. FleetForge holds no mutating client and issued nothing.
-          </span>
-          <BasisTag basis="observed_by_fleet_forge" />
-        </div>
-
-        <div className={`tile ${traffic.passed ? "" : "tile-bad"}`}>
-          <span className="tile-label">Post-recovery networking check</span>
-          <strong className="tile-value">
-            {traffic.passed ? "PASSED" : "FAILED"} · {traffic.success_pct}%
-          </strong>
-          <span className="tile-note">{traffic.interpretation}</span>
-          <BasisTag basis="observed_by_fleet_forge" />
-        </div>
-
-      </div>
-
-      {/* A statement about the screen rather than about the incident, so it
-          sits outside the tile grid — and stops a sixth tile orphaning onto a
-          row of its own. */}
-      <p className="trust-bar">
-        <strong>Can you trust this?</strong> Every statement below carries where it came from.{" "}
-        {evidenceClaims} of {claims.length} are measurements or arithmetic you can check.
-        The other {claims.length - evidenceClaims} are human analysis, untested hypotheses, or
-        explicitly unknown — labelled as such wherever they appear, including here.
-      </p>
-
-      {blindSeconds !== null && blindSeconds > 0 && (
-        <p className="callout">
-          <strong>FleetForge did not predict this.</strong> Brupop began updating the fleet
-          at {timeOf(brupopFirstSeenAt ?? "")} — {blindMinutes} before FleetForge started
-          recording at {timeOf(capturedFrom)}. Two nodes were already cordoned in the first
-          state it ever saw. It detected the blocker that was in front of it; it did not
-          foresee the deadlock, and nothing in this replay should be read as if it had.
-        </p>
-      )}
-
-      <h3 className="section-heading">What FleetForge established, and how</h3>
-      <ClaimList claims={claims} onOpenEvidence={onOpenEvidence} />
-    </Panel>
-  );
-}
+ * It was a grid of five tiles plus the full claim list, rendered above eight
+ * more panels. Everything on it was true and a reader could not find any of it
+ * — the page opened with 37 artifacts, 5,068 events and nine classified claims
+ * competing for the same attention. The story now comes first and the proof
+ * sits behind tabs; nothing was deleted, only reordered.
+ * ------------------------------------------------------------------------- */
 
 /* ------------------------------------------------------------ investigation */
 
@@ -750,7 +617,7 @@ export function Limitations({
   brupopFirstSeenAt?: string | null;
 }) {
   const soft = claims.filter((c) => !isEvidence(c.basis));
-  // Truncated, to agree with the Rust-side narration. See ExecutiveSummary.
+  // Truncated, to agree with the Rust-side narration. See ReplayOverview.
   const gap =
     capturedFrom && brupopFirstSeenAt
       ? Math.floor((Date.parse(capturedFrom) - Date.parse(brupopFirstSeenAt)) / 1000)

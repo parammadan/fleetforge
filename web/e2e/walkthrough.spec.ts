@@ -23,6 +23,11 @@ test("walkthrough", async ({ page }) => {
   test.setTimeout(180_000);
 
   const chapter = (name: string) => page.locator(".chapter-button", { hasText: name });
+  const openTab = async (label: string) => {
+    await page.locator(".tab", { hasText: label }).click();
+    await expect(page.locator(".tab-active .tab-label")).toHaveText(label);
+    await page.waitForTimeout(700);
+  };
   const settled = () =>
     expect(page.locator('.position-strip:not([data-stale="true"])')).toBeVisible();
   const show = async (selector: string) => {
@@ -41,20 +46,23 @@ test("walkthrough", async ({ page }) => {
     await expect(page.locator(".mode-badge")).toHaveText("REPLAY");
   };
 
-  // 1 — Executive opening.
+  // 1 — The story, on one screen.
   await page.goto("/");
   await expect(page.locator(".banner-replay")).toBeVisible();
   await stillReplay();
-  await expect(page.locator(".tile", { hasText: "Customer availability" })).toContainText(
-    "UNKNOWN DURING INCIDENT",
-  );
-  await page.waitForTimeout(READ + 1200);
+  await expect(page.locator(".overview-headline")).toContainText(/update got stuck/i);
+  await expect(page.locator(".outcome")).toContainText("UNKNOWN");
+  await expect(page.locator(".outcome-value")).toHaveText("3/3");
+  // Long enough to read the four steps and the arithmetic — this is the part
+  // a viewer is meant to understand without help.
+  await page.waitForTimeout(READ * 2 + 1500);
 
-  await show("#summary");
-  await page.waitForTimeout(READ);
+  // 2 — Into the detail.
+  await page.getByRole("button", { name: /Explore the incident/ }).click();
+  await page.waitForTimeout(BEAT + 600);
   await stillReplay();
 
-  // 2 — The blocker.
+  // 3 — The blocker.
   await chapter("FleetForge reports BLOCKED").click();
   await settled();
   await show("#timeline");
@@ -63,7 +71,8 @@ test("walkthrough", async ({ page }) => {
   await page.waitForTimeout(READ);
   await stillReplay();
 
-  // 3 — The causal investigation, with a fact opened.
+  // 4 — The causal investigation, with a fact opened.
+  await openTab("Investigation");
   await show("#chain");
   await page.waitForTimeout(BEAT);
   await page.locator(".chain-box", { hasText: "Disruption budget exhausted" }).click();
@@ -71,15 +80,16 @@ test("walkthrough", async ({ page }) => {
   await expect(page.locator("#chain .chain-arrow .arrow-basis").first()).toHaveText("HUMAN RCA");
   await stillReplay();
 
-  // 4 — The finding's arithmetic.
+  // 5 — The finding's arithmetic.
+  await openTab("The finding");
   await show("#finding");
   await expect(page.locator("#finding")).toContainText(
     "disruptionsAllowed = currentHealthy - desiredHealthy",
   );
   await page.waitForTimeout(READ);
 
-  // 5 — First recovery.
-  await show("#timeline");
+  // 6 — First recovery.
+  await openTab("Timeline");
   await chapter("First manual uncordon").click();
   await settled();
   await expect(page.locator(".position-strip")).toContainText("1 cordoned");
@@ -88,7 +98,7 @@ test("walkthrough", async ({ page }) => {
   await page.waitForTimeout(READ);
   await stillReplay();
 
-  // 6 — The second stale cordon: updated to 1.64.0, still held out of service.
+  // 7 — The second stale cordon: updated to 1.64.0, still held out of service.
   await show("#timeline");
   await chapter("All nodes on 1.64.0").click();
   await settled();
@@ -96,7 +106,7 @@ test("walkthrough", async ({ page }) => {
   await show("#fleet");
   await page.waitForTimeout(READ);
 
-  // 7 — Final recovery.
+  // 8 — Final recovery.
   await show("#timeline");
   await chapter("Second manual uncordon").click();
   await settled();
@@ -105,7 +115,8 @@ test("walkthrough", async ({ page }) => {
   await page.waitForTimeout(READ);
   await stillReplay();
 
-  // 8 — Evidence drawer, opened from the chain.
+  // 9 — Evidence drawer, opened from the chain.
+  await openTab("Investigation");
   await show("#chain");
   await page.getByRole("button", { name: "04-pdb-before.json" }).first().click();
   await expect(page.locator("#evidence-drawer .artifact")).toBeVisible({ timeout: 10_000 });
@@ -113,12 +124,14 @@ test("walkthrough", async ({ page }) => {
   await page.waitForTimeout(READ + 900);
   await stillReplay();
 
-  // 9 — Predicted versus actual.
+  // 10 — Predicted versus actual.
+  await openTab("The finding");
   await show("#predictions");
   await expect(page.locator("#predictions .verdict-blocked")).toContainText("UNDER-PREDICTED");
   await page.waitForTimeout(READ);
 
-  // 10 — Limitations.
+  // 11 — Limitations.
+  await openTab("Limits");
   await show("#limitations");
   await expect(page.locator("#limitations .disclosures li")).toHaveCount(5);
   await page.waitForTimeout(READ + 900);

@@ -9,6 +9,19 @@ import { expect, test } from "@playwright/test";
 
 const chapter = (name: string) => `.chapter-button:has-text("${name}")`;
 
+/**
+ * Open a detail tab.
+ *
+ * The landing view holds the story; the proof lives behind these. Tests that
+ * assert on the proof have to say which tab it is on, which is the point — if a
+ * panel becomes unreachable, the navigation here fails rather than the
+ * assertion silently finding nothing.
+ */
+async function openTab(page: import("@playwright/test").Page, label: string) {
+  await page.locator(".tab", { hasText: label }).click();
+  await expect(page.locator(".tab-active .tab-label")).toHaveText(label);
+}
+
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
   await expect(page.locator(".banner-replay")).toBeVisible();
@@ -23,7 +36,8 @@ test("the mode badge and banner say REPLAY and cannot be dismissed", async ({ pa
   await expect(page.locator(".banner-replay button")).toHaveCount(0);
 
   // And it survives scrolling to the bottom of the page, because a screenshot
-  // of the fleet panel has to carry the label too.
+  // of any panel has to carry the label too.
+  await openTab(page, "Limits");
   await page.locator("#limitations").scrollIntoViewIfNeeded();
   await expect(page.locator(".banner-replay")).toBeInViewport();
 });
@@ -35,46 +49,85 @@ test("nothing on the page claims to be live", async ({ page }) => {
   await expect(page.locator(".mode-live")).toHaveCount(0);
 });
 
-test("availability is UNKNOWN and the 30.2% figure is not presented as uptime", async ({
-  page,
-}) => {
-  // Scoped by label, not by text: the traffic tile's own caption contains the
-  // phrase "availability during the incident" — precisely because it is
-  // disclaiming it.
-  const tile = page.locator(".tile", {
-    has: page.locator(".tile-label", { hasText: "Customer availability" }),
-  });
-  // The spec's exact words. "UNKNOWN" alone reads as "unknown to this tool".
-  await expect(tile.locator(".tile-value")).toHaveText("UNKNOWN DURING INCIDENT");
-  await expect(tile).not.toContainText("30.2");
-
-  const traffic = page.locator(".tile", {
-    has: page.locator(".tile-label", { hasText: "Post-recovery networking check" }),
-  });
-  await expect(traffic.locator(".tile-value")).toContainText("FAILED");
-  await expect(traffic).toContainText("must never be presented as uptime");
+test("the landing view says availability is UNKNOWN and never shows 30.2%", async ({ page }) => {
+  await expect(page.locator(".outcome")).toContainText("UNKNOWN");
+  // The 30.2% figure is a failed post-recovery networking check. On the first
+  // screen it would be read as customer impact, so it is not there at all.
+  await expect(page.locator(".overview")).not.toContainText("30.2");
+  await expect(page.locator(".overview")).not.toContainText(/uptime/i);
 });
 
-test("the summary states that FleetForge did not predict the deadlock", async ({ page }) => {
-  const callout = page.locator(".callout");
-  await expect(callout).toContainText("FleetForge did not predict this");
-  await expect(callout).toContainText("14:08:15");
-  await expect(callout).toContainText("14:15:47");
+test("the 30.2% figure, where it does appear, is labelled a failed check", async ({ page }) => {
+  await openTab(page, "Limits");
+  const panel = page.locator("#traffic");
+  await expect(panel).toContainText("30.2");
+  await expect(panel).toContainText("FAILED");
+  await expect(panel).toContainText("must never be presented as uptime");
+});
+
+test("the landing view states that FleetForge did not predict the incident", async ({ page }) => {
+  const disclaimer = page.locator(".overview-disclaimer");
+  await expect(disclaimer).toContainText("FleetForge did not predict this incident");
+  await expect(disclaimer).toContainText("7m 32s");
+  await expect(disclaimer).toContainText("REPLAY");
+});
+
+test("the landing view answers the four questions without scrolling", async ({ page }) => {
+  // What broke, why it was blocked, how it recovered, what FleetForge did —
+  // all of it inside the first viewport, which is the whole point of the view.
+  const above = async (selector: string) =>
+    page.locator(selector).evaluate((el) => el.getBoundingClientRect().bottom <= window.innerHeight);
+
+  await expect(page.locator(".overview-headline")).toContainText(/update got stuck/i);
+  await expect(page.locator(".story-step")).toHaveCount(4);
+  await expect(page.locator(".sum")).toContainText("evictions allowed");
+  await expect(page.locator(".outcome-value")).toHaveText("3/3");
+  await expect(page.locator(".cta")).toContainText("Explore the incident");
+
+  for (const selector of [".story", ".sum", ".outcome", ".overview-disclaimer", ".cta"]) {
+    expect(await above(selector), `${selector} is below the fold`).toBe(true);
+  }
+});
+
+test("the landing view carries none of the dense detail", async ({ page }) => {
+  const overview = await page.locator(".overview").innerText();
+  for (const buried of ["5,068", "37 artifacts", "sha256", "509", "CNI", "resourceVersion"]) {
+    expect(overview, `"${buried}" leaked onto the landing view`).not.toContain(buried);
+  }
+});
+
+test("the call to action opens the detail region with the tabs in view", async ({ page }) => {
+  await page.getByRole("button", { name: /Explore the incident/ }).click();
+  await expect(page.locator(".tabs")).toBeInViewport();
+  await expect(page.locator(".tab-active .tab-label")).toHaveText("Timeline");
+});
+
+test("the detail tabs are operable by keyboard", async ({ page }) => {
+  const first = page.locator(".tab").first();
+  await first.focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(page.locator(".tab-active .tab-label")).toHaveText("Investigation");
+  await page.keyboard.press("End");
+  await expect(page.locator(".tab-active .tab-label")).toHaveText("Limits");
+  await page.keyboard.press("Home");
+  await expect(page.locator(".tab-active .tab-label")).toHaveText("Timeline");
 });
 
 test("the causal chain is labelled HUMAN RCA, not presented as FleetForge's inference", async ({
   page,
 }) => {
+  await openTab(page, "Investigation");
   const claim = page.locator(".claim", { hasText: "prevented the third web replica" });
   await expect(claim.locator(".basis")).toHaveText("HUMAN RCA");
   await expect(claim).toHaveClass(/claim-soft/);
 });
 
 test("every claim carries a basis tag", async ({ page }) => {
-  const claims = page.locator("#summary .claim");
+  await openTab(page, "Investigation");
+  const claims = page.locator("#claims .claim");
   const count = await claims.count();
   expect(count).toBeGreaterThan(5);
-  await expect(page.locator("#summary .claim .basis")).toHaveCount(count);
+  await expect(page.locator("#claims .claim .basis")).toHaveCount(count);
 });
 
 test("chapters jump the timeline and the fleet follows", async ({ page }) => {
@@ -149,6 +202,7 @@ test("state that has not caught up says so rather than showing the wrong moment"
 });
 
 test("the PDB finding shows arithmetic, not just a verdict", async ({ page }) => {
+  await openTab(page, "The finding");
   const finding = page.locator("#finding");
   await expect(finding).toContainText("disruptionsAllowed = currentHealthy - desiredHealthy");
   await expect(finding).toContainText(".status.disruptionsAllowed");
@@ -156,6 +210,7 @@ test("the PDB finding shows arithmetic, not just a verdict", async ({ page }) =>
 });
 
 test("under-predictions are shown in their own class and counted up front", async ({ page }) => {
+  await openTab(page, "The finding");
   const panel = page.locator("#predictions");
   await expect(panel.locator(".verdict-blocked")).toContainText("UNDER-PREDICTED");
   await expect(panel.locator("tr.pred-under_predicted")).toHaveCount(2);
@@ -167,6 +222,7 @@ test("under-predictions are shown in their own class and counted up front", asyn
 });
 
 test("an artifact opens with its hash and is served through the API", async ({ page }) => {
+  await openTab(page, "Evidence");
   await page.locator("#evidence").scrollIntoViewIfNeeded();
   // Scoped: claims elsewhere on the page link to the same artifact by name.
   await page.locator("#evidence").getByRole("button", { name: "00-CONCLUSIONS.md" }).click();
@@ -177,6 +233,7 @@ test("an artifact opens with its hash and is served through the API", async ({ p
 test("the limitations panel names the version-field bug rather than hiding it", async ({
   page,
 }) => {
+  await openTab(page, "Limits");
   const panel = page.locator("#limitations");
   await expect(panel).toContainText("version-field-bug");
   await expect(panel).toContainText("No mutation was issued by FleetForge");
@@ -186,6 +243,7 @@ test("the limitations panel names the version-field bug rather than hiding it", 
 test("the recorded 2.0.0 version is shown as recorded and flagged as suspect", async ({
   page,
 }) => {
+  await openTab(page, "Timeline");
   await page.locator(chapter("Nodes are already cordoned")).click();
   const suspect = page.locator(".value-suspect").first();
   await expect(suspect).toContainText("2.0.0");
@@ -220,6 +278,7 @@ test("a backend that is not replaying produces an explanation, not an empty scre
 test("the investigation chain separates observations from the arrows joining them", async ({
   page,
 }) => {
+  await openTab(page, "Investigation");
   const chain = page.locator("#chain");
   await chain.scrollIntoViewIfNeeded();
 
@@ -241,6 +300,7 @@ test("the investigation chain separates observations from the arrows joining the
 });
 
 test("a chain fact opens the artifact it was read from", async ({ page }) => {
+  await openTab(page, "Investigation");
   await page.locator("#chain").scrollIntoViewIfNeeded();
   await page.locator(".chain-box", { hasText: "Disruption budget exhausted" }).click();
   await page.getByRole("button", { name: "04-pdb-before.json" }).first().click();
@@ -254,7 +314,8 @@ test("a chain fact opens the artifact it was read from", async ({ page }) => {
   });
 });
 
-test("a claim in the summary opens its own evidence", async ({ page }) => {
+test("a claim opens its own evidence", async ({ page }) => {
+  await openTab(page, "Investigation");
   await page
     .locator(".claim", { hasText: "detected an already-existing" })
     .getByRole("button", { name: "03-preflight-before.json" })
@@ -287,6 +348,7 @@ test("the opening frame says nothing was observed rather than showing zeroes", a
 });
 
 test("the five required disclosures are present and numbered", async ({ page }) => {
+  await openTab(page, "Limits");
   const list = page.locator("#limitations .disclosures");
   await expect(list.locator("li")).toHaveCount(5);
   await expect(list).toContainText("Recording began after Brupop did");
@@ -326,6 +388,10 @@ test("focus is visible on every interactive control that matters", async ({ page
     page.locator(".chapter-button").first(),
     page.locator(".scrub input"),
   ]) {
+    // Keyboard modality first: after a mouse interaction a browser will not
+    // mark programmatic focus as focus-visible, and no ring is the correct
+    // behaviour there.
+    await page.keyboard.press("Tab");
     await target.focus();
     // Plain computed style of the focused element. The second argument to
     // getComputedStyle takes a pseudo-element, not a pseudo-class, so
@@ -367,6 +433,7 @@ test("a backend serving a mode other than replay is refused, not rendered", asyn
 test("the evidence explorer leads with a description and keeps raw data secondary", async ({
   page,
 }) => {
+  await openTab(page, "Evidence");
   await page.locator("#evidence").scrollIntoViewIfNeeded();
   await page.getByRole("button", { name: "09-brupop-controller.log" }).click();
   const drawer = page.locator("#evidence-drawer");
@@ -375,6 +442,7 @@ test("the evidence explorer leads with a description and keeps raw data secondar
 });
 
 test("node cards state where each node is in its update, with evidence", async ({ page }) => {
+  await openTab(page, "Timeline");
   await page.locator(".chapter-button", { hasText: "Nodes are already cordoned" }).click();
   const stuck = page.locator(".node-card", { hasText: "cordoned" }).first();
   // A cordoned node with no Brupop shadow observed must say that, not shrug.

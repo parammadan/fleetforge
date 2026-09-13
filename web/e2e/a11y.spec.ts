@@ -30,14 +30,40 @@ function describeViolations(results: Awaited<ReturnType<typeof scan>>): string {
     .join("\n\n");
 }
 
+/** Open a detail tab. The proof lives behind these; the landing view does not. */
+async function openTab(page: import("@playwright/test").Page, label: string) {
+  await page.locator(".tab", { hasText: label }).click();
+  await expect(page.locator(".tab-active .tab-label")).toHaveText(label);
+}
+
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
   await expect(page.locator(".banner-replay")).toBeVisible();
 });
 
-test("the loaded control room has no WCAG A or AA violations", async ({ page }) => {
+test("the landing view has no WCAG A or AA violations", async ({ page }) => {
   const results = await scan(page);
   expect(describeViolations(results)).toBe("");
+});
+
+test("every detail tab has no WCAG A or AA violations", async ({ page }) => {
+  for (const tab of ["Timeline", "Investigation", "The finding", "Evidence", "Limits"]) {
+    await openTab(page, tab);
+    const results = await scan(page, ".details");
+    expect(describeViolations(results), `tab: ${tab}`).toBe("");
+  }
+});
+
+test("the tab list follows the ARIA tabs pattern", async ({ page }) => {
+  await expect(page.locator('[role="tablist"]')).toHaveCount(1);
+  await expect(page.locator('[role="tab"]')).toHaveCount(5);
+  await expect(page.locator('[role="tab"][aria-selected="true"]')).toHaveCount(1);
+  // Exactly one tab is in the tab order; arrow keys move between them.
+  await expect(page.locator('[role="tab"][tabindex="0"]')).toHaveCount(1);
+  const panel = page.locator('[role="tabpanel"]');
+  await expect(panel).toHaveCount(1);
+  const labelledBy = await panel.getAttribute("aria-labelledby");
+  await expect(page.locator(`#${labelledBy}`)).toHaveAttribute("aria-selected", "true");
 });
 
 test("colour contrast passes everywhere text appears", async ({ page }) => {
@@ -74,6 +100,7 @@ test("every control has an accessible name", async ({ page }) => {
 test("the timeline controls are accessible at every position", async ({ page }) => {
   // State-dependent panels can only be scanned in each state. The fleet panel
   // is empty at position zero and full later; both have to pass.
+  await openTab(page, "Timeline");
   for (const chapterName of ["FleetForge reports BLOCKED", "Second manual uncordon"]) {
     await page.locator(".chapter-button", { hasText: chapterName }).click();
     await expect(page.locator('.position-strip:not([data-stale="true"])')).toBeVisible();
@@ -83,6 +110,7 @@ test("the timeline controls are accessible at every position", async ({ page }) 
 });
 
 test("the evidence drawer is accessible once opened", async ({ page }) => {
+  await openTab(page, "Evidence");
   await page.locator("#evidence").scrollIntoViewIfNeeded();
   await page.locator("#evidence").getByRole("button", { name: "00-CONCLUSIONS.md" }).click();
   await expect(page.locator("#evidence-drawer .artifact")).toBeVisible({ timeout: 10_000 });
@@ -91,6 +119,7 @@ test("the evidence drawer is accessible once opened", async ({ page }) => {
 });
 
 test("the investigation chain is accessible with a fact expanded", async ({ page }) => {
+  await openTab(page, "Investigation");
   await page.locator("#chain").scrollIntoViewIfNeeded();
   await page.locator(".chain-box", { hasText: "Disruption budget exhausted" }).click();
   const results = await scan(page, "#chain");
@@ -143,16 +172,27 @@ test("the skip link moves focus to the main region", async ({ page }) => {
 });
 
 test("focus is visible on every control, not merely present", async ({ page }) => {
-  const controls = [
-    page.getByRole("button", { name: "Play", exact: true }),
-    page.getByRole("button", { name: "Restart" }),
-    page.locator(".chapter-button").first(),
-    page.locator(".scrub input"),
-    page.locator(".chain-head").first(),
-    page.locator("abbr.term").first(),
+  // The call to action and the tabs are on the landing view; the rest are
+  // behind tabs, so each is opened before its control is reached.
+  const controls: [string, () => import("@playwright/test").Locator][] = [
+    ["", () => page.locator(".cta")],
+    ["", () => page.locator(".tab").first()],
+    ["", () => page.locator("abbr.term").first()],
+    ["Timeline", () => page.getByRole("button", { name: "Play", exact: true })],
+    ["Timeline", () => page.getByRole("button", { name: "Restart" })],
+    ["Timeline", () => page.locator(".chapter-button").first()],
+    ["Timeline", () => page.locator(".scrub input")],
+    ["Investigation", () => page.locator(".chain-head").first()],
   ];
-  for (const control of controls) {
+  for (const [tab, locate] of controls) {
+    if (tab) await openTab(page, tab);
+    const control = locate();
     await control.scrollIntoViewIfNeeded();
+    // Browsers track the last input modality: after a mouse click, programmatic
+    // `.focus()` deliberately does *not* match `:focus-visible`, because a
+    // mouse user has not asked for a ring. Press a key first so the question
+    // being asked is the one a keyboard user would ask.
+    await page.keyboard.press("Tab");
     await control.focus();
     await expect(control).toBeFocused();
     // `getComputedStyle(el, ":focus-visible")` returns an empty declaration —

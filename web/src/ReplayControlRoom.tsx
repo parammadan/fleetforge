@@ -13,16 +13,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { ModeBadge } from "./components";
 import { Term } from "./glossary";
-import { InvestigationChainPanel } from "./InvestigationChain";
-import {
-  EvidenceExplorer,
-  ExecutiveSummary,
-  FleetTopology,
-  Limitations,
-  PredictedVsActual,
-  PreflightFinding,
-} from "./ReplayPanels";
-import { PositionStrip, ReplayTimeline } from "./ReplayTimeline";
+import { ReplayDetails } from "./ReplayDetails";
+import type { TabId } from "./ReplayDetails";
+import { ReplayOverview } from "./ReplayOverview";
+import type { ReplayState } from "./replayTypes";
+import { PositionStrip } from "./ReplayTimeline";
 import type { BundleState } from "./useReplay";
 import { usePlayback, useReplayBundle } from "./useReplay";
 
@@ -64,55 +59,96 @@ function Loaded({
     evidenceRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [openArtifact]);
 
+  // The outcome ("3/3 updated") is the state at the *end* of the capture, not
+  // wherever the scrubber happens to be — otherwise the headline figure would
+  // change as a reader played the timeline, which is exactly backwards.
+  const [finalState, setFinalState] = useState<ReplayState | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`${baseUrl}/api/v1/replay/state?position=${context.events - 1}`)
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((envelope: { data: ReplayState }) => {
+        if (!cancelled) setFinalState(envelope.data);
+      })
+      .catch(() => {
+        // The overview falls back to the node count from the capture context,
+        // which is derived from the same bundle. It never invents a number.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [baseUrl, context.events]);
+
+  const [tab, setTab] = useState<TabId>("timeline");
+  const detailsRef = useRef<HTMLDivElement>(null);
+
+  // The CTA and any evidence link both land the reader in the same place, with
+  // the right tab already open.
+  // `scrollIntoView` does not account for sticky headers, so scrolling to the
+  // detail region put the tab row half-behind the chrome. Compute the offset
+  // from the sticky elements themselves rather than hard-coding a pixel value
+  // that drifts the moment the banner wraps to two lines.
+  const scrollToDetails = useCallback(() => {
+    const target = detailsRef.current;
+    if (!target) return;
+    // Every element that will still be pinned after the scroll settles. The
+    // position strip is sticky *and* lives inside the detail region, so it
+    // pins itself directly under the header and hides whatever the scroll
+    // brought to the top — which was the tab row.
+    const offset = [".site-header", ".position-strip"]
+      .map((sel) => document.querySelector<HTMLElement>(sel))
+      .filter((el): el is HTMLElement => el !== null)
+      .reduce((total, el) => total + el.getBoundingClientRect().height, 0);
+    window.scrollTo({
+      top: target.getBoundingClientRect().top + window.scrollY - offset,
+      behavior: "smooth",
+    });
+  }, []);
+
+  const goToDetails = useCallback(
+    (target?: TabId) => {
+      if (target) setTab(target);
+      requestAnimationFrame(scrollToDetails);
+    },
+    [scrollToDetails],
+  );
+
+  const openEvidenceFromAnywhere = useCallback(
+    (name: string | null) => {
+      openEvidence(name);
+      if (name) {
+        setTab("evidence");
+        requestAnimationFrame(scrollToDetails);
+      }
+    },
+    [openEvidence, scrollToDetails],
+  );
+
   return (
     <>
-      {/* One banner landmark around all the persistent chrome.
-          Previously the mode banner, provenance and position strips sat between
-          <header> and <main>, belonging to no landmark at all — so a screen
-          reader navigating by region skipped straight past the one thing this
-          interface must not let anyone miss. */}
+      {/* One banner landmark around the persistent chrome. The mode badge and
+          the REPLAY line never scroll away; the provenance detail does, because
+          "which recording" is a question you ask once and "is this live" is one
+          you must never be able to get wrong. */}
       <header className="site-header" role="banner">
         <div className="chrome">
-        {/* The page's level-one heading. It was a <span>, which left the
-            document with no h1 at all — a screen-reader user jumping by heading
-            landed in the middle of the executive summary with no idea what the
-            page was. */}
-        <h1 className="brand">
-          FleetForge <span>· incident replay</span>
-        </h1>
-        <ModeBadge mode={bundle.mode} label={bundle.modeLabel} />
-        <span className="chrome-spacer" />
-        <span className="meta">
-          {context.context.cluster_kind} · {context.context.kubernetes_version ?? "version unknown"}
-        </span>
-      </div>
+          <h1 className="brand">
+            FleetForge <span>· incident replay</span>
+          </h1>
+          <ModeBadge mode={bundle.mode} label={bundle.modeLabel} />
+          <span className="chrome-spacer" />
+          <span className="meta chrome-meta">
+            {context.context.cluster_kind} · {context.context.kubernetes_version ?? "version unknown"}
+          </span>
+        </div>
 
-      {/* Persistent, undismissable, and first in the DOM after the header so a
-          screen reader reaches it before any cluster data. */}
-      <div className="banner banner-replay" role="note">
-        <strong>REPLAY — CAPTURED FROM REAL EKS/BOTTLEROCKET EXECUTION</strong>
-        <span>
-          Recorded {context.context.captured_from.slice(0, 10)} from a cluster that has since
-          been destroyed. Nothing on this screen is live, nothing is simulated, and no value
-          has been edited to improve the story.
-        </span>
-      </div>
-
-      <ProvenanceStrip
-        context={context}
-        bottlerocket={context.context.bottlerocket_versions}
-        artifacts={bundle.artifacts.length}
-        state={playback.state}
-        stale={playback.stale}
-        step={playback.step}
-        steps={bundle.timeline.length}
-      />
-
-      <PositionStrip
-        stale={playback.stale}
-        state={playback.state}
-        firstObservationAt={bundle.timeline.find((e) => e.kind === "node_changed")?.at}
-        />
+        <div className="banner banner-replay" role="note">
+          <strong>REPLAY — CAPTURED FROM REAL EKS/BOTTLEROCKET EXECUTION</strong>
+          <span>
+            Recorded {context.context.captured_from.slice(0, 10)} from a cluster that has since
+            been destroyed. Nothing on this screen is live.
+          </span>
+        </div>
       </header>
 
       {playback.error && (
@@ -126,78 +162,58 @@ function Loaded({
       )}
 
       <main id="content">
-        <div className="grid">
-          <div className="span-full">
-            <ExecutiveSummary
-              capturedFrom={context.context.captured_from}
-              capturedTo={context.context.captured_to}
-              brupopFirstSeenAt={context.context.brupop_first_seen_at}
-              claims={bundle.claims}
-              traffic={bundle.traffic}
-              nodeCount={context.context.nodes.length}
-              pdb={bundle.pdb}
-              onOpenEvidence={openEvidence}
-            />
-          </div>
+        <ReplayOverview
+          context={context.context}
+          pdb={bundle.pdb}
+          finalState={finalState}
+          nodeCount={context.context.nodes.length}
+          onExplore={() => goToDetails("timeline")}
+        />
 
-          <div className="span-full">
-            <InvestigationChainPanel chain={bundle.chain} onOpenEvidence={openEvidence} />
-          </div>
+        <div ref={detailsRef}>
+          {/* Position and provenance belong with the timeline, not with the
+              story — they answer "where am I in the recording", which only
+              matters once you are scrubbing it. */}
+          <PositionStrip
+            stale={playback.stale}
+            state={playback.state}
+            firstObservationAt={bundle.timeline.find((e) => e.kind === "node_changed")?.at}
+          />
+          <ProvenanceStrip
+            context={context}
+            bottlerocket={context.context.bottlerocket_versions}
+            artifacts={bundle.artifacts.length}
+            state={playback.state}
+            stale={playback.stale}
+            step={playback.step}
+            steps={bundle.timeline.length}
+          />
 
-          <div className="span-full">
-            <ReplayTimeline
-              timeline={bundle.timeline}
-              chapters={bundle.chapters}
-              playback={playback}
-              totalEvents={context.events}
-            />
-          </div>
-
-          <div className="span-full">
-            <FleetTopology state={playback.state} onOpenEvidence={openEvidence} />
-          </div>
-
-          <div className="span-full">
-            <PreflightFinding
-              pdb={bundle.pdb}
-              preflight={playback.state?.last_preflight ?? null}
-            />
-          </div>
-
-          <div className="span-full">
-            <PredictedVsActual rows={bundle.predictions} />
-          </div>
-
-          <div className="span-full" ref={evidenceRef}>
-            <EvidenceExplorer
-              artifacts={bundle.artifacts}
-              open={openArtifact}
-              onOpen={openEvidence}
-            />
-          </div>
-
-          <div className="span-full">
-            <Limitations
-              caveats={context.caveats}
-              claims={bundle.claims}
-              capturedFrom={context.context.captured_from}
-              brupopFirstSeenAt={context.context.brupop_first_seen_at}
-            />
-          </div>
+          <ReplayDetails
+            timeline={bundle.timeline}
+            chapters={bundle.chapters}
+            playback={playback}
+            totalEvents={context.events}
+            chain={bundle.chain}
+            claims={bundle.claims}
+            pdb={bundle.pdb}
+            predictions={bundle.predictions}
+            traffic={bundle.traffic}
+            artifacts={bundle.artifacts}
+            caveats={context.caveats}
+            capturedFrom={context.context.captured_from}
+            brupopFirstSeenAt={context.context.brupop_first_seen_at}
+            openArtifact={openArtifact}
+            onOpenEvidence={openEvidenceFromAnywhere}
+            activeTab={tab}
+            onTab={setTab}
+          />
         </div>
       </main>
     </>
   );
 }
 
-/**
- * Provenance, always on screen.
- *
- * Capture window, cluster identity, Kubernetes and Bottlerocket versions, where
- * the playhead is, and the hash of the snapshot the current state derives from.
- * A screenshot of this interface should be enough to tell someone exactly which
- * recording, and which moment in it, they are looking at.
- */
 function ProvenanceStrip({
   context,
   bottlerocket,
