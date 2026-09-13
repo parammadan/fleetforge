@@ -6,13 +6,20 @@ forty-five minutes, in the order that builds on itself.
 ## 0. Start it
 
 ```sh
+make demo          # http://127.0.0.1:8080
+```
+
+One process: the Rust binary serves both the API and the production interface.
+It holds no mutating Kubernetes client and binds to loopback. It reads one
+directory and serves HTTP. Nothing else.
+
+If you want the pieces apart — say, to run the frontend with hot reload:
+
+```sh
 cargo build --release -p ff-api
 ./target/release/fleetforge --replay evidence/eks-recovery --bind 127.0.0.1:8080
 cd web && npm ci && npm run dev          # http://127.0.0.1:5173
 ```
-
-The binary holds no mutating Kubernetes client and binds to loopback. It reads
-one directory and serves HTTP. Nothing else.
 
 ## 1. Read the evidence before reading the code
 
@@ -163,10 +170,18 @@ cargo test -p ff-replay a_bundle_whose_pdb_lost_its_status_is_rejected
 ## 8. Run everything
 
 ```sh
-make check                                   # fmt, clippy -D warnings, tests, shell tests
-cargo test --workspace                       # 181
-cd web && npm test && npm run test:e2e && npm run test:e2e:replay
+make check                    # fmt, clippy -D warnings, tests, shell tests, demo tests
+cargo test --workspace        # 208 of 208
+
+cd web
+npm test                      # 45 of 45  (vitest)
+npm run test:e2e              # 12 of 12  (fixture mode, Chromium)
+npm run test:e2e:replay       # 132 of 132 = 44 tests × Chromium, Firefox, WebKit
+npm run test:e2e:a11y         # the axe subset of the above
+npm run walkthrough           # re-record docs/walkthrough/
 ```
+
+Every figure is *passed of run*. There is no partially-passing suite.
 
 ## Where the interesting code is
 
@@ -181,6 +196,7 @@ cd web && npm test && npm run test:e2e && npm run test:e2e:replay
 | Where does the mode label come from? | `crates/ff-api/src/routes.rs::replay_envelope` |
 | Why can't the browser invent state? | `web/src/useReplay.ts` |
 | Why is under-prediction its own class? | `crates/ff-record/src/score.rs` |
+| How does one command become one URL? | `scripts/demo.sh`, `crates/ff-api/src/ui.rs` |
 
 ## The three bugs worth knowing about
 

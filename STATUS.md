@@ -1,6 +1,6 @@
 # FleetForge — Status
 
-Last updated: 2026-09-13 · **M0–M5 complete** · **M6 complete: EKS incident replay, end to end**
+Last updated: 2026-09-13 · **M0–M7 complete** · **`make demo` is the whole demonstration**
 
 ## Completed
 
@@ -290,6 +290,69 @@ ready, **25 MiB** resident idle, **29 MiB** after serving the full timeline and 
 **Demo script:** [docs/REPLAY-DEMO.md](docs/REPLAY-DEMO.md) — 5–7 minutes, with the questions you
 will get and the honest answers. Screenshots in `web/e2e/screenshots/replay/`.
 
+### M7 — release hardening ✅ 2026-09-13
+
+**One command.** `make demo` builds the interface if stale, starts the Rust backend, serves the
+production UI from the same process on one loopback port, waits for readiness, confirms the mode
+is `REPLAY`, prints one URL, and shuts down cleanly on Ctrl-C. No second terminal, no Vite dev
+server — a development server is not what would ever run and is a second thing to fail in front
+of an audience.
+
+The binary gained `--ui <dir>`, validated before binding: a process that starts happily and then
+serves 404s to the room is worse than one that refuses to start and says why.
+
+| Suite | Result |
+| --- | --- |
+| `./scripts/tests/test-demo.sh` | ✅ **18 of 18 checks** — missing evidence, evidence with no event log, occupied port, non-loopback refusal, readiness, REPLAY mode, production assets, loopback-only, JSON 404, one URL, Ctrl-C, no orphan holding the port |
+| `cargo test --workspace` | ✅ **208 of 208 tests** |
+| `npm test` (vitest) | ✅ **45 of 45 tests** |
+| `npm run test:e2e` (fixture, Chromium) | ✅ **12 of 12 tests** |
+| `npm run test:e2e:replay` | ✅ **132 of 132** = 44 tests × Chromium, Firefox, WebKit |
+| — of which accessibility (axe + keyboard) | 13 tests × 3 engines |
+| `make check` | ✅ exit 0 |
+| clippy `-D warnings` · `cargo deny` · gitleaks | ✅ clean |
+
+> **On counting.** Earlier reports said "12 / 31 passed", which was ambiguous. Every figure above
+> is *tests passed of tests run*, and every suite passed completely. There has been no partial
+> run: `12 of 12` and `132 of 132` both mean everything.
+
+**Cross-browser.** Chromium, Firefox and WebKit, all verified locally — no browser is unverified.
+Two real defects came out of it:
+
+1. **The skip link was unreachable by keyboard in Safari/WebKit.** WebKit does not put plain
+   links in the tab order unless the user has enabled Full Keyboard Access. Fixed with an
+   explicit `tabIndex={0}`.
+2. **The `DERIVED` tag measured 4.45:1** against a raised surface in the light theme — under AA,
+   on a classification tag the whole interface depends on. Fixed with a darker accent.
+
+**Accessibility.** axe-core over WCAG 2.1 A and AA, at four states and two viewports, plus
+keyboard and focus assertions. No rule is disabled to make a test pass. Four real violations were
+found and fixed:
+
+| Violation | Cause | Fix |
+| --- | --- | --- |
+| `color-contrast` 1.97:1 | `.log-future { opacity: 0.45 }` | Future events marked by a dashed rule and recessed background instead of fade — no opacity value clears 4.5:1 and still reads as "not yet" |
+| `color-contrast` 4.4:1 | danger red on a danger-tinted row — the **under-predicted** rows | `--danger-text`, a darker red for text on tint |
+| `region` | The mode banner, provenance and position strips sat between `<header>` and `<main>`, in no landmark | One `<header role="banner">` around the persistent chrome |
+| `scrollable-region-focusable` | Panel bodies and the artifact `<pre>` scroll but were not focusable | `tabIndex={0}` and an accessible name |
+| `page-has-heading-one` | The brand was a `<span>` | It is the `<h1>` |
+
+Two of my own assertions were wrong and were passing vacuously: `getComputedStyle(el,
+":focus-visible")` returns an empty declaration, because the second argument takes a
+pseudo-*element* and `:focus-visible` is a pseudo-*class*. The comparison `"" !== "none"` was
+true for every element on the page. Both now read the focused element's real computed style.
+
+**Walkthrough.** `docs/walkthrough/fleetforge-replay-walkthrough.mp4` — 47 seconds, recorded by
+browser automation against the production binary and the real bundle. No narration, no staging,
+nothing sped up. The `REPLAY` banner and badge are asserted at every one of the nine stops, and
+sampled frames confirm it. A 9-second GIF of the opening is embedded in the README.
+
+**Public-release audit.** [`docs/PUBLIC-RELEASE-AUDIT.md`](docs/PUBLIC-RELEASE-AUDIT.md).
+**This repository should not be made public as it stands** — not for secrets (there are none)
+but for a personal email address and a complete inventory of the AWS account's identity
+configuration. Four edits and one file moved out of the tree fixes the current tree; history is a
+separate decision. Nothing was published and no visibility was changed.
+
 ## Not done — stated explicitly
 
 - **CI has never run.** There is no git remote. The workflow is written and enabled, so the
@@ -298,7 +361,11 @@ will get and the honest answers. Screenshots in `web/e2e/screenshots/replay/`.
   device. The narrow-viewport test resizes Chromium; it does not prove anything about iOS Safari.
 - **The replay is one capture.** One cluster, three nodes, 63 minutes. Determinism is proven over
   a fixed bundle; that proves what was recorded, not that the recording was complete.
-- **No recorded demo video of the replay interface.** The screenshots are stills.
+- **The walkthrough recording is Chromium only**, and it is a recording of the interface rather
+  than of a person using it — no cursor, no narration.
+- **Two moderate npm advisories remain**, both dev-only (vitest's bundled Vite). The critical and
+  high ones were removed by moving to vitest 3.
+- **The public-release audit has not been acted on.** It is a report, not a change.
 - **No automated accessibility audit.** Focus order, header cells, and contrast were checked by
   hand and by targeted assertions, not by axe or similar.
 - **No scheduler predicate evaluation.** Capacity findings are `Heuristic` and say so in their own

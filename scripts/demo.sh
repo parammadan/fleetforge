@@ -106,9 +106,15 @@ cargo build "${build_flags[@]}" 2>&1 | grep -E '^(error|warning: unused)' && die
 # leave a listener holding the port — which is exactly the failure this script
 # exists to prevent.
 SERVER_PID=""
+# Ctrl-C is how a demonstration ends, not how it fails. Without this, `make`
+# reports "Error 130" to a presenter who did exactly the right thing.
+STOPPED_DELIBERATELY=no
+on_signal() { STOPPED_DELIBERATELY=yes; cleanup; }
+
 cleanup() {
   local code=$?
   trap - EXIT INT TERM
+  if [[ "$STOPPED_DELIBERATELY" == yes ]]; then code=0; fi
   if [[ -n "$SERVER_PID" ]] && kill -0 "$SERVER_PID" 2>/dev/null; then
     printf '\n  stopping…\n'
     kill -TERM -- "-$SERVER_PID" 2>/dev/null || kill -TERM "$SERVER_PID" 2>/dev/null || true
@@ -117,13 +123,16 @@ cleanup() {
       sleep 0.1
     done
     # Only if it ignored SIGTERM for five seconds.
-    kill -0 "$SERVER_PID" 2>/dev/null && kill -KILL -- "-$SERVER_PID" 2>/dev/null
+    if kill -0 "$SERVER_PID" 2>/dev/null; then
+      kill -KILL -- "-$SERVER_PID" 2>/dev/null || true
+    fi
     wait "$SERVER_PID" 2>/dev/null || true
   fi
   printf '  stopped.\n'
   exit "$code"
 }
-trap cleanup EXIT INT TERM
+trap cleanup EXIT
+trap on_signal INT TERM
 
 step "starting the replay backend…"
 set -m
@@ -168,4 +177,6 @@ cat <<BANNER
 
 BANNER
 
-wait "$SERVER_PID"
+# `wait` returns 128+signal when a trap fires. The trap has already decided
+# what the exit status means.
+wait "$SERVER_PID" || true

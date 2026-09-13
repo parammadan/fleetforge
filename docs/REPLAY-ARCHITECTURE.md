@@ -39,6 +39,17 @@ evidence/eks-recovery/          37 files, 6.3 MB, committed
   └──────────────────────────────────────────────────────────────┘
 ```
 
+For the demonstration there is no second process: `ff-api` also serves the built
+interface from `web/dist` at `/` (`--ui`, see `crates/ff-api/src/ui.rs`), so one
+binary on one loopback port answers both `/` and `/api/v1/`. `scripts/demo.sh`
+wires that up, checks readiness, refuses a non-loopback bind, and takes the
+whole process group down on Ctrl-C.
+
+Unknown paths under `/api/` return a JSON 404 rather than falling through to the
+single-page fallback — otherwise a client asking for a mistyped endpoint gets
+`200 text/html`, which looks like success and parses as neither JSON nor an
+error.
+
 ## Why replay is its own data source
 
 `DataSource` has three variants and replay is one of them, not a flag on

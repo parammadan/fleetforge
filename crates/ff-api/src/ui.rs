@@ -10,9 +10,9 @@
 
 use std::path::{Path, PathBuf};
 
-use axum::http::{header, HeaderValue, StatusCode};
-use axum::response::IntoResponse;
 use axum::Router;
+use axum::http::{HeaderValue, StatusCode, header};
+use axum::response::IntoResponse;
 use tower_http::services::{ServeDir, ServeFile};
 use tower_http::set_header::SetResponseHeaderLayer;
 
@@ -66,7 +66,6 @@ pub fn validate(dir: &Path) -> Result<PathBuf, UiError> {
 /// interface is a single page: a reload on any route has to return the app.
 /// Unknown paths under `/api/` are not routed here at all — those are matched
 /// first and answer for themselves.
-#[must_use]
 pub fn mount(router: Router, dir: &Path) -> Router {
     let index = dir.join("index.html");
     let serve = ServeDir::new(dir)

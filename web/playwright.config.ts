@@ -11,7 +11,7 @@ export default defineConfig({
   // The replay suite needs a backend started with `--replay` and lives in
   // playwright.replay.config.ts. Running it here would point it at fixture data
   // and fail for the right reason in the wrong place.
-  testIgnore: /(replay|a11y)\.spec\.ts/,
+  testIgnore: /(replay|a11y|walkthrough)\.spec\.ts/,
   fullyParallel: false,
   workers: 1,
   reporter: process.env.CI ? "list" : [["list"], ["html", { open: "never" }]],

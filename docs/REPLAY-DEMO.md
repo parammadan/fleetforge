@@ -10,17 +10,22 @@ under Brupop on 13 September 2026. The cluster has been destroyed. The recording
 ## Before you start
 
 ```sh
-cargo build --release -p ff-api
-./target/release/fleetforge --replay evidence/eks-recovery --bind 127.0.0.1:8080
+make demo
 ```
 
-In a second terminal:
+That is the whole thing. It builds the interface if it is stale, starts the backend, serves the
+production UI from the same process, waits until it is genuinely ready, checks the mode is
+`REPLAY`, and prints one URL:
 
-```sh
-cd web && npm run dev
+```
+  FleetForge replay  →  http://127.0.0.1:8080
 ```
 
-Then open **http://127.0.0.1:5173**.
+Ctrl-C stops it. One terminal, one process, nothing left running.
+
+If 8080 is taken it says so, names what is holding it, and tells you to use
+`FLEETFORGE_PORT=8081 make demo`. If the evidence bundle is missing it refuses to start rather
+than showing an empty control room.
 
 Measured on an M1 MacBook Air (8 GB), release build, over three warm runs: ready in
 **107–117 ms**, **25 MiB** resident idle and **29 MiB** after serving the full timeline and a
