@@ -301,12 +301,28 @@ code, .mono { font-family: var(--mono); font-size: 12px; }
  * on colour alone.
  */
 
+/* The sticky stack, in the order a reader needs it:
+ *
+ *   chrome (49px) — what this is
+ *   banner (42px) — that it is a replay
+ *   position      — which moment
+ *
+ * The provenance row is deliberately *not* sticky: it answers "which
+ * recording", which you need once, whereas "which moment" is the question you
+ * have continuously while scrolling — and a screenshot of the fleet panel that
+ * does not say which moment it shows is a screenshot of nothing.
+ */
 .banner-replay {
   background: color-mix(in srgb, var(--replay) 22%, var(--bg));
   border-bottom: 2px solid var(--replay);
   position: sticky;
-  top: 45px;
+  top: 49px;
   z-index: 9;
+}
+@media (max-width: 640px) {
+  /* Three stacked sticky bars eat a phone screen. The banner still carries the
+   * label, which is the part that must never scroll away. */
+  .position-strip { position: static; }
 }
 .banner-replay strong {
   font-family: var(--mono);
@@ -504,8 +520,15 @@ code, .mono { font-family: var(--mono); font-size: 12px; }
 .log-kind { flex: none; }
 .log-summary { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* --- Position strip ------------------------------------------------------ */
+/* --- Position strip ------------------------------------------------------
+ * Sticky below the chrome and the banner: "which moment" is the question a
+ * reader has continuously while scrolling, and a screenshot of the fleet that
+ * does not say which moment it shows is a screenshot of nothing.
+ */
 .position-strip {
+  position: sticky;
+  top: 91px;
+  z-index: 8;
   display: flex; gap: 20px; flex-wrap: wrap;
   padding: 8px 16px;
   background: var(--surface);
@@ -516,7 +539,12 @@ code, .mono { font-family: var(--mono); font-size: 12px; }
 .strip-bad strong { color: var(--danger); }
 
 /* --- Fleet --------------------------------------------------------------- */
-.fleet { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+/* `align-items: start` stops a node running sixteen pods from stretching the
+ * two beside it into mostly-empty boxes. */
+.fleet {
+  display: grid; gap: 12px; align-items: start;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
 .node-cordoned { border-color: var(--danger); }
 .node-meta {
   display: flex; gap: 16px; flex-wrap: wrap;

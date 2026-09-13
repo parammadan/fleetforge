@@ -14,11 +14,74 @@ For Bottlerocket clusters that executor is [Brupop](https://github.com/bottleroc
 | --- | --- |
 | Analyze, explain, plan, observe, validate, audit | Drain, update, reboot, coordinate |
 
+## Start here: replay a real incident, in two minutes
+
+On 13 September 2026 this ran against a real Amazon EKS cluster with real Bottlerocket worker
+nodes, updated by a real Brupop deployment. The update deadlocked. The whole thing was recorded —
+**5,068 events and 37 artifacts over 63 minutes** — and that recording is in this repository at
+[`evidence/eks-recovery/`](evidence/eks-recovery/). The cluster has since been destroyed.
+
+You can replay it. No AWS account, no cluster, no credentials.
+
+```sh
+cargo build --release -p ff-api
+./target/release/fleetforge --replay evidence/eks-recovery --bind 127.0.0.1:8080
+
+# in a second terminal
+cd web && npm ci && npm run dev
+```
+
+Open **http://127.0.0.1:5173**.
+
+![The executive summary of the replayed incident](docs/screenshots/01-initial.png)
+
+Ready in ~100 ms, 25 MiB resident. Scrub the timeline, jump between chapters, open any artifact,
+and check the arithmetic behind every number.
+
+### What actually happened
+
+Brupop cordoned two of three nodes to update them. A PodDisruptionBudget with `minAvailable: 2`
+then refused every eviction, so the drain could not finish and the cordons were never lifted. Two
+manual `kubectl uncordon` calls cleared it and all three nodes reached Bottlerocket 1.64.0.
+
+### What the interface will not tell you
+
+This is the part worth looking at. The replay is built to refuse four flattering lies:
+
+- **Availability reads `UNKNOWN DURING INCIDENT`**, not a percentage. The traffic sampler running
+  at the time had no request timeout, so it measured how patient `wget` is — 31 samples in 34
+  minutes. Its data was discarded. The 30.2% you will see elsewhere on the screen is a *failed
+  post-recovery networking check*, labelled as such.
+- **FleetForge did not predict this.** Brupop started at 14:08:15; recording started at 14:15:47.
+  Two nodes were already cordoned in the first state it ever saw. It detected the blocker in
+  front of it. The 7m 32s gap is recomputed from the evidence on every load.
+- **The causal chain is tagged `HUMAN RCA`.** Its five facts were observed; the four arrows
+  joining them were drawn by a person afterwards. No analyzer in FleetForge correlates cordons
+  with scheduling with disruption budgets.
+- **Values FleetForge got wrong are still on screen.** Early events record a Bottlerocket version
+  of `2.0.0`, which is not a release — it is a label read into the wrong field. Shown as
+  recorded, flagged, and disclosed.
+
+Every statement carries one of five classifications — `OBSERVED`, `DERIVED`, `HUMAN RCA`,
+`UNVERIFIED`, `NO EVIDENCE` — and only the first two are evidence.
+
+### Where to go next
+
+| You want | Read |
+| --- | --- |
+| To present this to leadership | [`docs/REPLAY-DEMO.md`](docs/REPLAY-DEMO.md) — 5–7 minutes, with the questions you will get |
+| To check the claims yourself | [`docs/REPLAY-DEEP-DIVE.md`](docs/REPLAY-DEEP-DIVE.md) — 45 minutes of `jq` and `curl` |
+| How the replay works | [`docs/REPLAY-ARCHITECTURE.md`](docs/REPLAY-ARCHITECTURE.md) · [ADR-0025](docs/adr/0025-replay-state-is-computed-in-rust.md) |
+| The wire format | [`docs/REPLAY-SCHEMA.md`](docs/REPLAY-SCHEMA.md) |
+| The one unproven claim | [`docs/NETWORKING-VALIDATION-PLAN.md`](docs/NETWORKING-VALIDATION-PLAN.md) |
+| What has and has not been done | [`STATUS.md`](STATUS.md) |
+
 ## Status
 
-**Milestone 0 — repository foundation.** Design documents only. There is no implementation yet:
-no Rust code, no frontend, no cluster connection, no AWS resources. See [`STATUS.md`](STATUS.md)
-for exactly what has and has not been done.
+**M0–M6 complete.** Foundation, domain model, live read-only slice against a local cluster,
+evidence-based preflight, recording and prediction scoring, a real EKS/Bottlerocket/Brupop run,
+and the incident replay above. [`STATUS.md`](STATUS.md) lists what has and has not been done,
+including the things that are still unverified.
 
 ## Scope
 
@@ -28,11 +91,15 @@ report**, proven against a real EKS cluster with real Bottlerocket nodes and a r
 FleetForge reads and recommends. Brupop executes. FleetForge observes what Brupop did and scores
 its own prediction against it. No mutating Kubernetes client is constructed anywhere in the slice.
 
-The wave planner, execution controller, host-observability agent, interactive replay, and chaos
-framework are **deliberately deferred** — each with an ADR stating the evidence that would justify
-building it ([0011](docs/adr/0011-defer-wave-planner.md)–[0015](docs/adr/0015-defer-chaos-framework.md)).
-An unfinished subsystem is worse evidence of engineering judgement than a written decision not to
+The wave planner, execution controller, host-observability agent, and chaos framework are
+**deliberately deferred** — each with an ADR stating the evidence that would justify building it
+([0011](docs/adr/0011-defer-wave-planner.md)–[0015](docs/adr/0015-defer-chaos-framework.md)). An
+unfinished subsystem is worse evidence of engineering judgement than a written decision not to
 build one yet.
+
+Replay was on that deferred list and came off it, for the reason the ADR asked for: a real
+incident happened and was captured. It is built over that one bundle and nothing else —
+[ADR-0025](docs/adr/0025-replay-state-is-computed-in-rust.md).
 
 ## Data modes
 

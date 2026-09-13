@@ -274,7 +274,7 @@ export function FleetTopology({
 }) {
   if (!state) {
     return (
-      <Panel title="Fleet">
+      <Panel id="fleet" title="Fleet">
         <div className="state-block">
           <div className="spinner" aria-hidden="true" />
           <h3>Loading state for this position</h3>
@@ -289,6 +289,7 @@ export function FleetTopology({
 
   return (
     <Panel
+      id="fleet"
       title="Fleet"
       subtitle={`${state.nodes.length} nodes · ${state.pods.length} pods · ${timeOf(state.at)}`}
     >
