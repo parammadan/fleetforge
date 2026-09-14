@@ -751,8 +751,14 @@ fn the_prevented_run_does_not_inherit_the_incidents_caveats() {
     // run_started marker, and FleetForge was stopped before teardown began.
     // Reusing the incident's builder served them as fact, which is worse than
     // having no caveats at all.
-    assert!(!ids.contains(&"restarts"), "restarts is false for this capture: {ids:?}");
-    assert!(!ids.contains(&"teardown-tail"), "no teardown is in this capture: {ids:?}");
+    assert!(
+        !ids.contains(&"restarts"),
+        "restarts is false for this capture: {ids:?}"
+    );
+    assert!(
+        !ids.contains(&"teardown-tail"),
+        "no teardown is in this capture: {ids:?}"
+    );
     assert_eq!(
         live.timeline
             .events()
