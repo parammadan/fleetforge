@@ -1,0 +1,14 @@
+=== PROOF by failure mode: dropped (timeout) vs refused (instant RST) ===
+If the node SG drops the packet  -> TIMEOUT (~3s, no response)
+If the SG allows but nothing listens -> REFUSED (instant, RST)
+
+Self-rule covers tcp 1025-65535. Port 80 is outside it; port 8080 is inside it.
+Nothing listens on 8080 on any web pod - so 8080 must be REFUSED if the SG allows it.
+
+DEST_IP          PORT   SAME_NODE  ELAPSED  OUTCOME
+10.42.100.124    80     no         3.8s     TIMEOUT (packet dropped)
+10.42.100.124    8080   no         0.8s     REFUSED (SG allowed, port closed)
+10.42.101.170    80     no         3.7s     TIMEOUT (packet dropped)
+10.42.101.170    8080   no         0.8s     REFUSED (SG allowed, port closed)
+10.42.101.111    80     yes        0.8s     CONNECTED
+10.42.101.111    8080   yes        1.0s     REFUSED (SG allowed, port closed)

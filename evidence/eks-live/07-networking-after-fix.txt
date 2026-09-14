@@ -1,0 +1,49 @@
+FleetForge networking baseline — AFTER narrow SG correction (tcp/80 self-ingress)
+captured: 2026-09-13T22:34:49Z
+
+web-8cb9878f-5nfzt 10.42.100.124 ip-10-42-100-170.us-east-2.compute.internal
+web-8cb9878f-6nsd7 10.42.101.170 ip-10-42-101-82.us-east-2.compute.internal
+web-8cb9878f-nh77m 10.42.101.111 ip-10-42-101-164.us-east-2.compute.internal
+
+=== 1. pod-to-pod direct IP mesh (3 sources x 3 destinations) ===
+SRC      SRC_NODE           DEST_IP          SAME_NODE  RESULT
+5nfzt    ip-10-42-100-170   10.42.100.124    yes        PASS
+5nfzt    ip-10-42-100-170   10.42.101.170    no         PASS
+5nfzt    ip-10-42-100-170   10.42.101.111    no         PASS
+6nsd7    ip-10-42-101-82    10.42.100.124    no         PASS
+6nsd7    ip-10-42-101-82    10.42.101.170    yes        PASS
+6nsd7    ip-10-42-101-82    10.42.101.111    no         PASS
+nh77m    ip-10-42-101-164   10.42.100.124    no         PASS
+nh77m    ip-10-42-101-164   10.42.101.170    no         PASS
+nh77m    ip-10-42-101-164   10.42.101.111    yes        PASS
+
+  same-node : 3/3 PASS
+  cross-node: 6/6 PASS
+=== 2. ClusterIP Service from every source pod (one per node) ===
+Service web ClusterIP: 172.20.83.207  (3 endpoints)
+10.42.100.124 10.42.101.111 10.42.101.170
+SRC      SRC_NODE           SAMPLES  RESULT
+5nfzt    ip-10-42-100-170   12/12    PASS
+6nsd7    ip-10-42-101-82    12/12    PASS
+nh77m    ip-10-42-101-164   12/12    PASS
+
+=== 3. DNS resolution + resolve-then-connect, from every source ===
+SRC      SRC_NODE           DNS        HTTP_VIA_DNS
+5nfzt    ip-10-42-100-170   PASS       PASS
+6nsd7    ip-10-42-101-82    PASS       PASS
+nh77m    ip-10-42-101-164   PASS       PASS
+
+=== 4. bounded sustained HTTP sampler ===
+source: traffic-6bc67f8664-hn45h   target: http://172.20.83.207 (ClusterIP, 3 endpoints)
+design: 120 samples, 0.5s interval, wget -T 2 -t 1 (BOUNDED).
+expected wall time ~60-75s. A sampler without a timeout cannot hit its count -
+that is the M5 defect: 31 samples in 34 minutes because wget blocked on failures.
+started: 22:36:08Z
+finished: 22:37:10Z   elapsed: 61.1s
+SAMPLES=120 OK=120
+
+  samples taken   : 120/120   PASS - sampler is bounded
+  successes       : 120/120  (100.0%)
+  elapsed         : 61.1s
+
+  VERDICT: PASS

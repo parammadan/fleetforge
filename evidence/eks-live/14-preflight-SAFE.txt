@@ -1,0 +1,42 @@
+=== CHECKPOINT 21 — BLOCKED -> SAFE, with before/after identity ===
+
+                       BEFORE                                 AFTER
+  timestamp            2026-09-13T22:40:19.341908Z            2026-09-13T22:42:02.809316Z
+  status               BLOCKED                                SAFE
+  snapshot hash        4abae8033cffb4fe88e9ecf4…              9476d9bb3a51c53e65668e6a…
+  max concurrency      0                                      1
+  authoritative        True                                   True
+  mode                 WHAT-IF                                WHAT-IF
+
+  SNAPSHOT IDENTITY: the hashes differ, which is the point — the cluster
+  changed, so the content hash changed. Same hash would mean the second
+  preflight analysed stale state.
+
+  blocking findings    1 (FF-PDB-001)               0 (none)
+
+=== EXACTLY WHAT CHANGED ===
+  One field, on one object:
+    PodDisruptionBudget demo/web-pdb  .spec.minAvailable  3 -> 2
+    resourceVersion                   4564 -> 4876
+
+  Which moved the arithmetic:
+    before: disruptionsAllowed = currentHealthy - desiredHealthy  =  3 - 3 = 0 pods
+    after : permitted while podsOnAnyNode <= disruptionsAllowed  =  None - None = permitted None
+
+  Unchanged, verified: 3/3 web replicas Running, 0 restarts, same pod UIDs,
+  deployment generation 1. No node touched. Brupop still not installed.
+
+  predicted impact after correction:
+    pods_evicted             5
+    pods_not_rescheduled     3
+    cpu_to_reschedule        150
+    memory_to_reschedule     106954752
+    cpu_headroom_after       3175
+    memory_headroom_after    6606749696
+    minimum_pdb_margin       1
+
+  after-state arithmetic, read from the cluster (the SAFE result carries a
+  permitted-check rather than the blocker subtraction, so it is quoted here
+  directly rather than reformatted from a differently-shaped finding):
+    disruptionsAllowed = currentHealthy - desiredHealthy = 3 - 2 = 1 pods
+    .spec.minAvailable = 2   resourceVersion = 4876

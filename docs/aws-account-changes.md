@@ -169,6 +169,31 @@ Do this last, after the cluster is gone and the final bill has settled.
 
 ---
 
+## 6. Root access key — CREATED 2026-09-13, **MUST BE DELETED**
+
+| | |
+| --- | --- |
+| When | 2026-09-13, for the Phase C live EKS run |
+| Why | The Identity Center path (`fleetforge-admin`) is blocked by the MFA policy in section 4, and the operator chose a root key over changing that setting |
+| Key id | `AKIA3HPFYGMVJFEQ56QU` |
+| Profile | `fleetforge-root` in `~/.aws/credentials` |
+
+**This is the highest-priority cleanup item in this file.** A root access key has
+no permission boundary and no expiry. It was used for one 1.78-hour cluster run
+and has no further purpose.
+
+**Cleanup:**
+
+```bash
+# Console: PM (771965334314) -> Security credentials -> Access keys
+#          -> AKIA3HPFYGMVJFEQ56QU -> Actions -> Delete
+aws configure --profile fleetforge-root set aws_access_key_id ""      # then remove the
+aws configure --profile fleetforge-root set aws_secret_access_key ""  # profile by hand
+```
+
+The secret was also pasted into a chat transcript on 2026-09-13, so deleting the
+key is the only action that actually closes that exposure.
+
 ## Full teardown order
 
 Reverse of creation. Each step assumes the previous one completed.
@@ -183,6 +208,7 @@ Reverse of creation. Each step assumes the previous one completed.
 | 6 | Disable IdC | console | 2 min |
 | 7 | Disable IdC trusted access | `aws organizations disable-aws-service-access ...` | 1 min |
 | 8 | Delete the organization | `aws organizations delete-organization` | 1 min |
+| 9 | **Delete the root access key** | console, section 6 above | 1 min |
 
 Step 1 matters more than it looks. A load balancer created by a Kubernetes
 Service is made by the cloud controller, not Terraform — Terraform does not know

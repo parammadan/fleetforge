@@ -1,0 +1,18 @@
+=== capture 2026-09-13T22:27:54Z ===
+--- pods (demo ns) ---
+api-5457998f44-9jlt9       10.42.101.10    ip-10-42-101-164.us-east-2.compute.internal
+traffic-6bc67f8664-hn45h   10.42.101.131   ip-10-42-101-164.us-east-2.compute.internal
+web-8cb9878f-5nfzt         10.42.100.124   ip-10-42-100-170.us-east-2.compute.internal
+web-8cb9878f-6nsd7         10.42.101.170   ip-10-42-101-82.us-east-2.compute.internal
+web-8cb9878f-nh77m         10.42.101.111   ip-10-42-101-164.us-east-2.compute.internal
+--- nodes ---
+ip-10-42-100-170.us-east-2.compute.internal   10.42.100.170   us-east-2a   aws:///us-east-2a/i-001a6811c5976ae44
+ip-10-42-101-164.us-east-2.compute.internal   10.42.101.164   us-east-2b   aws:///us-east-2b/i-0c413c4d62239ff8b
+ip-10-42-101-82.us-east-2.compute.internal    10.42.101.82    us-east-2b   aws:///us-east-2b/i-0f60ae1224c04ea3e
+--- VPC ---
+vpc-0efcc8056696ebe34	10.42.0.0/16
+--- subnets ---
+subnet-0b4317d971fdb77f1	10.42.0.0/24	us-east-2a	False	fleetforge-demo-vpc-private-us-east-2a
+subnet-01e72ce2f02959b9f	10.42.1.0/24	us-east-2b	False	fleetforge-demo-vpc-private-us-east-2b
+subnet-00009609596532b72	10.42.100.0/24	us-east-2a	True	fleetforge-demo-vpc-public-us-east-2a
+subnet-06319be0ecf79e422	10.42.101.0/24	us-east-2b	True	fleetforge-demo-vpc-public-us-east-2b

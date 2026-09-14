@@ -1,0 +1,10 @@
+=== ENIs on worker instances, with attached SGs ===
+--- instance i-001a6811c5976ae44 ---
+eni-07b54517a77c7c888	0	10.42.100.170	sg-0a8e0b3e1c2d0ddde	
+eni-09792a38243e0a514	1	10.42.100.105	sg-0a8e0b3e1c2d0ddde	aws-K8S-i-001a6811c5976ae44
+--- instance i-0c413c4d62239ff8b ---
+eni-0ef906f2f8ba41a96	0	10.42.101.164	sg-0a8e0b3e1c2d0ddde	
+eni-0919993a85787f2fd	1	10.42.101.235	sg-0a8e0b3e1c2d0ddde	aws-K8S-i-0c413c4d62239ff8b
+--- instance i-0f60ae1224c04ea3e ---
+eni-0176f92fb285a6a5f	0	10.42.101.82	sg-0a8e0b3e1c2d0ddde	
+eni-01059283fd22feeb0	1	10.42.101.169	sg-0a8e0b3e1c2d0ddde	aws-K8S-i-0f60ae1224c04ea3e

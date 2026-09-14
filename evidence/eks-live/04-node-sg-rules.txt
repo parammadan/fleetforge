@@ -1,0 +1,20 @@
+=== sg-0a8e0b3e1c2d0ddde (EKS node shared security group) ===
+11 rules total
+
+--- INBOUND (10) ---
+PROTO    PORTS         SOURCE/DEST                DESCRIPTION
+tcp      10251         sg-014f62974d434cb0d       Cluster API to node 10251/tcp webhook
+tcp      6443          sg-014f62974d434cb0d       Cluster API to node 6443/tcp webhook
+tcp      8443          sg-014f62974d434cb0d       Cluster API to node 8443/tcp webhook
+tcp      9443          sg-014f62974d434cb0d       Cluster API to node 9443/tcp webhook
+tcp      10250         sg-014f62974d434cb0d       Cluster API to node kubelets
+tcp      53            sg-0a8e0b3e1c2d0ddde       Node to node CoreDNS <-- SELF
+tcp      443           sg-014f62974d434cb0d       Cluster API to node groups
+tcp      1025-65535    sg-0a8e0b3e1c2d0ddde       Node to node ingress on ephemeral ports <-- SELF
+tcp      4443          sg-014f62974d434cb0d       Cluster API to node 4443/tcp webhook
+udp      53            sg-0a8e0b3e1c2d0ddde       Node to node CoreDNS UDP <-- SELF
+
+--- OUTBOUND (1) ---
+PROTO    PORTS         SOURCE/DEST                DESCRIPTION
+ALL      ALL           0.0.0.0/0                  Allow all egress
+

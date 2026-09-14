@@ -1,0 +1,16 @@
+=== 14. controlled unsafe condition ===
+before: 2 minAvailable, 1 allowed
+
+change: web-pdb minAvailable 2 -> 3 (3 replicas, so zero slack)
+poddisruptionbudget.policy/web-pdb patched
+
+NAME      MIN AVAILABLE   MAX UNAVAILABLE   ALLOWED DISRUPTIONS   AGE
+web-pdb   3               N/A               0                     15m
+
+applied at: 2026-09-13T22:39:51Z
+
+=== 15. Brupop has NOT begun ===
+  namespaces:        0 brupop
+  bottlerocketshadows CRD: 0
+  node updater labels:     3
+  cordoned nodes:          0

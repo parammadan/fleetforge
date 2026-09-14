@@ -1,0 +1,45 @@
+FleetForge identity — mutation denial proof
+captured: 2026-09-13T22:38:13Z
+identity: system:serviceaccount:fleetforge-system:fleetforge-reader
+
+=== reads that MUST be allowed ===
+  get    nodes                    ALLOW
+  list   nodes                    ALLOW
+  watch  nodes                    ALLOW
+  get    pods                     ALLOW
+  list   pods                     ALLOW
+  watch  pods                     ALLOW
+  get    poddisruptionbudgets     ALLOW
+  list   poddisruptionbudgets     ALLOW
+  watch  poddisruptionbudgets     ALLOW
+  get    deployments              ALLOW
+  list   deployments              ALLOW
+  watch  deployments              ALLOW
+  get    events                   ALLOW
+  list   events                   ALLOW
+  watch  events                   ALLOW
+  get    namespaces               ALLOW
+  list   namespaces               ALLOW
+  watch  namespaces               ALLOW
+
+=== mutations that MUST be denied ===
+  create pods                            denied
+  delete pods                            denied
+  patch nodes                            denied
+  update nodes                            denied
+  create pods/eviction                            denied
+  delete nodes                            denied
+  patch poddisruptionbudgets                            denied
+  create deployments                            denied
+  delete deployments                            denied
+  patch pods                            denied
+  update poddisruptionbudgets                            denied
+  create secrets                            denied
+  get secrets                            denied
+  list secrets                            denied
+  create serviceaccounts                            denied
+  escalate clusterroles                            denied
+  impersonate users                            denied
+
+  17 denied, 0 allowed
+  VERDICT: READ-ONLY CONFIRMED

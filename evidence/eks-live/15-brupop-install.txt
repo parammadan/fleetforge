@@ -1,0 +1,29 @@
+Brupop phase start: 2026-09-13T22:43:30Z
+cert-manager pinned: v1.21.2  (not 'latest')
+brupop pinned      : v1.8.0
+
+=== Brupop v1.8.0 install: 2026-09-13T22:43:58Z ===
+certificate.cert-manager.io/brupop-apiserver-client-certificate created
+certificate.cert-manager.io/brupop-apiserver-certificate created
+certificate.cert-manager.io/brupop-selfsigned-ca created
+issuer.cert-manager.io/brupop-root-certificate-issuer created
+issuer.cert-manager.io/selfsigned-issuer created
+priorityclass.scheduling.k8s.io/brupop-controller-high-priority created
+
+deployment "brupop-controller-deployment" successfully rolled out
+
+=== 25. updater-interface label — only intended Bottlerocket nodes ===
+  ip-10-42-100-170.us-east-2.compute.internal    label=2.0.0  os=Bottlerocket OS 1.62.1 (aws-k8s-1.36)
+  ip-10-42-101-164.us-east-2.compute.internal    label=2.0.0  os=Bottlerocket OS 1.62.1 (aws-k8s-1.36)
+  ip-10-42-101-82.us-east-2.compute.internal     label=2.0.0  os=Bottlerocket OS 1.62.1 (aws-k8s-1.36)
+  total nodes with label: 3 of 3 (all are Bottlerocket)
+
+=== brupop pods ===
+NAME                                            READY   STATUS    RESTARTS   AGE
+brupop-agent-hv8vd                              1/1     Running   0          25s
+brupop-agent-khb2n                              1/1     Running   0          25s
+brupop-agent-qrj7g                              1/1     Running   0          25s
+brupop-apiserver-75bd4784c4-6shxs               1/1     Running   0          25s
+brupop-apiserver-75bd4784c4-cbnvt               1/1     Running   0          25s
+brupop-apiserver-75bd4784c4-tkmrc               1/1     Running   0          25s
+brupop-controller-deployment-584c75f8c8-9v44t   1/1     Running   0          24s

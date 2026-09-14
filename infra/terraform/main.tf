@@ -165,6 +165,36 @@ module "eks" {
     eks-pod-identity-agent = {}
   }
 
+  # Node-to-node HTTP, for the demo workload.
+  #
+  # The module ships `ingress_nodes_ephemeral` (tcp 1025-65535) plus tcp/udp 53
+  # and nothing else, so an application listening on a port below 1025 is
+  # unreachable across nodes while working perfectly on the node it runs on —
+  # traffic between pods on one host never traverses an ENI, and so never meets
+  # a security group at all.
+  #
+  # That asymmetry is what makes it hard to see: a three-replica Service behind
+  # a ClusterIP answers roughly one request in three, which reads as flakiness
+  # rather than as a firewall. Proved on 2026-09-13 by timing the failure —
+  # port 80 cross-node times out (packet dropped) while port 8080, inside the
+  # ephemeral range with nothing listening, is refused instantly (packet
+  # arrived). Full evidence in evidence/eks-live/00-DIAGNOSIS.md.
+  #
+  # Deliberately narrow: port 80 only, self-referencing. `ingress_self_all`
+  # would fix this and every future variant of it, which is exactly why it is
+  # not used here — a demonstration environment should not quietly open
+  # everything to make one workload work.
+  node_security_group_additional_rules = {
+    ingress_self_http = {
+      description = "FleetForge demo pod-to-pod HTTP"
+      protocol    = "tcp"
+      from_port   = 80
+      to_port     = 80
+      type        = "ingress"
+      self        = true
+    }
+  }
+
   eks_managed_node_groups = {
     bottlerocket = {
       # ARM64 Bottlerocket. This is the whole point of the environment: Brupop

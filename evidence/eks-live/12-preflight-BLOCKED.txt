@@ -1,0 +1,45 @@
+=== CHECKPOINT 17 — PREFLIGHT BLOCKED, BEFORE ANY EXECUTION ===
+
+  timestamp        : 2026-09-13T22:40:19.341908Z
+  mode             : WHAT-IF (a preflight is WHAT-IF by construction — it has not happened)
+  collection auth  : AUTHORITATIVE
+  cluster_id       : 0e11906d-bb2c-4296-9e32-e0b3297ef916
+  SNAPSHOT HASH    : {"type": "computed", "from": "4abae8033cffb4fe88e9ecf46d44f8fc5ee52cca284977dcbba1b9d160eaa820"}
+  node analyzed    : ip-10-42-100-170.us-east-2.compute.internal
+  concurrency      : 1
+
+  STATUS           : BLOCKED
+    recommended_max_concurrency 0
+    concurrency_constraint {'finding_id': 'FF-PDB-001', 'resource': {'kind': 'PodDisruptionBudget', 'namespace': 'demo', 'name': 'web-pdb', 'uid': 'ad114d18-b82f-460b-93be-df55fa6eb88a', 'resource_version': '4564'}, 'reason': 'blocked: PodDisruptionBudget demo/web-pdb permits no disruption'}
+    affected_workloads     [{'workload': {'kind': 'Deployment', 'namespace': 'demo', 'name': 'web', 'uid': 'b3ddec39-a7d9-4ed2-827d-66686b460379', 'resource_version': '1839'}, 'pods_on_selected_nodes': 1, 'ready_replicas': 3, 'desired_replicas': 3, 'blocked_by_pdb': True, 'has_immovable_pods': False}, {'workload': {'kind': 'DaemonSet', 'namespace': 'kube-system', 'name': 'aws-node', 'uid': 'eb6983e9-f857-475f-b902-1c0110272766', 'resource_version': '1220'}, 'pods_on_selected_nodes': 1, 'ready_replicas': 3, 'desired_replicas': 3, 'blocked_by_pdb': False, 'has_immovable_pods': True}, {'workload': {'kind': 'Deployment', 'namespace': 'kube-system', 'name': 'coredns', 'uid': '6e684c9a-51f5-48a6-87a1-c7bf662062e0', 'resource_version': '1456'}, 'pods_on_selected_nodes': 1, 'ready_replicas': 2, 'desired_replicas': 2, 'blocked_by_pdb': False, 'has_immovable_pods': False}, {'workload': {'kind': 'DaemonSet', 'namespace': 'kube-system', 'name': 'eks-pod-identity-agent', 'uid': 'ca603da8-8575-4f18-934e-af59e7839665', 'resource_version': '1457'}, 'pods_on_selected_nodes': 1, 'ready_replicas': 3, 'desired_replicas': 3, 'blocked_by_pdb': False, 'has_immovable_pods': True}, {'workload': {'kind': 'DaemonSet', 'namespace': 'kube-system', 'name': 'kube-proxy', 'uid': '33b1f0a7-c59a-4b60-8f1a-4b8fe187f77c', 'resource_version': '1376'}, 'pods_on_selected_nodes': 1, 'ready_replicas': 3, 'desired_replicas': 3, 'blocked_by_pdb': False, 'has_immovable_pods': True}]
+    evidence               ['FF-PDB-001', 'FF-AZ-001', 'FF-CPU-002', 'FF-MEM-002', 'FF-PDB-003']
+    predicted_impact       {'pods_evicted': 5, 'pods_not_rescheduled': 3, 'cpu_to_reschedule': 150, 'memory_to_reschedule': 106954752, 'cpu_headroom_after': 3175, 'memory_headroom_after': 6606749696, 'minimum_pdb_margin': 0}
+
+=== BLOCKING FINDINGS: 1 of 5 total ===
+
+  FINDING ID : FF-PDB-001
+  title      : PodDisruptionBudget demo/web-pdb permits no disruption
+  severity   : blocker    confidence: certain
+
+  BLOCKER ARITHMETIC
+    disruptionsAllowed = currentHealthy - desiredHealthy
+      currentHealthy   = 3
+      desiredHealthy   = 3
+    => 0 pods
+
+  EVIDENCE (each value, with the object revision it was read from)
+    PodDisruptionBudget/demo/web-pdb  rv=4564
+      .status.disruptionsAllowed       = 0
+    PodDisruptionBudget/demo/web-pdb  rv=4564
+      .status.currentHealthy           = 3
+    PodDisruptionBudget/demo/web-pdb  rv=4564
+      .status.desiredHealthy           = 3
+    PodDisruptionBudget/demo/web-pdb  rv=4564
+      .spec.minAvailable               = 3
+
+  LIMITATIONS
+    - Reflects disruptionsAllowed at the moment of the snapshot. A rollout finishing or a pod becoming ready can change it without any action here.
+    - Covers voluntary disruption via the eviction API only. A node that fails or is deleted outright bypasses PodDisruptionBudgets entirely.
+
+  Brupop at this moment: NOT INSTALLED (no namespace, no CRD, no cordoned nodes).
+  This result therefore precedes execution rather than describing it.

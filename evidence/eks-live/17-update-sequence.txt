@@ -1,0 +1,10 @@
+22:45:03Z  cordoned=0 ready=3/3 versions=1.62.1  shadows: 100-170.us-east-2.compute.internal:Idle | 101-164.us-east-2.compute.internal:Idle | 101-82.us-east-2.compute.internal:Idle
+22:45:35Z  cordoned=0 ready=3/3 versions=1.62.1  shadows: 100-170.us-east-2.compute.internal:Idle | 101-164.us-east-2.compute.internal:Idle | 101-82.us-east-2.compute.internal:StagedAndPerformedUpdate
+22:46:06Z  cordoned=1 ready=3/3 versions=1.62.1  shadows: 100-170.us-east-2.compute.internal:Idle | 101-164.us-east-2.compute.internal:Idle | 101-82.us-east-2.compute.internal:StagedAndPerformedUpdate
+22:46:37Z  cordoned=1 ready=2/3 versions=1.62.1,1.64.0  shadows: 100-170.us-east-2.compute.internal:Idle | 101-164.us-east-2.compute.internal:Idle | 101-82.us-east-2.compute.internal:StagedAndPerformedUpdate
+22:47:09Z  cordoned=0 ready=3/3 versions=1.62.1,1.64.0  shadows: 100-170.us-east-2.compute.internal:Idle | 101-164.us-east-2.compute.internal:Idle | 101-82.us-east-2.compute.internal:MonitoringUpdate
+22:47:40Z  cordoned=0 ready=3/3 versions=1.62.1,1.64.0  shadows: 100-170.us-east-2.compute.internal:Idle | 101-164.us-east-2.compute.internal:Idle | 101-82.us-east-2.compute.internal:Idle
+22:48:11Z  cordoned=1 ready=3/3 versions=1.62.1,1.64.0  shadows: 100-170.us-east-2.compute.internal:StagedAndPerformedUpdate | 101-164.us-east-2.compute.internal:Idle | 101-82.us-east-2.compute.internal:Idle
+22:48:43Z  cordoned=1 ready=2/3 versions=1.62.1,1.64.0  shadows: 100-170.us-east-2.compute.internal:StagedAndPerformedUpdate | 101-164.us-east-2.compute.internal:Idle | 101-82.us-east-2.compute.internal:Idle
+22:49:14Z  cordoned=1 ready=3/3 versions=1.62.1,1.64.0  shadows: 100-170.us-east-2.compute.internal:StagedAndPerformedUpdate | 101-164.us-east-2.compute.internal:Idle | 101-82.us-east-2.compute.internal:Idle
+22:49:45Z  cordoned=0 ready=3/3 versions=1.62.1,1.64.0  shadows: 100-170.us-east-2.compute.internal:Idle | 101-164.us-east-2.compute.internal:Idle | 101-82.us-east-2.compute.internal:Idle

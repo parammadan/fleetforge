@@ -1,0 +1,14 @@
+=== 19. correction ===
+before: minAvailable=3 allowed=0 rv=4564
+
+change: web-pdb spec.minAvailable 3 -> 2   (nothing else)
+poddisruptionbudget.policy/web-pdb patched
+after : minAvailable=2 allowed=1 rv=4876
+applied at: 2026-09-13T22:41:34Z
+
+scope of change: one field on one object. No workload restarted, no replica
+count changed, no node touched, no Brupop action. Confirm replicas unchanged:
+  web deployment: 3/3 ready, generation 1
+  web-8cb9878f-5nfzt Running restarts=0 age-uid=0880e441-ed36-46dc-9884-07b3c1efdbd1
+  web-8cb9878f-6nsd7 Running restarts=0 age-uid=0bb91735-4c55-48e1-abb9-237d376a9ee8
+  web-8cb9878f-nh77m Running restarts=0 age-uid=fe3db9c5-4586-4335-b257-92514cb3acd3

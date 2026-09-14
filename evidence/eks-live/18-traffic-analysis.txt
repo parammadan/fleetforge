@@ -1,0 +1,23 @@
+=== bounded traffic sampler, during the real Brupop update ===
+  window        : 22:44:45 -> 22:49:46 UTC
+  samples taken : 301
+  succeeded     : 300
+  failed        : 1
+  success rate  : 99.6%
+
+  failures:
+    22:49:28 ERR
+
+  WHAT THIS IS: a service-level sample of the demo web Service taken while
+  Brupop cordoned, drained, updated and rebooted two of three nodes.
+
+  WHAT THIS IS NOT: a customer availability measurement. It is one sampler,
+  from one pod, inside the cluster, against a 3-replica demo workload with
+  no real users. It says the Service kept answering during the observed
+  window. It does not establish uptime for anything.
+
+  COVERAGE LIMIT — stated because it matters: the sampler stopped at
+  22:49:46 when the operator's laptop slept and the kubectl exec
+  carrying it was killed. It covers the first two node updates. The third
+  node's update completed unobserved by this sampler. That gap is real and
+  is not filled in.

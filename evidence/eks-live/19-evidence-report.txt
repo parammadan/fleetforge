@@ -1,0 +1,76 @@
+=== CHECKPOINT 28-29 — FleetForge evidence report ===
+  mode          : None
+  cluster       : 0e11906d-bb2c-4296-9e32-e0b3297ef916
+  run_id                 run-20260913T223854Z
+  description            Phase C: preventative preflight then real Brupop update
+  cluster_id             0e11906d-bb2c-4296-9e32-e0b3297ef916
+  started_at             2026-09-13T22:38:54.331698Z
+  ended_at               2026-09-14T00:00:01.240239Z
+  entries                996
+  snapshots_observed     175
+
+=== PREDICTED vs ACTUAL ===
+  predictions              2
+  tested                   1
+  exact                    0
+  conservative             0
+  missed                   1
+  under_predicted          0
+
+=== per-preflight scoring (2) ===
+  2026-09-13T22:40:19.342220Z  predicted=5 observed=0  
+  2026-09-13T22:42:02.810177Z  predicted=5 observed=12  
+
+=== the miss, in detail ===
+
+  preflight 2026-09-13T22:40:19.342220Z
+    nodes analysed        : ip-10-42-100-170.us-east-2.compute.internal
+    predicted evictions   : 5
+    observed evictions    : 0
+    verdict               : None
+    predicted, not disrupted : {'namespace': 'demo', 'name': 'web'}, {'namespace': 'kube-system', 'name': 'aws-node'}, {'namespace': 'kube-system', 'name': 'coredns'}, {'namespace': 'kube-system', 'name': 'eks-pod-identity-agent'}, {'namespace': 'kube-system', 'name': 'kube-proxy'}
+
+  preflight 2026-09-13T22:42:02.810177Z
+    nodes analysed        : ip-10-42-100-170.us-east-2.compute.internal
+    predicted evictions   : 5
+    observed evictions    : 12
+    verdict               : None
+    disrupted, NOT predicted : {'namespace': 'brupop-bottlerocket-aws', 'name': 'brupop-agent'}, {'namespace': 'brupop-bottlerocket-aws', 'name': 'brupop-apiserver'}, {'namespace': 'cert-manager', 'name': 'cert-manager'}
+
+=== reading the miss honestly ===
+
+The scorer says: 2 predictions, 1 tested, 0 exact, 0 conservative, 1 MISSED.
+That is the correct verdict for what it measured. It is not the whole story,
+and the difference matters more than the score.
+
+Two separate reasons the observed set exceeded the predicted set:
+
+1. SCOPE. The preflight analysed one node — ip-10-42-100-170 — because that is
+   what it was asked about. Brupop then updated all three. Evictions from the
+   other two nodes are inside the comparison window and outside the prediction.
+   FleetForge answered the question it was given; the question was narrower than
+   what happened.
+
+2. TIME. The three workloads listed as "disrupted, NOT predicted" are
+   brupop-agent, brupop-apiserver and cert-manager. None of them existed when
+   the prediction was made at 22:42:02 — cert-manager was installed at 22:43:30
+   and Brupop at 22:43:58. FleetForge cannot predict the eviction of pods that
+   do not yet exist, and it should not be scored as though it could.
+
+What this is evidence OF, stated plainly:
+
+  - The prediction was correct for its scope and its moment.
+  - The scoring window was wider than both, in two independent ways.
+  - Therefore this run does NOT establish that FleetForge's eviction prediction
+    is accurate, and it does NOT establish that it is inaccurate. It was not a
+    fair test, and the right response is to say so rather than to pick whichever
+    reading flatters the tool.
+
+What would make it a fair test, for a future run:
+  - predict for all three nodes, not one; and
+  - install Brupop and cert-manager BEFORE the prediction, so the workload set
+    is stable across the comparison window.
+
+The first preflight (22:40:19, BLOCKED) predicted 5 and observed 0. That is not
+a success either: nothing was drained because the blocker prevented it, so the
+prediction was never tested. Untested is not correct.

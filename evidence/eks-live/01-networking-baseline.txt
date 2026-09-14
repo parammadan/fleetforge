@@ -1,0 +1,18 @@
+FleetForge networking baseline — BEFORE any maintenance
+captured: 2026-09-13T22:25:44Z
+
+web-8cb9878f-5nfzt 10.42.100.124 ip-10-42-100-170.us-east-2.compute.internal
+web-8cb9878f-6nsd7 10.42.101.170 ip-10-42-101-82.us-east-2.compute.internal
+web-8cb9878f-nh77m 10.42.101.111 ip-10-42-101-164.us-east-2.compute.internal
+
+=== pod-to-pod mesh (every web pod -> every web pod) ===
+SOURCE_POD             SRC_NODE         DEST_IP          SAME_NODE  RESULT
+5nfzt                  ip-10-42-100-170 10.42.100.124    yes        OK
+5nfzt                  ip-10-42-100-170 10.42.101.170    no         FAIL
+5nfzt                  ip-10-42-100-170 10.42.101.111    no         FAIL
+6nsd7                  ip-10-42-101-82  10.42.100.124    no         FAIL
+6nsd7                  ip-10-42-101-82  10.42.101.170    yes        OK
+6nsd7                  ip-10-42-101-82  10.42.101.111    no         FAIL
+nh77m                  ip-10-42-101-164 10.42.100.124    no         FAIL
+nh77m                  ip-10-42-101-164 10.42.101.170    no         FAIL
+nh77m                  ip-10-42-101-164 10.42.101.111    yes        OK

@@ -1,0 +1,62 @@
+=== CHECKPOINT 32 — independent sweep, 2026-09-14T00:13:21Z ===
+(queried directly, not read from Terraform state)
+
+  EKS clusters:                0
+  EC2 non-terminated:          0
+  non-default VPCs:            0
+  NAT gateways:                0
+  EBS volumes:                 0
+  Elastic IPs:                 0
+  ENIs:                        0
+  ALB/NLB:                     0
+  classic ELB:                 0
+  EKS node groups:             0 (no clusters remain)
+  launch templates:            0
+
+  FleetForge-tagged anything:
+    4 resources still tagged Project=FleetForge
+arn:aws:ec2:us-east-2:771965334314:security-group/sg-07eff3e0832feb6be
+arn:aws:kms:us-east-2:771965334314:key/d71bb227-fbdc-4dbe-a68e-b633da442105
+arn:aws:sso:::permissionSet/ssoins-6684ec564eebf36b/ps-b71fbf90878f8b19
+arn:aws:kms:us-east-2:771965334314:key/eb55bd5e-5a72-4421-b1b0-6be3329376f2
+
+--- identifying each ---
+1) security-group sg-07eff3e0832feb6be
+     
+     aws: [ERROR]: An error occurred (InvalidGroup.NotFound) when calling the DescribeSecurityGroups operation: The security group 'sg-07eff3e0832feb6be' does not exist
+2) kms key d71bb227-fbdc-4dbe-a68e-b633da442105
+     PendingDeletion	fleetforge-demo cluster encryption key	False	2026-10-13T11:15:04.175000-04:00
+2) kms key eb55bd5e-5a72-4421-b1b0-6be3329376f2
+     PendingDeletion	fleetforge-demo cluster encryption key	False	2026-10-13T20:12:45.242000-04:00
+3) permission set ps-b71fbf90878f8b19 — IAM Identity Center, not touched by this run
+
+=== CHECKPOINT 33 — actual runtime and cost-relevant resources ===
+  cluster created  : 2026-09-13T22:24Z
+  cluster destroyed: 2026-09-14T00:11Z
+  billable runtime : 1.78 hours
+
+    EKS control plane        1 x $0.1/hr x 1.78h = $0.18
+    t4g.medium x3            3 x $0.0336/hr x 1.78h = $0.18
+    public IPv4 x3           3 x $0.005/hr x 1.78h = $0.03
+    EBS gp3 (3 x 24GiB)      $0.01
+    CloudWatch logs          ~$0.01
+  TOTAL                      ~$0.41
+
+=== still present, and why ===
+  sg-07eff3e0832feb6be   DOES NOT EXIST. Stale entry in the tagging API
+                         index, which lags behind deletion. Not billable.
+
+  2 x KMS CMK            PendingDeletion, windows close 2026-10-13.
+                         EKS creates a customer-managed key for secrets
+                         encryption; `terraform destroy` schedules deletion
+                         rather than deleting, so they bill ~$1/month each
+                         until the window elapses. ~$2/month for 30 days.
+                         One is from the M5 run, one from this run.
+                         NOT cancelled or rescheduled: constraint 34
+                         forbids altering KMS.
+
+  ps-b71fbf90878f8b19    IAM Identity Center permission set. Free.
+                         Out of scope by constraint 34.
+
+  Zero EKS clusters, EC2 instances, VPCs, NAT gateways, EBS volumes,
+  Elastic IPs, ENIs, load balancers or launch templates remain.

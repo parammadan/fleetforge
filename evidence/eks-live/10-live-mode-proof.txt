@@ -1,0 +1,47 @@
+=== 11. mode reported by the API ===
+{
+    "cluster_id": "0e11906d-bb2c-4296-9e32-e0b3297ef916",
+    "mode": "live",
+    "mode_label": "LIVE",
+    "server_version": "v1.36.4-eks-4cc7921",
+    "client_target_version": "v1.36",
+    "version": "0.1.0",
+    "started_at": "2026-09-13T22:38:54.331986Z",
+    "snapshot_id": "60ef6b429306f7ce1021cc4b1f88476ae2abbb0c493363564ed055ff99c4ffc1",
+    "coverage": [
+        {
+            "kind": "BottlerocketShadow",
+            "status": {
+                "state": "not_installed",
+                "resource": "bottlerocketshadows"
+            },
+            "observed_count": 0
+        },
+        {
+            "kind": "DaemonSet",
+
+=== replay endpoints must NOT exist in live mode ===
+  /api/v1/replay/context -> HTTP 404
+
+=== 12. collection authority (per kind) ===
+  authoritative overall : True
+  api reachable         : True
+  connection state      : ok
+
+  KIND                    COUNT  STATUS
+  BottlerocketShadow          0  not installed (bottlerocketshadows)
+  DaemonSet                   3  in sync
+  Deployment                  4  in sync
+  Event                     175  in sync
+  Node                        3  in sync
+  Pod                        16  in sync
+  PodDisruptionBudget         2  in sync
+  ReplicaSet                  4  in sync
+  StatefulSet                 0  in sync
+
+=== 13. initial snapshot identity ===
+  snapshot_id : 60ef6b429306f7ce1021cc4b1f88476ae2abbb0c493363564ed055ff99c4ffc1
+  taken_at    : 2026-09-13T22:38:54.837481Z
+  mode        : live
+  cluster_id  : 0e11906d-bb2c-4296-9e32-e0b3297ef916
+  nodes       : 3   pods: 16   pdbs: 2
