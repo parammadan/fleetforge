@@ -1,6 +1,6 @@
 # FleetForge — Status
 
-Last updated: 2026-09-13 · **M0–M8 complete** · **`make demo` · the story first, the proof underneath**
+Last updated: 2026-09-14 · **M0–M8 + Phase C complete** · live EKS run done, cluster destroyed
 
 ## Completed
 
@@ -393,6 +393,43 @@ mouse click, and browsers deliberately do not mark that as `:focus-visible` — 
 not asked for a ring. The tests now press a key first, so they ask the question a keyboard user
 would.
 
+### Phase C — live EKS run, preventative preflight ✅ 2026-09-13
+
+A second real cluster, 1.78 hours, **$0.41**, destroyed and verified. Evidence in
+`evidence/eks-live/` (26 artifacts). The historical `evidence/eks-recovery/` capture was not
+modified.
+
+**What this run added that M5 could not.** M5 detected an already-existing blocker *after*
+Brupop had begun. This one ran the preflight **before Brupop existed at all** — no namespace, no
+CRD, no cordons — got `BLOCKED` on FF-PDB-001 (`3 − 2 = 0`, rv=4564, snapshot `4abae803…`),
+corrected one field, got `SAFE` (snapshot `9476d9bb…`), and only then installed Brupop. All
+three nodes went 1.62.1 → 1.64.0 with **no deadlock and no manual uncordon**.
+
+**The networking fault, found and explained.** The baseline before any maintenance was same-node
+3/3, **cross-node 0/6**, so the maintenance experiment was halted per the stop condition. A
+read-only diagnosis proved cause by failure mode: same host and moment, port 80 timed out
+(dropped) while port 8080 was refused instantly (arrived) — a port filter with the path otherwise
+intact. The EKS module's node SG self-rule covers `tcp 1025-65535` and `tcp/udp 53`; nginx
+listens on **80**. One narrow rule took cross-node from 0/6 to **6/6**.
+
+This **refutes** the replay's CNI-ordering hypothesis — that correction was already applied, the
+CNI was ACTIVE before compute, `aws-node` never restarted, and cross-node failed anyway. It
+**confirms** the 1-in-3 shape the hypothesis predicted. It does **not** prove the missing rule
+caused M5's 30.2%: that cluster is gone and cannot be re-probed. See
+[`evidence/eks-live/00-DIAGNOSIS.md`](evidence/eks-live/00-DIAGNOSIS.md).
+
+**FleetForge's prediction was wrong, and the test was unfair.** Predicted 5 evictions, observed
+12 — scored `missed`. Two reasons, both in how the run was set up: the preflight analysed one
+node while Brupop drained three, and the "missed" workloads (`brupop-agent`, `brupop-apiserver`,
+`cert-manager`) did not exist when the prediction was made. **This run establishes neither
+accuracy nor inaccuracy.** A fair test predicts all three nodes with the workload set stable
+across the window.
+
+**Identity.** Terraform ran as **root**, by explicit operator override after the Identity Center
+sign-in proved blocked by its own MFA policy. FleetForge itself ran as a separate read-only
+ServiceAccount, proven with 18 allowed reads and 17 denied mutations including `pods/eviction`,
+`escalate` and `impersonate`.
+
 ## Not done — stated explicitly
 
 - **CI has never run.** There is no git remote. The workflow is written and enabled, so the
@@ -408,6 +445,14 @@ would.
 - **Two moderate npm advisories remain**, both dev-only (vitest's bundled Vite). The critical and
   high ones were removed by moving to vitest 3.
 - **The public-release audit has not been acted on.** It is a report, not a change.
+- **A root access key created for Phase C is still live** (`AKIA3HPFYGMVJFEQ56QU`). Deleting it
+  is item 9 of the teardown order in `docs/aws-account-changes.md` and is the highest-priority
+  outstanding action in this repository.
+- **Two KMS CMKs are in PendingDeletion until 2026-10-13**, ~$2/month total. EKS schedules rather
+  than deletes them. Left alone deliberately — Phase C forbade altering KMS.
+- **Phase C's evidence is not served by the replay interface.** `--replay` reads
+  `evidence/eks-recovery/` only; the new bundle has a different shape and no loader.
+- **The prediction accuracy question is still open.** See the unfair-test note above.
 - **No automated accessibility audit.** Focus order, header cells, and contrast were checked by
   hand and by targeted assertions, not by axe or similar.
 - **No scheduler predicate evaluation.** Capacity findings are `Heuristic` and say so in their own
