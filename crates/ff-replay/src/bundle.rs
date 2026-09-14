@@ -13,19 +13,10 @@ use serde::Serialize;
 
 use crate::artifacts::ArtifactStore;
 use crate::error::ReplayError;
-use crate::schema::{CaptureContext, Claim, ClaimBasis, DataCaveat, REPLAY_SCHEMA_VERSION};
+use crate::schema::{
+    CaptureContext, CaptureKind, Claim, ClaimBasis, DataCaveat, REPLAY_SCHEMA_VERSION,
+};
 use crate::state::{ReplayEvent, ReplayTimeline};
-
-/// Artifacts without which a bundle is not a bundle.
-const REQUIRED: &[&str] = &[
-    "35-fleetforge-events-complete.jsonl",
-    "03-preflight-before.json",
-    "04-pdb-before.json",
-    "07-brupop-before.json",
-    "25-nodes-final.json",
-    "31-traffic-post-recovery.txt",
-    "00-CONCLUSIONS.md",
-];
 
 /// Event kinds that mark a moment worth stopping on.
 const SIGNIFICANT_KINDS: &[&str] = &[
@@ -112,6 +103,8 @@ pub struct PredictionRow {
 pub struct ReplayBundle {
     /// Schema version this bundle was produced against.
     pub schema_version: u32,
+    /// Which kind of run this captured. Decides what the interface may claim.
+    pub kind: CaptureKind,
     /// Where it came from.
     pub root: PathBuf,
     /// Capture context for the banner.
@@ -175,7 +168,27 @@ impl ReplayBundle {
         }
 
         let artifacts = ArtifactStore::index(root)?;
-        for required in REQUIRED {
+
+        // The kind is detected from which event log is present, not passed in.
+        // A directory therefore cannot be loaded as the wrong kind by a caller
+        // getting an argument wrong, and each kind is validated against its own
+        // required set rather than a union that would let either through half
+        // formed.
+        let kind = if artifacts.contains(CaptureKind::Incident.event_log()) {
+            CaptureKind::Incident
+        } else if artifacts.contains(CaptureKind::Prevented.event_log()) {
+            CaptureKind::Prevented
+        } else {
+            return Err(ReplayError::MissingArtifact {
+                artifact: format!(
+                    "{} or {}",
+                    CaptureKind::Incident.event_log(),
+                    CaptureKind::Prevented.event_log()
+                ),
+            });
+        };
+
+        for required in kind.required() {
             if !artifacts.contains(required) {
                 return Err(ReplayError::MissingArtifact {
                     artifact: (*required).to_owned(),
@@ -183,18 +196,22 @@ impl ReplayBundle {
             }
         }
 
-        let timeline = load_timeline(root)?;
-        let pdb = parse_pdb_finding(root)?;
-        let predictions = parse_predictions(root)?;
-        let traffic = parse_traffic(root)?;
-        let context = build_context(&timeline, root)?;
-        let claims = build_claims(&timeline, &pdb, &traffic);
-        let caveats = build_caveats(&timeline);
-        let chapters = crate::chapters::derive(&timeline, context.brupop_first_seen_at);
-        let chain = crate::chain::derive(&timeline, &pdb, root)?;
+        let timeline = load_timeline(root, kind.event_log())?;
+        let pdb = match kind {
+            CaptureKind::Incident => parse_pdb_finding(root, "03-preflight-before.json")?,
+            CaptureKind::Prevented => parse_pdb_finding(root, "12-preflight-BLOCKED.json")?,
+        };
+        let predictions = parse_predictions(root, kind)?;
+        let traffic = parse_traffic(root, kind)?;
+        let context = build_context(&timeline, root, kind)?;
+        let claims = build_claims(&timeline, &pdb, &traffic, kind, root);
+        let caveats = build_caveats(&timeline, kind);
+        let chapters = crate::chapters::derive(&timeline, context.brupop_first_seen_at, kind);
+        let chain = crate::chain::derive(&timeline, &pdb, root, kind)?;
 
         Ok(Self {
             schema_version: REPLAY_SCHEMA_VERSION,
+            kind,
             root: root.to_path_buf(),
             context,
             timeline,
@@ -211,8 +228,7 @@ impl ReplayBundle {
 }
 
 /// Read the JSONL event log into an ordered timeline.
-fn load_timeline(root: &Path) -> Result<ReplayTimeline, ReplayError> {
-    let name = "35-fleetforge-events-complete.jsonl";
+fn load_timeline(root: &Path, name: &str) -> Result<ReplayTimeline, ReplayError> {
     let text = std::fs::read_to_string(root.join(name)).map_err(|e| ReplayError::Io {
         path: name.to_owned(),
         reason: e.to_string(),
@@ -368,8 +384,7 @@ fn summarise(kind: &str, v: &serde_json::Value) -> String {
 }
 
 /// Pull the PDB finding out of the captured preflight result.
-fn parse_pdb_finding(root: &Path) -> Result<PdbArithmetic, ReplayError> {
-    let name = "03-preflight-before.json";
+fn parse_pdb_finding(root: &Path, name: &str) -> Result<PdbArithmetic, ReplayError> {
     let text = std::fs::read_to_string(root.join(name)).map_err(|e| ReplayError::Io {
         path: name.to_owned(),
         reason: e.to_string(),
@@ -515,8 +530,8 @@ fn parse_pdb_finding(root: &Path) -> Result<PdbArithmetic, ReplayError> {
 }
 
 /// Parse the prediction table out of the generated report.
-fn parse_predictions(root: &Path) -> Result<Vec<PredictionRow>, ReplayError> {
-    let name = "35-fleetforge-events-complete.jsonl";
+fn parse_predictions(root: &Path, kind: CaptureKind) -> Result<Vec<PredictionRow>, ReplayError> {
+    let name = kind.event_log();
     let text = std::fs::read_to_string(root.join(name)).map_err(|e| ReplayError::Io {
         path: name.to_owned(),
         reason: e.to_string(),
@@ -569,8 +584,17 @@ fn parse_predictions(root: &Path) -> Result<Vec<PredictionRow>, ReplayError> {
 }
 
 /// Parse the post-recovery traffic sampler output.
-fn parse_traffic(root: &Path) -> Result<TrafficValidation, ReplayError> {
-    let name = "31-traffic-post-recovery.txt";
+fn parse_traffic(root: &Path, kind: CaptureKind) -> Result<TrafficValidation, ReplayError> {
+    // Two captures, two samplers, two meanings — and the difference is the
+    // whole point. The incident's rerun ran *after* recovery and FAILED; it is
+    // a networking validation and calling it availability would be the worst
+    // misreading this project could invite. The prevented run's sampler ran
+    // *during* the update and passed; it is a service-level sample across real
+    // reboots, and it is still not an availability figure.
+    let name = match kind {
+        CaptureKind::Incident => "31-traffic-post-recovery.txt",
+        CaptureKind::Prevented => "16-traffic-during-update.txt",
+    };
     let text = std::fs::read_to_string(root.join(name)).map_err(|e| ReplayError::Io {
         path: name.to_owned(),
         reason: e.to_string(),
@@ -607,22 +631,50 @@ fn parse_traffic(root: &Path) -> Result<TrafficValidation, ReplayError> {
     // because a rate that renders differently on two machines is a rate nobody
     // can audit. Tenths of a percent, rounded half-up.
     let tenths = (u64::from(successes) * 1000 + u64::from(requests) / 2) / u64::from(requests);
+    // `passed` and the wording are per-kind, and getting this wrong is the most
+    // consequential mistake available here. The incident's sampler ran *after*
+    // recovery and failed. The prevented run's ran *during* the update and
+    // passed — which makes it the more dangerous of the two, because a 99.6%
+    // figure is exactly what somebody screenshots and captions "uptime".
+    // Neither is an availability measurement, and both say so.
+    let (passed, interpretation) = match kind {
+        CaptureKind::Incident => (
+            false,
+            "Post-recovery networking validation. This run FAILED. It is not a measurement of \
+             availability during the incident, and must never be presented as uptime: the \
+             sampler used during the incident was defective and its output was discarded."
+                .to_owned(),
+        ),
+        CaptureKind::Prevented => (
+            failures == 0,
+            format!(
+                "A bounded service-level sample taken while Brupop cordoned, drained and \
+                 rebooted nodes: {successes} of {requests} requests succeeded. It is NOT an \
+                 availability or uptime measurement — one sampler, from one pod inside the \
+                 cluster, against a three-replica demo workload with no real users. It says \
+                 the Service kept answering during the window it observed, and the sampler \
+                 completed its designed sample count, which is the only reason the number \
+                 means anything at all."
+            ),
+        ),
+    };
+
     Ok(TrafficValidation {
         requests,
         successes,
         failures,
         success_pct: format!("{}.{}", tenths / 10, tenths % 10),
         window: format!("{first} → {last}"),
-        passed: false,
-        interpretation: "Post-recovery networking validation. This run FAILED. It is not a \
-                         measurement of availability during the incident, and must never be \
-                         presented as uptime: the sampler used during the incident was defective \
-                         and its output was discarded."
-            .to_owned(),
+        passed,
+        interpretation,
     })
 }
 
-fn build_context(timeline: &ReplayTimeline, root: &Path) -> Result<CaptureContext, ReplayError> {
+fn build_context(
+    timeline: &ReplayTimeline,
+    root: &Path,
+    kind: CaptureKind,
+) -> Result<CaptureContext, ReplayError> {
     let events = timeline.events();
     let first = events.first().ok_or_else(|| ReplayError::InvalidTimeline {
         reason: "empty timeline".to_owned(),
@@ -665,13 +717,31 @@ fn build_context(timeline: &ReplayTimeline, root: &Path) -> Result<CaptureContex
     versions.sort();
     versions.dedup();
 
-    let kubernetes_version = std::fs::read_to_string(root.join("30-environment-final.json"))
+    // Each kind records the server version in a different artifact. Missing is
+    // rendered as unknown, never guessed.
+    let env_artifact = match kind {
+        CaptureKind::Incident => "30-environment-final.json",
+        CaptureKind::Prevented => "10-live-mode-proof.txt",
+    };
+    let kubernetes_version = std::fs::read_to_string(root.join(env_artifact))
         .ok()
-        .and_then(|t| serde_json::from_str::<serde_json::Value>(&t).ok())
-        .and_then(|v| {
-            v.get("server_version")
-                .and_then(|x| x.as_str())
-                .map(ToOwned::to_owned)
+        .and_then(|t| {
+            serde_json::from_str::<serde_json::Value>(&t)
+                .ok()
+                .and_then(|v| {
+                    v.get("server_version")
+                        .and_then(|x| x.as_str())
+                        .map(ToOwned::to_owned)
+                })
+                // The prevented run's proof file is a transcript with JSON in
+                // it rather than a JSON document, so fall back to reading the
+                // field out of the text.
+                .or_else(|| {
+                    t.split("\"server_version\":")
+                        .nth(1)
+                        .and_then(|rest| rest.split('"').nth(1))
+                        .map(ToOwned::to_owned)
+                })
         });
 
     Ok(CaptureContext {
@@ -724,7 +794,12 @@ fn build_claims(
     timeline: &ReplayTimeline,
     pdb: &PdbArithmetic,
     traffic: &TrafficValidation,
+    kind: CaptureKind,
+    root: &Path,
 ) -> Vec<Claim> {
+    if kind == CaptureKind::Prevented {
+        return build_prevented_claims(timeline, pdb, root);
+    }
     let events = timeline.events();
     let recording_started = events.first().map(|e| e.at);
 
@@ -937,7 +1012,263 @@ fn pdb_observed_at(events: &[ReplayEvent]) -> DateTime<Utc> {
 }
 
 /// Problems with the evidence itself, as opposed to what it proves.
-fn build_caveats(timeline: &ReplayTimeline) -> Vec<DataCaveat> {
+/// Caveats for a prevented run.
+///
+/// Written from scratch rather than inherited. The incident's caveats include
+/// "FleetForge was restarted several times" and "the capture includes the
+/// teardown" — both false here, and both would have been served as fact if this
+/// function had simply been reused. A caveat that is itself untrue is worse
+/// than no caveat: it spends the reader's trust on nothing.
+fn prevented_caveats(timeline: &ReplayTimeline) -> Vec<DataCaveat> {
+    let events = timeline.events();
+    let mut caveats = vec![
+        DataCaveat {
+            id: "deliberate-condition".to_owned(),
+            statement: "The blocking condition was created on purpose for this experiment — a \
+                        PodDisruptionBudget tightened to permit nothing. It did not arise on \
+                        its own. What this demonstrates is that the check fires and that the \
+                        correction clears it, not that the fault is common."
+                .to_owned(),
+            affects: vec!["11-unsafe-condition.txt".to_owned()],
+        },
+        DataCaveat {
+            id: "unfair-prediction-window".to_owned(),
+            statement: "The eviction prediction covered one node; the update then drained \
+                        three. Three of the workloads counted against it — cert-manager and \
+                        two Brupop components — did not exist when the prediction was made. \
+                        The comparison is therefore not a fair test in either direction."
+                .to_owned(),
+            affects: vec!["19-evidence-report.json".to_owned()],
+        },
+        DataCaveat {
+            id: "sampler-stopped-early".to_owned(),
+            statement: "The traffic sampler ran from 22:44:45 to 22:49:46 and then stopped \
+                        because the operator's laptop slept and the process carrying it was \
+                        killed. It covers the first two node updates; the third completed \
+                        unobserved by it. The gap is real and is not interpolated."
+                .to_owned(),
+            affects: vec!["16-traffic-during-update.txt".to_owned()],
+        },
+        DataCaveat {
+            id: "root-provisioning".to_owned(),
+            statement: "The cluster was provisioned with root AWS credentials, by operator \
+                        override, after federated sign-in proved blocked. FleetForge itself \
+                        ran as a separate read-only ServiceAccount — 17 mutating verbs denied, \
+                        including pods/eviction — but the surrounding environment was not \
+                        least-privilege."
+                .to_owned(),
+            affects: vec!["08-mutation-denial.txt".to_owned()],
+        },
+    ];
+
+    // Only claim a restart caveat if the log actually shows one.
+    let runs = events.iter().filter(|e| e.kind == "run_started").count();
+    if runs > 1 {
+        caveats.push(DataCaveat {
+            id: "restarts".to_owned(),
+            statement: format!(
+                "FleetForge was restarted {runs} times during the capture, so the log contains \
+                 multiple run_started markers."
+            ),
+            affects: vec![CaptureKind::Prevented.event_log().to_owned()],
+        });
+    }
+    caveats
+}
+
+/// Claims for a prevented run.
+///
+/// The incident's claims are dominated by what FleetForge could *not* do. This
+/// set is the mirror image — but only because the timestamps earn it, and each
+/// one names the evidence that makes it checkable. The two weakest statements
+/// in the whole capture live here too: the prediction was wrong, and the test
+/// that measured it was not fair.
+fn build_prevented_claims(
+    timeline: &ReplayTimeline,
+    pdb: &PdbArithmetic,
+    root: &Path,
+) -> Vec<Claim> {
+    let events = timeline.events();
+    let first_preflight = events
+        .iter()
+        .find(|e| e.kind == "preflight_run")
+        .map(|e| e.at);
+    // Earliest evidence Brupop existed at all — its pods appearing — rather
+    // than the first shadow state it published four minutes later. The claim
+    // below is only worth making against the strictest available marker.
+    const BRUPOP_NS: &str = "brupop-bottlerocket-aws";
+    let brupop_installed = events
+        .iter()
+        .find(|e| {
+            e.kind == "brupop_state_changed"
+                || e.raw.get("namespace").and_then(|v| v.as_str()) == Some(BRUPOP_NS)
+        })
+        .map(|e| e.at);
+
+    // The load-bearing fact: BLOCKED preceded the executor existing at all.
+    let prevented = matches!(
+        (first_preflight, brupop_installed),
+        (Some(p), Some(b)) if p < b
+    );
+
+    let report = std::fs::read_to_string(root.join("19-evidence-report.json"))
+        .ok()
+        .and_then(|t| serde_json::from_str::<serde_json::Value>(&t).ok());
+    // The report is written flat, not wrapped in `data` like the API envelopes.
+    let accuracy = report
+        .as_ref()
+        .and_then(|r| r.pointer("/accuracy").cloned());
+    let missed = accuracy
+        .as_ref()
+        .and_then(|a| a.get("missed"))
+        .and_then(serde_json::Value::as_u64)
+        .unwrap_or(0);
+
+    let mut claims = vec![
+        Claim {
+            id: "blocked-before-execution".to_owned(),
+            statement: format!(
+                "FleetForge returned BLOCKED before the executor existed. {} — {} = {} {}, \
+                 so every voluntary eviction would have been refused. At that moment Brupop \
+                 was not installed: no namespace, no custom resource, no cordoned node.",
+                pdb.formula,
+                pdb.inputs.first().map_or("?", |(_, v)| v.as_str()),
+                pdb.result,
+                pdb.unit.as_deref().unwrap_or("pods"),
+            ),
+            basis: ClaimBasis::ObservedByFleetForge,
+            evidence: vec![
+                "12-preflight-BLOCKED.json".to_owned(),
+                "11-unsafe-condition.txt".to_owned(),
+            ],
+            limitations: vec![
+                "Reflects disruptionsAllowed at the moment of the snapshot.".to_owned(),
+                "Covers voluntary disruption via the eviction API only.".to_owned(),
+            ],
+            at: first_preflight,
+        },
+        Claim {
+            id: "prevented".to_owned(),
+            statement: if prevented {
+                "This is prevention rather than explanation, and the ordering is what proves \
+                 it: the BLOCKED result is timestamped before any Brupop activity appears in \
+                 the log."
+                    .to_owned()
+            } else {
+                "The ordering of the preflight and the first Brupop activity cannot be \
+                 established from this bundle, so no claim of prevention is made."
+                    .to_owned()
+            },
+            basis: if prevented {
+                ClaimBasis::ObservedByFleetForge
+            } else {
+                ClaimBasis::Unavailable
+            },
+            evidence: vec!["20-fleetforge-events.jsonl".to_owned()],
+            limitations: vec![
+                "The unsafe condition was created deliberately for this experiment. It was \
+                 not a fault that arose on its own."
+                    .to_owned(),
+            ],
+            at: first_preflight,
+        },
+        Claim {
+            id: "correction-and-safe".to_owned(),
+            statement: "One field changed — the PodDisruptionBudget's minAvailable, 3 to 2 — \
+                        and a second preflight returned SAFE against a different snapshot \
+                        hash. No workload restarted, no replica count changed, no node was \
+                        touched."
+                .to_owned(),
+            basis: ClaimBasis::ObservedByFleetForge,
+            evidence: vec![
+                "13-correction.txt".to_owned(),
+                "14-preflight-SAFE.json".to_owned(),
+            ],
+            limitations: vec![
+                "A different snapshot hash proves the state changed, not that this change was \
+                 the only one."
+                    .to_owned(),
+            ],
+            at: None,
+        },
+        Claim {
+            id: "update-completed".to_owned(),
+            statement: "The update then ran to completion with no deadlock and no manual \
+                        uncordon. All three nodes went from Bottlerocket 1.62.1 to 1.64.0, \
+                        each cordoned, drained, rebooted and returned to service by Brupop."
+                .to_owned(),
+            basis: ClaimBasis::ObservedByFleetForge,
+            evidence: vec!["17-update-sequence.txt".to_owned()],
+            limitations: vec![
+                "One cluster, three nodes, one update. Nothing here establishes behaviour at \
+                 fleet scale."
+                    .to_owned(),
+            ],
+            at: None,
+        },
+        Claim {
+            id: "networking-root-cause".to_owned(),
+            statement: "Cross-node pod networking was broken before any maintenance began — \
+                        0 of 6 paths — and the cause was a missing self-referencing security \
+                        group rule for TCP port 80, not add-on ordering. One narrow rule took \
+                        it to 6 of 6."
+                .to_owned(),
+            basis: ClaimBasis::MathematicallyDerived,
+            evidence: vec![
+                "00-DIAGNOSIS.md".to_owned(),
+                "05-port-proof.txt".to_owned(),
+                "07-networking-after-fix.txt".to_owned(),
+            ],
+            limitations: vec![
+                "Proved on this cluster. Whether the same rule explains the earlier capture's \
+                 30.2% result is NOT established — that cluster was destroyed and cannot be \
+                 re-probed."
+                    .to_owned(),
+            ],
+            at: None,
+        },
+    ];
+
+    if missed > 0 {
+        claims.push(Claim {
+            id: "prediction-was-wrong".to_owned(),
+            statement: "FleetForge's eviction prediction was wrong. It predicted 5 and 12 \
+                        occurred, scored as missed."
+                .to_owned(),
+            basis: ClaimBasis::ObservedByFleetForge,
+            evidence: vec!["19-evidence-report.json".to_owned()],
+            limitations: vec![
+                "The preflight analysed one node; Brupop drained three.".to_owned(),
+                "Three of the workloads counted as missed did not exist when the prediction \
+                 was made — cert-manager and Brupop were installed afterwards."
+                    .to_owned(),
+            ],
+            at: None,
+        });
+        claims.push(Claim {
+            id: "prediction-untested".to_owned(),
+            statement: "Because of those two things, this run establishes neither that the \
+                        eviction prediction is accurate nor that it is inaccurate. It was not \
+                        a fair test."
+                .to_owned(),
+            basis: ClaimBasis::Unavailable,
+            evidence: vec!["19-evidence-report.json".to_owned()],
+            limitations: vec![
+                "A fair test predicts every node that will be drained, with the workload set \
+                 stable across the comparison window."
+                    .to_owned(),
+            ],
+            at: None,
+        });
+    }
+
+    claims
+}
+
+fn build_caveats(timeline: &ReplayTimeline, kind: CaptureKind) -> Vec<DataCaveat> {
+    if kind == CaptureKind::Prevented {
+        return prevented_caveats(timeline);
+    }
     let mut caveats = Vec::new();
 
     // The version-field bug: early node_changed events carry 2.0.0.

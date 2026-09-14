@@ -66,8 +66,19 @@ export interface DataCaveat {
   affects: string[];
 }
 
+/**
+ * What kind of run a bundle captured.
+ *
+ * The landing view says nearly opposite things for each, so this is never
+ * inferred — it comes from the backend, which detects it from which event log
+ * the bundle contains.
+ */
+export type CaptureKind = "incident" | "prevented";
+
 export interface ReplayContextResponse {
   schema_version: number;
+  kind: CaptureKind;
+  kind_label: string;
   context: CaptureContext;
   events: number;
   significant_events: number;

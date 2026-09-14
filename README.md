@@ -27,6 +27,15 @@ You can replay it. No AWS account, no cluster, no credentials — one command:
 make demo
 ```
 
+There are **two captures**, and they reach opposite conclusions:
+
+| | |
+| --- | --- |
+| `make demo` · `evidence/eks-recovery` | **The incident.** Brupop deadlocked. FleetForge connected mid-flight and explained the blocker — it did not predict it. |
+| `FLEETFORGE_EVIDENCE=evidence/eks-live make demo` | **The prevention.** The same failure, caught *before* the update operator was installed. BLOCKED → one field changed → SAFE → the update ran to completion. |
+
+The second also records the two things that went wrong in it: cross-node pod networking was broken before any maintenance began, and FleetForge's eviction prediction was wrong.
+
 It builds the interface if it is stale, starts the Rust backend, serves the production UI from
 the same process on one loopback port, waits for readiness, confirms the mode is `REPLAY`, and
 prints a single URL:

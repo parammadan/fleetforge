@@ -425,6 +425,10 @@ fn replay_envelope<T: Serialize>(state: &AppState, data: T) -> axum::response::R
 #[derive(Serialize)]
 struct ReplayContext<'a> {
     schema_version: u32,
+    /// Which kind of run this captured. The interface tells a different — in
+    /// places opposite — story for each, so it must never have to guess.
+    kind: ff_replay::CaptureKind,
+    kind_label: &'static str,
     context: &'a ff_replay::CaptureContext,
     events: usize,
     significant_events: usize,
@@ -437,6 +441,8 @@ async fn replay_context(State(state): State<Arc<AppState>>) -> axum::response::R
     };
     let payload = ReplayContext {
         schema_version: b.schema_version,
+        kind: b.kind,
+        kind_label: b.kind.label(),
         context: &b.context,
         events: b.timeline.len(),
         significant_events: b.timeline.significant().len(),

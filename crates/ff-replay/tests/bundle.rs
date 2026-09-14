@@ -554,3 +554,228 @@ fn the_chain_says_out_loud_that_fleetforge_did_not_draw_it() {
     assert!(text.contains("did not produce the chain"));
     assert!(text.contains("no analyzer"));
 }
+
+/* ---------------------------------------------------------------------------
+ * The second capture: a prevented run.
+ *
+ * A different experiment with an opposite conclusion. These tests exist mostly
+ * to stop the two blurring together — the incident may not claim prevention,
+ * and the prevented run may not claim the incident's excuses.
+ * ------------------------------------------------------------------------- */
+
+fn live_bundle() -> ReplayBundle {
+    ReplayBundle::load(PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../evidence/eks-live"))
+        .expect("the Phase C bundle loads")
+}
+
+#[test]
+fn the_two_captures_are_detected_as_different_kinds() {
+    assert_eq!(bundle().kind, ff_replay::CaptureKind::Incident);
+    assert_eq!(live_bundle().kind, ff_replay::CaptureKind::Prevented);
+    // Detection is by which event log is present, so a directory cannot be
+    // loaded as the wrong kind by a caller passing a bad argument.
+    assert_ne!(
+        ff_replay::CaptureKind::Incident.event_log(),
+        ff_replay::CaptureKind::Prevented.event_log()
+    );
+}
+
+#[test]
+fn a_directory_with_no_event_log_names_both_candidates() {
+    let dir = tempfile::tempdir().unwrap();
+    std::fs::write(dir.path().join("00-DIAGNOSIS.md"), "not a bundle").unwrap();
+    let Err(err) = ReplayBundle::load(dir.path()) else {
+        panic!("must not load");
+    };
+    let text = format!("{err}");
+    assert!(
+        text.contains("35-fleetforge-events-complete.jsonl"),
+        "{text}"
+    );
+    assert!(text.contains("20-fleetforge-events.jsonl"), "{text}");
+}
+
+#[test]
+fn the_prevented_run_claims_prevention_and_the_incident_does_not() {
+    let inc = bundle();
+    let live = live_bundle();
+
+    assert!(
+        live.claims.iter().any(|c| c.id == "prevented"),
+        "the prevented run must say so"
+    );
+    assert!(
+        !inc.claims.iter().any(|c| c.id == "prevented"),
+        "the incident must never claim prevention"
+    );
+    // And the reverse: the incident's defining admission has no place here.
+    assert!(inc.claims.iter().any(|c| c.id == "no-prediction"));
+    assert!(!live.claims.iter().any(|c| c.id == "no-prediction"));
+}
+
+#[test]
+fn prevention_is_earned_by_ordering_not_asserted() {
+    let live = live_bundle();
+    let events = live.timeline.events();
+    let first_preflight = events
+        .iter()
+        .find(|e| e.kind == "preflight_run")
+        .expect("a preflight was recorded");
+    let first_brupop = events
+        .iter()
+        .find(|e| e.kind == "brupop_state_changed")
+        .expect("Brupop appears in the log");
+
+    // The whole claim rests on this single comparison.
+    assert!(
+        first_preflight.at < first_brupop.at,
+        "preflight at {} must precede Brupop at {}",
+        first_preflight.at,
+        first_brupop.at
+    );
+
+    let claim = live.claims.iter().find(|c| c.id == "prevented").unwrap();
+    assert_eq!(claim.basis, ClaimBasis::ObservedByFleetForge);
+    assert!(claim.statement.contains("timestamped before"));
+}
+
+#[test]
+fn the_prevented_run_records_that_its_prediction_was_wrong() {
+    let live = live_bundle();
+    // The unflattering pair. A capture that only carried its successes would be
+    // marketing, and the interface would have nothing to be trusted about.
+    let wrong = live
+        .claims
+        .iter()
+        .find(|c| c.id == "prediction-was-wrong")
+        .expect("the miss is recorded");
+    assert!(wrong.statement.contains("wrong"));
+    assert_eq!(wrong.basis, ClaimBasis::ObservedByFleetForge);
+
+    let untested = live
+        .claims
+        .iter()
+        .find(|c| c.id == "prediction-untested")
+        .expect("the unfairness of the test is recorded");
+    assert_eq!(
+        untested.basis,
+        ClaimBasis::Unavailable,
+        "an unfair test establishes nothing in either direction"
+    );
+    assert!(untested.statement.contains("neither"));
+}
+
+#[test]
+fn the_networking_finding_refutes_without_overreaching() {
+    let live = live_bundle();
+    let c = live
+        .claims
+        .iter()
+        .find(|c| c.id == "networking-root-cause")
+        .expect("the networking finding is present");
+    assert_eq!(c.basis, ClaimBasis::MathematicallyDerived);
+    assert!(c.statement.contains("not add-on ordering"));
+    // It must not claim to have explained the earlier capture's traffic result.
+    let limits = c.limitations.join(" ");
+    assert!(limits.contains("NOT established"), "{limits}");
+    assert!(limits.contains("cannot be re-probed"), "{limits}");
+}
+
+#[test]
+fn the_prevented_chain_contains_no_counterfactual() {
+    let live = live_bundle();
+    // "It would have deadlocked" is the tempting sentence here, and it is not a
+    // fact — the deadlock did not happen in this run.
+    let text = format!(
+        "{} {}",
+        live.chain.attribution,
+        live.chain
+            .edges
+            .iter()
+            .map(|e| e.because.as_str())
+            .collect::<Vec<_>>()
+            .join(" ")
+    )
+    .to_lowercase();
+    assert!(!text.contains("would have deadlocked") || text.contains("does not claim"));
+    assert!(live.chain.attribution.contains("counterfactual"));
+
+    for link in &live.chain.links {
+        assert!(
+            link.basis.is_evidence(),
+            "chain fact {} is not evidence",
+            link.id
+        );
+        assert!(
+            live.artifacts.contains(&link.artifact),
+            "{} cites {} which is absent",
+            link.id,
+            link.artifact
+        );
+    }
+}
+
+#[test]
+fn the_prevented_traffic_sample_is_not_called_availability() {
+    let live = live_bundle();
+    let t = &live.traffic;
+    assert!(t.requests > 0);
+    // It passed, which makes it more dangerous than the incident's failed run:
+    // a 99.6% figure is exactly what somebody would screenshot as uptime. So the
+    // requirement is not that the word is absent — banning the word would also
+    // ban the denial — but that an explicit denial is present.
+    let text = t.interpretation.to_lowercase();
+    assert!(
+        text.contains("not an availability") || text.contains("not a measurement of availability"),
+        "the passing sample must deny being an availability figure: {}",
+        t.interpretation
+    );
+    assert!(
+        text.contains("one sampler") || text.contains("no real users"),
+        "it must say how narrow the measurement is: {}",
+        t.interpretation
+    );
+}
+
+#[test]
+fn both_bundles_carry_the_same_schema_version() {
+    assert_eq!(bundle().schema_version, live_bundle().schema_version);
+}
+
+#[test]
+fn the_prevented_run_does_not_inherit_the_incidents_caveats() {
+    let live = live_bundle();
+    let ids: Vec<&str> = live.caveats.iter().map(|c| c.id.as_str()).collect();
+
+    // Both of these are true of the incident and false here: this run had one
+    // run_started marker, and FleetForge was stopped before teardown began.
+    // Reusing the incident's builder served them as fact, which is worse than
+    // having no caveats at all.
+    assert!(!ids.contains(&"restarts"), "restarts is false for this capture: {ids:?}");
+    assert!(!ids.contains(&"teardown-tail"), "no teardown is in this capture: {ids:?}");
+    assert_eq!(
+        live.timeline
+            .events()
+            .iter()
+            .filter(|e| e.kind == "run_started")
+            .count(),
+        1,
+        "the restart caveat would only be honest if this were > 1"
+    );
+
+    // And the ones that are true of it are present.
+    for expected in [
+        "deliberate-condition",
+        "unfair-prediction-window",
+        "sampler-stopped-early",
+    ] {
+        assert!(ids.contains(&expected), "missing {expected}: {ids:?}");
+    }
+}
+
+#[test]
+fn the_incident_keeps_its_own_caveats() {
+    let ids: Vec<String> = bundle().caveats.iter().map(|c| c.id.clone()).collect();
+    assert!(ids.iter().any(|i| i == "version-field-bug"));
+    assert!(ids.iter().any(|i| i == "restarts"));
+}

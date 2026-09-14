@@ -119,6 +119,7 @@ const finalState: ReplayState = {
 function summary(overrides: Partial<CaptureContext> = {}) {
   return render(
     <ReplayOverview
+      kind="incident"
       context={{ ...context, ...overrides }}
       pdb={pdbFixture}
       finalState={finalState}

@@ -84,7 +84,11 @@ pub fn derive(
     timeline: &ReplayTimeline,
     pdb: &PdbArithmetic,
     root: &std::path::Path,
+    kind: crate::schema::CaptureKind,
 ) -> Result<InvestigationChain, ReplayError> {
+    if kind == crate::schema::CaptureKind::Prevented {
+        return Ok(prevented_chain(pdb));
+    }
     // The state at the end of the first complete snapshot: what FleetForge saw
     // when it connected, before it had watched anything change.
     let initial = timeline.state_at(initial_burst_end(timeline));
@@ -371,4 +375,137 @@ fn short_names(names: &[&str]) -> String {
         .map(|n| n.split('.').next().unwrap_or(n))
         .collect::<Vec<_>>()
         .join(" and ")
+}
+
+/// The chain for a prevented run.
+///
+/// Shorter than the incident's, and every link is evidence — because nothing
+/// had to be reconstructed afterwards. The counterfactual is deliberately
+/// absent: what *would* have happened is not a fact, and the one arrow here
+/// says only what was observed to follow what.
+fn prevented_chain(pdb: &PdbArithmetic) -> InvestigationChain {
+    let links = vec![
+        ChainLink {
+            id: "unsafe-set".to_owned(),
+            label: "Budget tightened".to_owned(),
+            value: "minAvailable = 3 of 3".to_owned(),
+            detail: "A PodDisruptionBudget requiring all three replicas, deliberately set to \
+                     create the condition under test."
+                .to_owned(),
+            basis: ClaimBasis::ObservedByFleetForge,
+            artifact: "11-unsafe-condition.txt".to_owned(),
+            field_path: ".spec.minAvailable".to_owned(),
+            at: None,
+        },
+        ChainLink {
+            id: "arithmetic".to_owned(),
+            label: "No disruption permitted".to_owned(),
+            value: format!("disruptionsAllowed = {}", pdb.result),
+            detail: format!("{}, leaving nothing to spend.", pdb.formula),
+            basis: ClaimBasis::MathematicallyDerived,
+            artifact: "12-preflight-BLOCKED.json".to_owned(),
+            field_path: ".status.disruptionsAllowed".to_owned(),
+            at: None,
+        },
+        ChainLink {
+            id: "blocked".to_owned(),
+            label: "Preflight refuses".to_owned(),
+            value: "BLOCKED".to_owned(),
+            detail: "FleetForge reports the blocker before the executor exists. It cannot \
+                     stop anything itself — it has no mutating client — so what it prevents \
+                     is a human starting the update."
+                .to_owned(),
+            basis: ClaimBasis::ObservedByFleetForge,
+            artifact: "12-preflight-BLOCKED.json".to_owned(),
+            field_path: ".data.summary.status".to_owned(),
+            at: None,
+        },
+        ChainLink {
+            id: "corrected".to_owned(),
+            label: "One field changed".to_owned(),
+            value: "minAvailable 3 → 2".to_owned(),
+            detail: "The narrowest change that clears the blocker. Same pods, same UIDs, \
+                     zero restarts."
+                .to_owned(),
+            basis: ClaimBasis::ObservedByFleetForge,
+            artifact: "13-correction.txt".to_owned(),
+            field_path: ".spec.minAvailable".to_owned(),
+            at: None,
+        },
+        ChainLink {
+            id: "safe".to_owned(),
+            label: "Preflight clears".to_owned(),
+            value: "SAFE".to_owned(),
+            detail: "Re-run against a different snapshot hash: no blocking findings, \
+                     concurrency 1."
+                .to_owned(),
+            basis: ClaimBasis::ObservedByFleetForge,
+            artifact: "14-preflight-SAFE.json".to_owned(),
+            field_path: ".data.summary.status".to_owned(),
+            at: None,
+        },
+        ChainLink {
+            id: "updated".to_owned(),
+            label: "Update completes".to_owned(),
+            value: "3 of 3 on 1.64.0".to_owned(),
+            detail: "Brupop cordons, drains, reboots and restores each node in turn. No \
+                     deadlock, no manual uncordon."
+                .to_owned(),
+            basis: ClaimBasis::ObservedByFleetForge,
+            artifact: "17-update-sequence.txt".to_owned(),
+            field_path: ".status.nodeInfo.osImage".to_owned(),
+            at: None,
+        },
+    ];
+
+    let edge = |from: &str, to: &str, because: &str, basis: ClaimBasis| ChainEdge {
+        from: from.to_owned(),
+        to: to.to_owned(),
+        because: because.to_owned(),
+        basis,
+    };
+
+    InvestigationChain {
+        links,
+        edges: vec![
+            edge(
+                "unsafe-set",
+                "arithmetic",
+                "Three required of three healthy leaves zero.",
+                ClaimBasis::MathematicallyDerived,
+            ),
+            edge(
+                "arithmetic",
+                "blocked",
+                "A budget permitting nothing is a blocker by definition.",
+                ClaimBasis::MathematicallyDerived,
+            ),
+            edge(
+                "blocked",
+                "corrected",
+                "A person read the finding and changed the field it named.",
+                ClaimBasis::HumanRca,
+            ),
+            edge(
+                "corrected",
+                "safe",
+                "Two required of three healthy leaves one.",
+                ClaimBasis::MathematicallyDerived,
+            ),
+            edge(
+                "safe",
+                "updated",
+                "The update was started only after the check cleared, and it finished.",
+                ClaimBasis::ObservedByFleetForge,
+            ),
+        ],
+        attribution: "Unlike the earlier capture, most of this chain is arithmetic rather \
+                      than hindsight: the values were read before the update, not \
+                      reconstructed after it. Only one arrow is human — a person decided \
+                      which field to change. What this chain does NOT contain is a \
+                      counterfactual: it does not claim the update would have deadlocked \
+                      without the correction. That did not happen here and cannot be \
+                      observed."
+            .to_owned(),
+    }
 }

@@ -12,7 +12,8 @@
     "test:e2e": "playwright test",
     "test:e2e:replay": "playwright test -c playwright.replay.config.ts",
     "test:e2e:a11y": "playwright test -c playwright.replay.config.ts a11y",
-    "walkthrough": "playwright test -c playwright.walkthrough.config.ts"
+    "walkthrough": "playwright test -c playwright.walkthrough.config.ts",
+    "test:e2e:prevented": "playwright test -c playwright.prevented.config.ts"
   },
   "dependencies": {
     "react": "^19.0.0",

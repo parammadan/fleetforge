@@ -21,6 +21,76 @@ use serde::{Deserialize, Serialize};
 /// this build does not understand is rejected rather than guessed at.
 pub const REPLAY_SCHEMA_VERSION: u32 = 1;
 
+/// What kind of run a bundle captured.
+///
+/// The two are not variations of one format — they make opposite claims, and an
+/// interface that renders them the same way is lying about one of them.
+///
+/// `Incident` is a deadlock that happened: FleetForge connected mid-flight and
+/// explained a blocker that already existed. Its honest headline is *"FleetForge
+/// did not predict this."*
+///
+/// `Prevented` is the experiment that followed: FleetForge ran before the
+/// executor existed, returned BLOCKED, a human corrected one field, it returned
+/// SAFE, and only then did the update run — to completion, with no deadlock.
+/// Its headline is the opposite one, and it is earned only because the
+/// timestamps prove the preflight preceded execution.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CaptureKind {
+    /// A failure that was explained after it began.
+    Incident,
+    /// A failure that was stopped before it began.
+    Prevented,
+}
+
+impl CaptureKind {
+    /// Short label for the interface.
+    #[must_use]
+    pub const fn label(self) -> &'static str {
+        match self {
+            Self::Incident => "INCIDENT",
+            Self::Prevented => "PREVENTED",
+        }
+    }
+
+    /// The event log each kind is built around.
+    ///
+    /// Also how a bundle is detected: the file that is present decides, so a
+    /// directory cannot be loaded as the wrong kind by accident.
+    #[must_use]
+    pub const fn event_log(self) -> &'static str {
+        match self {
+            Self::Incident => "35-fleetforge-events-complete.jsonl",
+            Self::Prevented => "20-fleetforge-events.jsonl",
+        }
+    }
+
+    /// Artifacts without which the bundle cannot support its own claims.
+    #[must_use]
+    pub const fn required(self) -> &'static [&'static str] {
+        match self {
+            Self::Incident => &[
+                "35-fleetforge-events-complete.jsonl",
+                "03-preflight-before.json",
+                "04-pdb-before.json",
+                "07-brupop-before.json",
+                "25-nodes-final.json",
+                "31-traffic-post-recovery.txt",
+                "00-CONCLUSIONS.md",
+            ],
+            Self::Prevented => &[
+                "20-fleetforge-events.jsonl",
+                "12-preflight-BLOCKED.json",
+                "14-preflight-SAFE.json",
+                "19-evidence-report.json",
+                "00-DIAGNOSIS.md",
+                "21-teardown-verification.txt",
+            ],
+        }
+    }
+}
+
 /// How much weight a statement can bear.
 ///
 /// Ordered from strongest to weakest, and that ordering is deliberate: the

@@ -133,7 +133,13 @@ function Loaded({
       <header className="site-header" role="banner">
         <div className="chrome">
           <h1 className="brand">
-            FleetForge <span>· incident replay</span>
+            FleetForge{" "}
+            <span>
+              ·{" "}
+              {context.kind === "prevented"
+                ? "prevented-failure replay"
+                : "incident replay"}
+            </span>
           </h1>
           <ModeBadge mode={bundle.mode} label={bundle.modeLabel} />
           <span className="chrome-spacer" />
@@ -163,6 +169,7 @@ function Loaded({
 
       <main id="content">
         <ReplayOverview
+          kind={context.kind}
           context={context.context}
           pdb={bundle.pdb}
           finalState={finalState}
@@ -181,6 +188,7 @@ function Loaded({
           />
           <ProvenanceStrip
             context={context}
+            kindLabel={context.kind_label}
             bottlerocket={context.context.bottlerocket_versions}
             artifacts={bundle.artifacts.length}
             state={playback.state}
@@ -216,6 +224,7 @@ function Loaded({
 
 function ProvenanceStrip({
   context,
+  kindLabel,
   bottlerocket,
   artifacts,
   state,
@@ -224,6 +233,7 @@ function ProvenanceStrip({
   steps,
 }: {
   context: { context: { cluster_id: string; kubernetes_version: string | null; captured_from: string; captured_to: string }; events: number };
+  kindLabel: string;
   bottlerocket: string[];
   artifacts: number;
   state: { snapshot_id: string | null; at: string } | null;
@@ -234,6 +244,10 @@ function ProvenanceStrip({
   const c = context.context;
   return (
     <dl className="provenance">
+      <div>
+        <dt>Capture kind</dt>
+        <dd className="mono">{kindLabel}</dd>
+      </div>
       <div>
         <dt>Capture</dt>
         <dd className="mono">

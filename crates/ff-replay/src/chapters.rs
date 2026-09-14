@@ -70,7 +70,11 @@ const FINAL_RELEASE: &str = "1.64.0";
 pub fn derive(
     timeline: &ReplayTimeline,
     brupop_first_seen_at: Option<DateTime<Utc>>,
+    kind: crate::schema::CaptureKind,
 ) -> Vec<Chapter> {
+    if kind == crate::schema::CaptureKind::Prevented {
+        return derive_prevented(timeline);
+    }
     let events = timeline.events();
     if events.is_empty() {
         return Vec::new();
@@ -348,6 +352,156 @@ pub fn derive(
     chapters
 }
 
+/// Whether an event is evidence that Brupop exists in the cluster.
+///
+/// Namespace-based, because it catches the operator's pods appearing — the
+/// earliest observable moment — rather than the first state it publishes.
+fn is_brupop_activity(e: &crate::state::ReplayEvent) -> bool {
+    const NS: &str = "brupop-bottlerocket-aws";
+    e.kind == "brupop_state_changed" || e.raw.get("namespace").and_then(|v| v.as_str()) == Some(NS)
+}
+
+/// Chapters for a prevented run.
+///
+/// The incident's chapters are a descent: cordons, deadlock, blocked. These are
+/// the opposite shape — a check, a fix, and an update that simply works — and
+/// the first one is the load-bearing claim, because everything else only means
+/// something if BLOCKED came before the executor existed.
+#[must_use]
+fn derive_prevented(timeline: &ReplayTimeline) -> Vec<Chapter> {
+    let events = timeline.events();
+    if events.is_empty() {
+        return Vec::new();
+    }
+    let mut out: Vec<Chapter> = Vec::new();
+    let push = |out: &mut Vec<Chapter>,
+                id: &str,
+                title: &str,
+                i: usize,
+                narration: String,
+                basis: ClaimBasis| {
+        out.push(Chapter {
+            id: id.to_owned(),
+            title: title.to_owned(),
+            position: i,
+            at: events[i].at,
+            narration,
+            basis,
+        });
+    };
+
+    push(
+        &mut out,
+        "recording-begins",
+        "Recording begins",
+        0,
+        "FleetForge starts watching before anything is installed. Nothing is updating, \
+         nothing is cordoned, and the executor does not exist yet — which is the only \
+         position from which prevention can be claimed at all."
+            .to_owned(),
+        ClaimBasis::ObservedByFleetForge,
+    );
+
+    // Preflights, in order: the first is BLOCKED, the second SAFE.
+    let preflights: Vec<usize> = events
+        .iter()
+        .enumerate()
+        .filter(|(_, e)| e.kind == "preflight_run")
+        .map(|(i, _)| i)
+        .collect();
+
+    for (n, &i) in preflights.iter().enumerate() {
+        let blocked = events[i].raw.get("status").and_then(|v| v.as_str()) == Some("blocked");
+        if blocked && n == 0 {
+            push(
+                &mut out,
+                "blocked",
+                "FleetForge says BLOCKED",
+                i,
+                "A PodDisruptionBudget permitting zero disruptions. Had the update started \
+                 here it would have stalled on the first eviction — which is exactly what \
+                 happened in the earlier capture. Nothing has been installed yet."
+                    .to_owned(),
+                ClaimBasis::ObservedByFleetForge,
+            );
+        } else if !blocked {
+            push(
+                &mut out,
+                "safe",
+                "FleetForge says SAFE",
+                i,
+                "After one field changed, a second preflight against a different snapshot \
+                 returns SAFE with no blocking findings. Only now is it reasonable to start \
+                 the update."
+                    .to_owned(),
+                ClaimBasis::ObservedByFleetForge,
+            );
+            break;
+        }
+    }
+
+    // The earliest trace of the executor existing at all, not the first shadow
+    // state change. `brupop_state_changed` only fires once FleetForge's custom
+    // resource watch catches up, which here was four minutes after Brupop's
+    // pods appeared — late enough to place this chapter *after* the first node
+    // reboot, which would have read as nonsense. It also makes the prevention
+    // claim harder to satisfy, which is the direction an honest marker should
+    // err in.
+    if let Some(i) = events.iter().position(is_brupop_activity) {
+        push(
+            &mut out,
+            "executor-arrives",
+            "Brupop begins",
+            i,
+            "The executor appears in the log for the first time — after both preflights. \
+             FleetForge did not perform this update and holds no mutating client; it \
+             watched."
+                .to_owned(),
+            ClaimBasis::ObservedByFleetForge,
+        );
+    }
+
+    // First and last node reboot, as the visible shape of the real update.
+    let reboots: Vec<usize> = events
+        .iter()
+        .enumerate()
+        .filter(|(_, e)| {
+            e.kind == "node_changed"
+                && e.raw.get("ready").and_then(serde_json::Value::as_bool) == Some(false)
+        })
+        .map(|(i, _)| i)
+        .collect();
+    if let Some(&i) = reboots.first() {
+        push(
+            &mut out,
+            "first-reboot",
+            "First node reboots",
+            i,
+            "Cordon, drain, update, reboot. The node leaves service and comes back on the \
+             new release — and, unlike the earlier capture, it is uncordoned again without \
+             anyone intervening."
+                .to_owned(),
+            ClaimBasis::ObservedByFleetForge,
+        );
+    }
+
+    let last = events.len() - 1;
+    push(
+        &mut out,
+        "complete",
+        "Update complete",
+        last,
+        "All three nodes reached Bottlerocket 1.64.0. No deadlock, no manual uncordon, no \
+         human intervention after the correction."
+            .to_owned(),
+        ClaimBasis::ObservedByFleetForge,
+    );
+
+    out.sort_by_key(|c| c.position);
+    out.dedup_by(|a, b| a.position == b.position);
+    out
+}
+
 #[cfg(test)]
 #[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
@@ -355,6 +509,11 @@ mod tests {
 
     #[test]
     fn an_empty_timeline_has_no_chapters() {
-        assert!(derive(&ReplayTimeline::new(Vec::new()), None).is_empty());
+        for kind in [
+            crate::schema::CaptureKind::Incident,
+            crate::schema::CaptureKind::Prevented,
+        ] {
+            assert!(derive(&ReplayTimeline::new(Vec::new()), None, kind).is_empty());
+        }
     }
 }
